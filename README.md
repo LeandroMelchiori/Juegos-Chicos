@@ -15,7 +15,11 @@ No requiere instalación, servidor ni conexión a Internet.
 ├─ index.html                    # Portal y catálogo
 ├─ games/
 │  └─ mate-arcade/
-│     ├─ index.html              # Juego
+│     ├─ index.html              # Estructura y entrada del juego
+│     ├─ styles.css              # Presentación responsive
+│     ├─ js/
+│     │  ├─ lessons.js           # Contenido pedagógico
+│     │  └─ app.js               # Lógica, progreso y accesibilidad
 │     ├─ guia-original.html      # Respaldo histórico
 │     └─ README.md
 ├─ tests/
@@ -34,6 +38,8 @@ Juego de matemática con:
 - Microlecciones, mini evaluaciones y acceso a la teoría desde cada error.
 - Tabla pitagórica del 1 al 10, cuadrados perfectos y glosario.
 - Perfiles, progreso por tema, logros y exportación de datos.
+- Correcciones específicas y reaparición espaciada de errores.
+- Alternativa visual sin reloj, puntaje ni rachas.
 
 ## Agregar un juego
 
@@ -50,9 +56,11 @@ Los juegos guardan el progreso localmente en el navegador. No hay anuncios ni en
 ## Pruebas
 
 ```powershell
-node tests\portal-test.js
-node tests\smoke-test.js
+node tests\run-all.js
 ```
+
+La validación comprueba catálogo, rutas, sintaxis, módulos offline, IDs, importación segura,
+accesibilidad estructural y miles de problemas generados en todos los temas y dificultades.
 
 Servidor local opcional:
 
@@ -61,4 +69,3 @@ node tests\dev-server.js
 ```
 
 Después abrí `http://127.0.0.1:8765`.
-

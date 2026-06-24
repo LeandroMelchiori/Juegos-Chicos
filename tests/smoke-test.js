@@ -51,12 +51,15 @@ class Element {
 }
 
 const html = fs.readFileSync("games/mate-arcade/index.html", "utf8");
-const script = html.match(/<script>([\s\S]*?)<\/script>/);
-assert(script, "No se encontró el script principal");
+assert(html.includes('src="js/lessons.js"') && html.includes('src="js/app.js"'), "Debe cargar los módulos locales");
+const lessonsScript = fs.readFileSync("games/mate-arcade/js/lessons.js", "utf8");
+const appScript = fs.readFileSync("games/mate-arcade/js/app.js", "utf8");
 const menuMarkup = html.match(/<section class="screen active" id="menu">([\s\S]*?)<\/section>/);
 assert(menuMarkup, "No se encontró la pantalla principal");
 assert(!menuMarkup[1].includes('id="ops"'), "La configuración no debe sobrecargar la pantalla principal");
 assert(menuMarkup[1].includes('id="customizeBtn"'), "La pantalla principal debe enlazar a Personalizar");
+assert(html.includes('id="calmSetting"'), "Debe ofrecer un modo visual sin presión");
+assert(html.includes('aria-hidden="true"'), "Los diálogos deben declarar su estado inicial");
 
 const elements = new Map();
 for (const id of [...html.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1])) {
@@ -82,8 +85,10 @@ const body = new Element("body");
 const document = {
   body,
   hidden: false,
+  activeElement: null,
   addEventListener(type, handler) { this[`on${type}`] = handler; },
   createElement: () => new Element(),
+  createTextNode: (text) => ({ textContent: String(text) }),
   querySelector(selector) {
     if (selector.startsWith("#")) return elements.get(selector.slice(1));
     if (selector === ".credit") return credit;
@@ -133,26 +138,34 @@ const context = {
   String,
   console,
 };
-const instrumentedScript = script[1].replace(
+vm.runInNewContext(lessonsScript, context);
+const instrumentedScript = appScript.replace(
   /\}\)\(\);\s*$/,
-  "window.__test = { LESSONS: LESSONS, STUDY: STUDY, quizMarkup: quizMarkup, wrongTip: wrongTip };})();",
+  "window.__test = { LESSONS: LESSONS, STUDY: STUDY, quizMarkup: quizMarkup, wrongTip: wrongTip, diagnoseMistake: diagnoseMistake, masteryStatus: masteryStatus, sanitizeImportedStore: sanitizeImportedStore, makeProblem: makeProblem, makeOptions: makeOptions, activeProfile: activeProfile, evidenceFor: evidenceFor, queueRetry: queueRetry, chooseOp: chooseOp, state: state };})();",
 );
 vm.runInNewContext(instrumentedScript, context);
 
 assert.strictEqual(elements.get("profileSelect").children.length, 1, "Debe crear el perfil inicial");
 assert.strictEqual(elements.get("studyList").children.length, 10, "Debe renderizar las diez fichas");
 assert.strictEqual(elements.get("studyIndex").children.length, 10, "Debe renderizar un índice compacto");
+assert.strictEqual(elements.get("studyTopicSelect").children.length, 10, "Debe permitir saltar directamente a cualquiera de las diez lecciones");
 assert.match(elements.get("studyList").children[0].innerHTML, /QUÉ VAS A APRENDER/, "Cada ficha debe incluir un objetivo");
-assert.match(elements.get("studyList").children[0].innerHTML, /Modelo visual/, "Cada ficha debe incluir un modelo visual");
+assert.match(elements.get("studyList").children[0].innerHTML, /Laboratorio visual/, "Cada ficha debe incluir un laboratorio visual");
+assert.match(elements.get("studyList").children[0].innerHTML, /Radar de errores/, "Cada ficha debe contrastar errores plausibles");
 assert.match(elements.get("studyList").children[0].innerHTML, /lesson-quiz/, "Cada ficha debe incluir una mini evaluación");
 assert.match(elements.get("studyList").children[0].innerHTML, /lesson-tabs/, "Cada lección debe dividirse en pestañas");
 assert.strictEqual(Object.keys(window.__test.LESSONS).length, 10, "Deben existir diez microlecciones");
 for (const [op, lesson] of Object.entries(window.__test.LESSONS)) {
   assert(lesson.goal && lesson.visual && lesson.steps.length >= 3, `${op} debe tener objetivo, visual y pasos`);
+  assert(lesson.context && lesson.context.icon && lesson.context.math, `${op} debe conectar la idea con una situación visual`);
+  assert(lesson.compare && lesson.compare.bad && lesson.compare.good, `${op} debe comparar un error plausible con el razonamiento correcto`);
   assert.strictEqual(lesson.quiz.length, 2, `${op} debe tener dos preguntas guiadas`);
   assert.match(window.__test.quizMarkup(op, 0), /quiz-option/, `${op} debe renderizar opciones de evaluación`);
 }
 assert.strictEqual(elements.get("levelList").children.length, 10, "Debe renderizar niveles por operación");
+elements.get("studyTopicSelect").value = "mcm";
+elements.get("studyTopicSelect").onchange();
+assert.strictEqual(elements.get("lessonPosition").textContent, "10 de 10", "El selector debe saltar directamente a la última lección");
 
 elements.get("customizeBtn").onclick();
 assert.strictEqual(elements.get("customize").classList.contains("active"), true, "Debe mover la configuración a su propia pantalla");
@@ -253,5 +266,84 @@ elements.get("createProfileBtn").onclick();
 elements.get("manageProfileBtn").onclick();
 elements.get("deleteProfileBtn").onclick();
 assert.strictEqual(elements.get("profileSelect").children.length, 2, "Debe eliminar un perfil sin borrar los demás");
+
+const malicious = window.__test.sanitizeImportedStore({
+  active: "<img src=x>",
+  profiles: {
+    "<img src=x>": {
+      total: 9,
+      correct: 99,
+      ops: ["add", "add", "hack"],
+      preferences: { mode: "hack", rounds: 999, sound: false, calm: true },
+      byOp: { add: { ok: 3, fail: 2, recent: [{ ok: true, difficulty: "imposible", errorType: "<b>x</b>", at: Infinity }] } },
+    },
+  },
+});
+assert(malicious, "Debe aceptar y normalizar una estructura recuperable");
+assert(!/[<>]/.test(malicious.active), "Debe quitar marcas HTML de nombres importados");
+assert.strictEqual(malicious.profiles[malicious.active].correct, 9, "Los aciertos no pueden superar el total");
+assert.deepStrictEqual(Array.from(malicious.profiles[malicious.active].ops), ["add"], "Debe filtrar operaciones desconocidas y repetidas");
+assert.strictEqual(malicious.profiles[malicious.active].preferences.mode, "arcade", "Debe restaurar modos inválidos");
+assert.strictEqual(malicious.profiles[malicious.active].preferences.rounds, 10, "Debe restaurar cantidades inválidas");
+assert.strictEqual(malicious.profiles[malicious.active].preferences.calm, true, "Debe conservar preferencias booleanas válidas");
+
+const mulDiagnosis = window.__test.diagnoseMistake({ op: "mul", ans: 24, meta: { a: 4, b: 6 } }, 10);
+assert.strictEqual(mulDiagnosis.type, "suma-en-vez-de-producto", "Debe reconocer suma en lugar de multiplicación");
+assert.match(mulDiagnosis.message, /grupos/, "La corrección debe explicar el razonamiento");
+
+window.__test.state.mode = "review";
+window.__test.state.ops = ["mul"];
+window.__test.state.curDiff = "normal";
+window.__test.state.answered = 0;
+window.__test.state.retryQueue = [];
+window.__test.queueRetry("mul", "suma-en-vez-de-producto");
+assert.strictEqual(window.__test.state.retryQueue.length, 1, "Repaso debe programar el error una sola vez");
+window.__test.queueRetry("mul", "suma-en-vez-de-producto");
+assert.strictEqual(window.__test.state.retryQueue.length, 1, "Repaso no debe duplicar el mismo error pendiente");
+window.__test.state.answered = 10;
+assert.strictEqual(window.__test.chooseOp(), "mul", "Repaso debe reintroducir el tema cuando vence el intervalo");
+assert.strictEqual(window.__test.state.retryContext.errorType, "suma-en-vez-de-producto", "Repaso debe conservar el tipo de error");
+
+function gcd(a, b) { while (b) [a, b] = [b, a % b]; return Math.abs(a); }
+const testState = window.__test.state;
+testState.mode = "arcade";
+testState.level = 1;
+for (const difficulty of ["easy", "normal", "hard"]) {
+  for (const op of ["add", "sub", "mul", "div", "pow", "root", "mlt", "dvs", "mcd", "mcm"]) {
+    testState.ops = [op];
+    testState.diffByOp[op] = difficulty;
+    for (let i = 0; i < 120; i += 1) {
+      const problem = window.__test.makeProblem();
+      assert(Number.isFinite(problem.ans), `${op}/${difficulty} debe producir una respuesta finita`);
+      assert(problem.hint && problem.solve, `${op}/${difficulty} debe explicar pista y resolución`);
+      const a = Number(problem.meta && problem.meta.a);
+      const b = Number(problem.meta && problem.meta.b);
+      if (op === "add") assert.strictEqual(problem.ans, a + b);
+      if (op === "sub") assert.strictEqual(problem.ans, a - b);
+      if (op === "mul") assert.strictEqual(problem.ans, a * b);
+      if (op === "div") assert.strictEqual(problem.ans, a / b);
+      if (op === "pow") assert.strictEqual(problem.ans, a ** b);
+      if (op === "root") assert.strictEqual(problem.ans ** 2, a);
+      if (op === "mlt") assert.strictEqual(problem.ans % a, 0);
+      if (op === "dvs") assert.strictEqual(a % problem.ans, 0);
+      if (op === "mcd") assert.strictEqual(problem.ans, gcd(a, b));
+      if (op === "mcm") assert.strictEqual(problem.ans, a * b / gcd(a, b));
+      const options = problem.options || window.__test.makeOptions(problem.ans, problem.distractors);
+      const values = options.map((option) => Number(typeof option === "object" ? option.value : option));
+      assert.strictEqual(new Set(values).size, values.length, `${op}/${difficulty} no debe repetir opciones`);
+      assert(values.includes(problem.ans), `${op}/${difficulty} debe incluir la respuesta correcta`);
+    }
+  }
+}
+
+const profileForMastery = window.__test.activeProfile();
+profileForMastery.byOp.add = {
+  ok: 9,
+  fail: 1,
+  lastAttemptAt: Date.now(),
+  errors: {},
+  recent: Array.from({ length: 10 }, () => ({ ok: true, difficulty: "hard", at: Date.now() })),
+};
+assert.strictEqual(window.__test.masteryStatus("add").label, "Bastante firme", "El dominio debe exigir evidencia reciente y difícil");
 
 console.log("Smoke test OK: inicio, teoría, Arcade, Práctica, Repaso y perfiles");
