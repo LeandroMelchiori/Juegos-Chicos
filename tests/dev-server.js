@@ -5,7 +5,7 @@ const path = require("path");
 const root = path.resolve(__dirname, "..");
 const server = http.createServer((request, response) => {
   const pathname = new URL(request.url, "http://localhost").pathname;
-  const relative = pathname === "/" ? "mate-arcade.html" : pathname.slice(1);
+  const relative = pathname === "/" ? "index.html" : pathname.slice(1);
   const file = path.resolve(root, relative);
   if (!file.startsWith(root) || !fs.existsSync(file) || !fs.statSync(file).isFile()) {
     response.writeHead(404);

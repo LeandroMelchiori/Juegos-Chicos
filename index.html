@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#130A2B">
+<meta name="description" content="Colección de juegos educativos para aprender jugando.">
+<title>Juegos Chicos</title>
+<style>
+  :root{
+    --bg:#0d071d;--panel:#17102c;--panel2:#20163b;--ink:#f8f5ff;--muted:#a9a0c7;
+    --line:rgba(184,161,255,.22);--cyan:#36e4ff;--pink:#ff4ca8;--gold:#ffd746;--lime:#8cff69;
+  }
+  *{box-sizing:border-box}
+  html{color-scheme:dark;scroll-behavior:smooth}
+  body{min-height:100vh;margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    color:var(--ink);background:
+      radial-gradient(circle at 12% 0%,rgba(255,76,168,.18),transparent 30rem),
+      radial-gradient(circle at 92% 12%,rgba(54,228,255,.15),transparent 28rem),
+      linear-gradient(180deg,#100720,var(--bg) 55%);overflow-x:hidden}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.28;
+    background-image:linear-gradient(rgba(184,161,255,.09) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(184,161,255,.09) 1px,transparent 1px);
+    background-size:42px 42px;mask-image:linear-gradient(to bottom,#000,transparent 72%)}
+  a{color:inherit}
+  button,a{-webkit-tap-highlight-color:transparent}
+  :focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+  .shell{position:relative;z-index:1;width:min(1120px,calc(100% - 32px));margin:auto;padding:28px 0 42px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:18px}
+  .logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+  .logo-mark{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;
+    font-size:23px;background:linear-gradient(135deg,var(--gold),var(--pink));box-shadow:0 10px 30px rgba(255,76,168,.22)}
+  .logo strong{display:block;font-family:Impact,"Arial Black",sans-serif;font-size:20px;letter-spacing:1px}
+  .logo span{display:block;color:var(--muted);font-size:11px;margin-top:1px}
+  .count{border:1px solid var(--line);border-radius:999px;padding:8px 12px;color:var(--muted);
+    background:rgba(23,16,44,.7);font-size:12px;font-weight:700}
+  .hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr);align-items:center;gap:42px;padding:82px 0 64px}
+  .eyebrow{color:var(--cyan);font-size:11px;font-weight:900;letter-spacing:2.5px;text-transform:uppercase}
+  h1{font-family:Impact,"Arial Black",sans-serif;font-size:clamp(48px,9vw,92px);line-height:.92;
+    letter-spacing:.5px;margin:13px 0 18px;background:linear-gradient(95deg,var(--gold),var(--pink) 55%,var(--cyan));
+    background-clip:text;color:transparent}
+  .hero p{max-width:58ch;color:var(--muted);font-size:clamp(16px,2vw,19px);line-height:1.6;margin:0}
+  .hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+  .hero-tags span{border:1px solid var(--line);border-radius:999px;padding:7px 10px;background:rgba(23,16,44,.7);
+    color:#d9d2ed;font-size:11px;font-weight:700}
+  .hero-art{aspect-ratio:1;border-radius:32px;position:relative;display:grid;place-items:center;
+    border:1px solid var(--line);background:linear-gradient(145deg,rgba(255,76,168,.13),rgba(54,228,255,.08));
+    box-shadow:0 30px 90px rgba(0,0,0,.35);overflow:hidden}
+  .hero-art::before,.hero-art::after{content:"";position:absolute;border:1px solid rgba(255,255,255,.15);border-radius:24px}
+  .hero-art::before{width:72%;height:72%;transform:rotate(12deg)}
+  .hero-art::after{width:48%;height:48%;transform:rotate(-18deg)}
+  .symbols{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,72px);gap:12px;transform:rotate(-5deg)}
+  .symbols span{height:72px;display:grid;place-items:center;border-radius:20px;font-family:Impact,sans-serif;
+    font-size:35px;color:#130a2b;box-shadow:0 12px 24px rgba(0,0,0,.25)}
+  .symbols span:nth-child(1){background:var(--gold)}.symbols span:nth-child(2){background:var(--cyan)}
+  .symbols span:nth-child(3){background:var(--pink)}.symbols span:nth-child(4){background:var(--lime)}
+  .catalog-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:18px}
+  h2{font-size:clamp(25px,4vw,36px);margin:0}.catalog-head p{color:var(--muted);margin:5px 0 0;font-size:13px}
+  .games{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:18px}
+  .game-card{position:relative;min-height:340px;display:flex;flex-direction:column;border:1px solid var(--line);
+    border-radius:24px;padding:20px;background:linear-gradient(155deg,rgba(32,22,59,.97),rgba(18,11,37,.97));
+    box-shadow:0 18px 50px rgba(0,0,0,.25);overflow:hidden}
+  .game-card::before{content:"";position:absolute;inset:0 0 auto;height:5px;background:var(--accent)}
+  .game-card.available{transition:transform .18s,border-color .18s,box-shadow .18s}
+  .game-card.available:hover{transform:translateY(-5px);border-color:color-mix(in srgb,var(--accent) 65%,transparent);
+    box-shadow:0 24px 65px rgba(0,0,0,.36)}
+  .card-top{display:flex;justify-content:space-between;align-items:start;gap:12px}
+  .game-icon{width:70px;height:70px;border-radius:20px;display:grid;place-items:center;font-family:Impact,sans-serif;
+    font-size:32px;color:#100720;background:var(--accent);box-shadow:0 12px 30px color-mix(in srgb,var(--accent) 25%,transparent)}
+  .status{border:1px solid color-mix(in srgb,var(--accent) 48%,transparent);border-radius:999px;padding:6px 9px;
+    color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent);font-size:9px;font-weight:900;letter-spacing:1px}
+  .game-card h3{font-size:27px;margin:23px 0 8px}.game-card p{color:var(--muted);line-height:1.55;font-size:14px;margin:0}
+  .topics{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 22px}
+  .topics span{border-radius:7px;padding:5px 7px;background:rgba(184,161,255,.09);color:#d8d0eb;font-size:10px}
+  .play-link{margin-top:auto;display:flex;align-items:center;justify-content:space-between;border-radius:14px;padding:14px 16px;
+    background:var(--accent);color:#100720;text-decoration:none;font-weight:900}
+  .play-link span:last-child{font-size:20px}
+  .coming{opacity:.65;border-style:dashed}.coming .game-icon{background:rgba(184,161,255,.17);color:var(--muted)}
+  .coming-note{margin-top:auto;border:1px dashed var(--line);border-radius:14px;padding:14px;text-align:center;color:var(--muted);font-size:12px}
+  footer{display:flex;justify-content:space-between;gap:16px;border-top:1px solid var(--line);margin-top:60px;padding-top:20px;
+    color:var(--muted);font-size:11px}
+  @media(max-width:720px){
+    .shell{width:min(100% - 24px,1120px);padding-top:18px}.hero{grid-template-columns:1fr;padding:54px 0 42px}
+    .hero-art{display:none}.catalog-head{align-items:start;flex-direction:column}.game-card{min-height:320px}
+  }
+  @media(max-width:430px){
+    header{align-items:flex-start}.logo span{display:none}.count{font-size:10px}.hero{padding-top:46px}
+    h1{font-size:55px}.hero p{font-size:15px}.games{grid-template-columns:1fr}
+    footer{flex-direction:column}.game-card{border-radius:20px}
+  }
+  @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <a class="logo" href="index.html" aria-label="Inicio de Juegos Chicos">
+      <span class="logo-mark" aria-hidden="true">🎮</span>
+      <span><strong>JUEGOS CHICOS</strong><span>Aprender también puede ser jugar</span></span>
+    </a>
+    <div class="count" id="gameCount">1 juego disponible</div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Colección educativa</div>
+        <h1>JUGAR.<br>APRENDER.<br>CRECER.</h1>
+        <p>Un lugar para reunir juegos pensados para chicos: claros, entretenidos, sin publicidad y con aprendizaje real detrás de cada desafío.</p>
+        <div class="hero-tags" aria-label="Características">
+          <span>Sin publicidad</span>
+          <span>Funciona offline</span>
+          <span>Progreso local</span>
+          <span>Hecho con cuidado</span>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="symbols"><span>+</span><span>×</span><span>?</span><span>★</span></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="catalogTitle">
+      <div class="catalog-head">
+        <div>
+          <h2 id="catalogTitle">Elegí un juego</h2>
+          <p>La colección va a crecer con nuevos temas y aventuras.</p>
+        </div>
+      </div>
+      <div class="games" id="gameCatalog"></div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Los datos de cada juego quedan guardados en este dispositivo.</span>
+    <span>Juegos Chicos · 2026</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // Para sumar un juego, agregá su carpeta en /games y una entrada en esta lista.
+  var GAMES=[
+    {
+      title:"Mate Arcade",
+      icon:"×",
+      accent:"#FFD746",
+      href:"games/mate-arcade/index.html",
+      description:"Practicá matemática con desafíos, modos adaptativos, microlecciones y herramientas de estudio.",
+      topics:["Cálculo","MCD y MCM","Potencias","Raíces"],
+      status:"DISPONIBLE"
+    }
+  ];
+  var catalog=document.getElementById("gameCatalog");
+  GAMES.forEach(function(game){
+    var article=document.createElement("article");
+    article.className="game-card available";
+    article.style.setProperty("--accent",game.accent);
+    article.innerHTML=
+      "<div class='card-top'><div class='game-icon' aria-hidden='true'>"+game.icon+"</div><span class='status'>"+game.status+"</span></div>"+
+      "<h3>"+game.title+"</h3><p>"+game.description+"</p>"+
+      "<div class='topics'>"+game.topics.map(function(topic){return "<span>"+topic+"</span>";}).join("")+"</div>"+
+      "<a class='play-link' href='"+game.href+"'><span>JUGAR AHORA</span><span aria-hidden='true'>→</span></a>";
+    catalog.appendChild(article);
+  });
+  var upcoming=document.createElement("article");
+  upcoming.className="game-card coming";
+  upcoming.style.setProperty("--accent","#9D7BFF");
+  upcoming.innerHTML="<div class='card-top'><div class='game-icon' aria-hidden='true'>＋</div><span class='status'>PRÓXIMAMENTE</span></div>"+
+    "<h3>El próximo juego</h3><p>Este espacio ya está preparado para la siguiente idea de la colección.</p>"+
+    "<div class='coming-note'>Nueva aventura en construcción</div>";
+  catalog.appendChild(upcoming);
+  document.getElementById("gameCount").textContent=GAMES.length+" juego"+(GAMES.length===1?"":"s")+" disponible"+(GAMES.length===1?"":"s");
+})();
+</script>
+</body>
+</html>

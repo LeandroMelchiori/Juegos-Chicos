@@ -1,50 +1,64 @@
-# Mate Arcade
+# Juegos Chicos
 
-Juego educativo de matemática, autocontenido y pensado para abrirse directamente en un navegador.
+Colección extensible de juegos educativos para chicos. La raíz del proyecto funciona como portal y cada juego vive en su propia carpeta.
 
-## Abrir el juego
+## Abrir la colección
 
-Abrí `mate-arcade.html`. No requiere instalación, servidor ni conexión a Internet.
+Abrí `index.html`. Desde ahí se accede a todos los juegos disponibles.
 
-## Modos
+No requiere instalación, servidor ni conexión a Internet.
 
-- **Arcade:** tiempo, vidas, puntaje y combos.
-- **Práctica:** sesiones configurables, sin tiempo ni vidas.
-- **Repaso:** selecciona con más frecuencia los temas débiles y ajusta su dificultad según el progreso.
+## Estructura
 
-La pantalla principal mantiene solo las decisiones esenciales. Operaciones, niveles y preferencias viven en **Personalizar**.
+```text
+/
+├─ index.html                    # Portal y catálogo
+├─ games/
+│  └─ mate-arcade/
+│     ├─ index.html              # Juego
+│     ├─ guia-original.html      # Respaldo histórico
+│     └─ README.md
+├─ tests/
+├─ AGENTS.md
+└─ README.md
+```
 
-## Funciones educativas
+## Juegos disponibles
 
+### Mate Arcade
+
+Juego de matemática con:
+
+- Arcade, Práctica y Repaso adaptativo.
 - Suma, resta, multiplicación, división, potencias, raíces, múltiplos, divisores, MCD y MCM.
-- Respuestas por opciones, escritas, verdadero/falso, números faltantes, situaciones redactadas y preguntas sobre procedimientos.
-- Pistas, soluciones explicadas y avisos sobre errores frecuentes.
-- Diez microlecciones con objetivos, conocimientos previos, modelos visuales, pasos, cálculo mental y resúmenes.
-- Mini evaluaciones guardadas por perfil y una ruta de estudio sugerida.
-- Acceso directo desde cada error del juego a la lección correspondiente.
-- Guía de estudio completa, glosario e impresión desde el juego.
-- Navegación de una lección por vez con pestañas Entender, Resolver y Practicar.
-- Herramientas separadas con tabla pitagórica interactiva del 1 al 10.
-- Perfiles, estadísticas por tema, logros y progreso exportable.
+- Microlecciones, mini evaluaciones y acceso a la teoría desde cada error.
+- Tabla pitagórica del 1 al 10, cuadrados perfectos y glosario.
+- Perfiles, progreso por tema, logros y exportación de datos.
+
+## Agregar un juego
+
+1. Crear una carpeta en `games/nombre-del-juego/`.
+2. Colocar su entrada principal en `games/nombre-del-juego/index.html`.
+3. Agregar una entrada al arreglo `GAMES` del `index.html` raíz.
+4. Añadir sus pruebas en `tests/`.
+5. Documentar sus objetivos pedagógicos en su carpeta o en `AGENTS.md`.
 
 ## Privacidad
 
-Todo el progreso permanece en el navegador mediante `localStorage`. El juego no envía información a servidores.
+Los juegos guardan el progreso localmente en el navegador. No hay anuncios ni envío de datos a servidores.
 
 ## Pruebas
 
-Con Node.js instalado:
-
 ```powershell
+node tests\portal-test.js
 node tests\smoke-test.js
 ```
 
-Para servirlo localmente durante el desarrollo:
+Servidor local opcional:
 
 ```powershell
 node tests\dev-server.js
 ```
 
-Luego abrí `http://127.0.0.1:8765`.
+Después abrí `http://127.0.0.1:8765`.
 
-Las reglas técnicas y pedagógicas del proyecto están en `AGENTS.md`.

@@ -50,7 +50,7 @@ class Element {
   }
 }
 
-const html = fs.readFileSync("mate-arcade.html", "utf8");
+const html = fs.readFileSync("games/mate-arcade/index.html", "utf8");
 const script = html.match(/<script>([\s\S]*?)<\/script>/);
 assert(script, "No se encontró el script principal");
 const menuMarkup = html.match(/<section class="screen active" id="menu">([\s\S]*?)<\/section>/);
