@@ -1,0 +1,2056 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0D0720">
+<title>Mate Arcade</title>
+<style>
+  :root{
+    --bg-0:#0D0720; --bg-1:#160B2E;
+    --cyan:#18E0FF; --magenta:#FF3CAC; --gold:#FFD23F;
+    --lime:#7CFF6B; --coral:#FF5C5C; --violet:#9D7BFF;
+    --ink:#F3EEFF; --muted:#9A8FC4; --line:rgba(157,123,255,.22);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;
+    overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+  html,body{height:100%}
+  body{
+    font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
+    background:var(--bg-0); color:var(--ink);
+    overflow:hidden; position:fixed; inset:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .grid-bg{position:absolute;inset:0;z-index:0;overflow:hidden;
+    background:radial-gradient(120% 80% at 50% -10%, rgba(157,123,255,.18), transparent 60%),
+               linear-gradient(180deg,var(--bg-0),var(--bg-1));}
+  .grid-bg::after{content:"";position:absolute;left:-50%;right:-50%;bottom:-20%;top:38%;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),
+                     linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:42px 42px;
+    transform:perspective(360px) rotateX(62deg);transform-origin:bottom center;
+    animation:flow 9s linear infinite;mask-image:linear-gradient(transparent,#000 40%);}
+  @keyframes flow{from{background-position:0 0}to{background-position:0 42px}}
+
+  .app{position:relative;z-index:1;width:100%;max-width:460px;height:100%;max-height:920px;
+    display:flex;flex-direction:column;padding:18px;}
+
+  .screen{display:none;flex:1;flex-direction:column}
+  .screen.active{display:flex;animation:fade .35s ease}
+  #menu{overflow-y:auto;-webkit-overflow-scrolling:touch}
+  #menu::-webkit-scrollbar{width:0}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* menú */
+  .brand{text-align:center;margin-top:clamp(18px,4vh,38px)}
+  .brand h1{font-family:Impact,'Arial Black',system-ui,sans-serif;font-weight:900;
+    font-size:clamp(32px,11vw,50px);line-height:1;letter-spacing:1px;
+    background:linear-gradient(92deg,var(--gold),var(--magenta) 55%,var(--cyan));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 14px rgba(255,60,172,.35));}
+  .brand p{color:var(--muted);margin-top:10px;font-size:14px}
+  .profile-box{display:flex;align-items:center;gap:8px;margin-top:16px;padding:10px;
+    border:1px solid var(--line);border-radius:13px;background:rgba(157,123,255,.06)}
+  .profile-box label{font-size:11px;color:var(--muted);font-weight:700}
+  .profile-box select,.profile-box input,.answer-input{min-width:0;border:1px solid var(--line);
+    background:rgba(13,7,32,.7);color:var(--ink);border-radius:9px;padding:9px;font:inherit}
+  .profile-box select{flex:1}
+  .profile-add{border:1px solid var(--cyan);background:rgba(24,224,255,.1);color:var(--cyan);
+    border-radius:9px;padding:9px 11px;font-weight:900;cursor:pointer}
+  .profile-progress{text-align:center;color:var(--muted);font-size:11px;margin-top:7px}
+  .label{font-family:'Arial Black',system-ui,sans-serif;font-size:11px;letter-spacing:2px;
+    color:var(--muted);text-transform:uppercase;margin:20px 4px 10px}
+  .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .mode{border:1px solid var(--line);background:rgba(157,123,255,.05);color:var(--muted);
+    border-radius:13px;padding:11px 5px;cursor:pointer;text-align:center}
+  .mode b{display:block;color:inherit;font-size:13px}.mode span{display:block;font-size:9px;margin-top:3px}
+  .mode[data-active="1"]{border-color:var(--gold);background:rgba(255,210,63,.12);color:var(--ink)}
+  .settings{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .setting{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:10px;
+    padding:9px;color:var(--muted);font-size:11px;font-weight:700}
+  .setting select{flex:1;min-width:0;background:var(--bg-1);color:var(--ink);border:0;font:inherit}
+  .setting input{accent-color:var(--cyan)}
+  .ops{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .op{border:1px solid var(--line);background:rgba(157,123,255,.06);color:var(--ink);
+    border-radius:14px;padding:12px 6px;cursor:pointer;font-family:'Arial Black',system-ui,sans-serif;font-weight:700;
+    display:flex;flex-direction:column;align-items:center;gap:5px;
+    transition:transform .12s,border-color .12s,background .12s;}
+  .op .sym{font-size:23px;line-height:1}
+  .op .sym.txt{font-size:15px;letter-spacing:.5px}
+  .op .nm{font-size:9.5px;letter-spacing:.5px;color:var(--muted)}
+  .op[data-active="1"]{border-color:var(--cyan);background:rgba(24,224,255,.14)}
+  .op[data-active="1"] .nm{color:var(--ink)}
+  .op:active{transform:scale(.95)}
+  .ops.warn{animation:shake .35s}
+  .quick{display:flex;gap:8px;margin-top:9px}
+  .chip{flex:1;border:1px solid var(--line);background:transparent;color:var(--muted);
+    border-radius:10px;padding:8px;cursor:pointer;font-size:12px;font-weight:700;letter-spacing:.5px;
+    transition:transform .1s,color .12s,border-color .12s}
+  .chip:active{transform:scale(.96)}
+  .levels{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+  .lvlRow{display:flex;align-items:center;gap:8px;border:1px solid var(--line);
+    background:rgba(157,123,255,.05);border-radius:12px;padding:7px 8px 7px 11px}
+  .lvlRow .nm2{flex:1;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+  .lvlRow .nm2 .s{font-family:'Orbitron',sans-serif;color:var(--cyan);font-size:15px;min-width:22px;text-align:center}
+  .lvlPick{display:flex;gap:4px}
+  .lvlBtn{border:1px solid var(--line);background:transparent;color:var(--muted);
+    width:31px;height:31px;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px;
+    transition:transform .1s,color .12s,border-color .12s,background .12s}
+  .lvlBtn:active{transform:scale(.9)}
+  .lvlBtn[data-active="1"]{color:#0d0720;border-color:transparent}
+  .lvlBtn[data-lvl="easy"][data-active="1"]{background:var(--lime)}
+  .lvlBtn[data-lvl="normal"][data-active="1"]{background:var(--gold)}
+  .lvlBtn[data-lvl="hard"][data-active="1"]{background:var(--coral)}
+  .diffs{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .diff{border:1px solid var(--line);background:rgba(157,123,255,.06);color:var(--muted);
+    border-radius:12px;padding:12px;cursor:pointer;font-weight:700;font-size:14px;
+    transition:transform .12s,border-color .12s,background .12s,color .12s;}
+  .diff[data-active="1"]{border-color:var(--magenta);background:rgba(255,60,172,.16);color:var(--ink)}
+  .diff:active{transform:scale(.95)}
+  .play{margin-top:auto;border:none;cursor:pointer;width:100%;
+    font-family:'Orbitron',sans-serif;font-weight:900;font-size:20px;letter-spacing:2px;
+    color:#1a0a2e;padding:18px;border-radius:16px;
+    background:linear-gradient(92deg,var(--gold),var(--lime));
+    box-shadow:0 10px 30px rgba(124,255,107,.25);transition:transform .1s,filter .1s;}
+  .play:active{transform:translateY(2px) scale(.99);filter:brightness(1.05)}
+  .credit{text-align:center;color:var(--muted);font-size:11px;margin-top:14px;opacity:.75}
+  .credit a{color:var(--violet);text-decoration:none}
+  .sound-toggle{position:absolute;top:16px;right:16px;z-index:5;width:42px;height:42px;
+    border-radius:12px;cursor:pointer;border:1px solid var(--line);background:rgba(13,7,32,.6);
+    color:var(--ink);font-size:18px;display:grid;place-items:center;}
+
+  /* HUD */
+  .hud{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .game-meta{display:flex;align-items:center;gap:8px}
+  .quit{width:36px;height:36px;border:1px solid var(--line);border-radius:10px;background:transparent;
+    color:var(--muted);cursor:pointer;font-size:18px}
+  .mode-tag{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:1px;color:var(--cyan)}
+  .lives{font-size:20px;letter-spacing:3px}
+  .lives .lost{opacity:.18}
+  .score-box{text-align:right}
+  .score-box .lbl{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted)}
+  .score-box .val{font-family:'Orbitron',sans-serif;font-weight:900;font-size:24px;color:var(--gold)}
+  .timer{height:8px;border-radius:99px;background:rgba(157,123,255,.18);margin-top:14px;overflow:hidden}
+  .timer .fill{height:100%;width:100%;border-radius:99px;
+    background:linear-gradient(90deg,var(--lime),var(--gold));transition:width .1s linear}
+  .timer .fill.low{background:linear-gradient(90deg,var(--coral),var(--magenta))}
+  .combo-wrap{display:flex;align-items:center;gap:10px;margin-top:14px;min-height:24px}
+  .combo-bar{flex:1;height:6px;border-radius:99px;background:rgba(157,123,255,.18);overflow:hidden}
+  .combo-bar .cfill{height:100%;width:0;border-radius:99px;
+    background:linear-gradient(90deg,var(--cyan),var(--magenta));transition:width .25s}
+  .combo-txt{font-family:'Orbitron',sans-serif;font-weight:900;font-size:14px;color:var(--cyan);
+    min-width:62px;text-align:right;opacity:0;transition:opacity .2s}
+  .combo-txt.show{opacity:1}
+
+  .question{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;text-align:center}
+  .level-tag{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:3px;color:var(--muted)}
+  .equation{font-family:'Orbitron',sans-serif;font-weight:700;
+    font-size:clamp(38px,14vw,64px);line-height:1.1;text-shadow:0 0 22px rgba(24,224,255,.25)}
+  .equation .q{color:var(--gold)}
+  .equation sup{font-size:.5em;vertical-align:super}
+  .equation.ask{font-family:'Rubik',sans-serif;font-weight:700;
+    font-size:clamp(21px,6.6vw,30px);line-height:1.35;text-shadow:none;padding:0 4px}
+  .equation.ask b{color:var(--cyan);font-family:'Orbitron',sans-serif;font-weight:900}
+  .hint-btn{border:1px solid var(--line);background:rgba(255,210,63,.08);color:var(--gold);
+    border-radius:99px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;transition:transform .1s,opacity .15s}
+  .hint-btn:active{transform:scale(.95)}
+  .hint-btn[disabled]{opacity:.35;pointer-events:none}
+
+  .options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+  .opt{border:1px solid var(--line);background:rgba(157,123,255,.07);color:var(--ink);
+    border-radius:16px;padding:22px 8px;cursor:pointer;
+    font-family:'Orbitron',sans-serif;font-weight:700;font-size:26px;
+    transition:transform .1s,background .15s,border-color .15s}
+  .opt:active{transform:scale(.96)}
+  .opt.correct{background:rgba(124,255,107,.22);border-color:var(--lime);color:var(--lime)}
+  .opt.wrong{background:rgba(255,92,92,.2);border-color:var(--coral);color:var(--coral);animation:shake .35s}
+  .opt.disabled{pointer-events:none;opacity:.55}
+  .type-answer{display:none;grid-template-columns:1fr auto;gap:10px;margin-top:6px}
+  .type-answer.show{display:grid}
+  .answer-input{font-family:'Orbitron',sans-serif;font-size:24px;text-align:center;width:100%;
+    border-radius:14px;padding:17px}
+  .answer-submit{border:0;border-radius:14px;padding:0 20px;background:linear-gradient(92deg,var(--gold),var(--lime));
+    color:#1a0a2e;font-family:'Orbitron',sans-serif;font-weight:900;cursor:pointer}
+  .round-progress{text-align:center;color:var(--muted);font-size:11px;min-height:16px;margin-top:9px}
+  .mistake{margin-top:10px;padding:9px 11px;border-left:3px solid var(--gold);
+    background:rgba(255,210,63,.08);font-size:14px}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+
+  /* tarjeta educativa */
+  .teach{position:absolute;left:0;right:0;bottom:0;z-index:7;
+    background:linear-gradient(180deg,rgba(22,11,46,.97),rgba(13,7,32,.99));
+    border-top:1px solid var(--line);border-radius:22px 22px 0 0;
+    padding:22px 20px calc(22px + env(safe-area-inset-bottom,0));
+    transform:translateY(110%);transition:transform .3s cubic-bezier(.2,.8,.2,1);
+    box-shadow:0 -16px 40px rgba(0,0,0,.5)}
+  .teach.show{transform:translateY(0)}
+  .teach .tt{font-family:'Orbitron',sans-serif;font-weight:900;font-size:14px;letter-spacing:1px;margin-bottom:10px}
+  .teach.is-hint .tt{color:var(--gold)}
+  .teach.is-solve .tt{color:var(--coral)}
+  .teach .body{font-size:16px;line-height:1.6;color:var(--ink)}
+  .teach .body b{color:var(--cyan)}
+  .teach .body .res{color:var(--lime);font-weight:700}
+  .teach .tbtn{margin-top:16px;width:100%;border:none;cursor:pointer;
+    font-family:'Orbitron',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;
+    color:#1a0a2e;padding:14px;border-radius:14px;background:linear-gradient(92deg,var(--cyan),var(--violet))}
+  .teach .tbtn:active{transform:scale(.99)}
+  .teach-actions{display:grid;grid-template-columns:1fr;gap:8px;margin-top:16px}
+  .teach-actions .tbtn{margin-top:0}
+  .teach-actions .study-link{display:none;border:1px solid var(--gold);background:rgba(255,210,63,.08);color:var(--gold);
+    border-radius:12px;padding:11px;font-weight:700;cursor:pointer}
+  .teach.is-solve .study-link{display:block}
+
+  .flash{position:absolute;inset:0;z-index:6;display:none;place-items:center;pointer-events:none}
+  .flash.show{display:grid;animation:flashpop .9s ease forwards}
+  .flash span{font-family:'Orbitron',sans-serif;font-weight:900;font-size:40px;
+    background:linear-gradient(92deg,var(--cyan),var(--gold));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  @keyframes flashpop{0%{opacity:0;transform:scale(.6)}30%{opacity:1;transform:scale(1.05)}100%{opacity:0;transform:scale(1.2)}}
+
+  /* fin */
+  .end{justify-content:center;text-align:center;gap:8px}
+  .end h2{font-family:'Orbitron',sans-serif;font-weight:900;font-size:30px;
+    background:linear-gradient(92deg,var(--magenta),var(--gold));
+    -webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:6px}
+  .record{font-family:'Orbitron',sans-serif;color:var(--gold);font-size:14px;letter-spacing:1px}
+  .new-record{color:var(--lime);animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.5}}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}
+  .stat{border:1px solid var(--line);border-radius:14px;padding:16px;background:rgba(157,123,255,.06)}
+  .stat .v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:28px;color:var(--cyan)}
+  .stat .k{font-size:11px;color:var(--muted);letter-spacing:1px;margin-top:4px}
+  .end-actions{display:grid;gap:10px;margin-top:8px}
+  .summary{margin:2px 0 8px;text-align:left}
+  .weak{font-size:13px;text-align:center;margin-bottom:12px;font-weight:700;line-height:1.4}
+  .weak b{color:var(--coral)}
+  .weak.good{color:var(--lime)}
+  .sumRow{display:flex;align-items:center;gap:9px;margin:8px 0;font-size:12px}
+  .sumRow .lab{width:104px;color:var(--muted);text-align:left;display:flex;gap:6px;align-items:center}
+  .sumRow .lab .s{color:var(--cyan);font-family:'Orbitron',sans-serif;min-width:16px;text-align:center}
+  .sumTrack{flex:1;height:9px;border-radius:99px;background:rgba(255,92,92,.2);overflow:hidden}
+  .sumTrack .f{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--lime),var(--cyan));transition:width .4s}
+  .sumRow .pct{width:52px;text-align:right;color:var(--ink);font-family:'Orbitron',sans-serif;font-weight:700;font-size:11px}
+  .btn-secondary{border:1px solid var(--line);background:transparent;color:var(--ink);
+    border-radius:14px;padding:15px;cursor:pointer;font-weight:700;font-size:15px}
+  .btn-secondary:active{transform:scale(.98)}
+
+  /* ----- pantalla estudiar ----- */
+  #learn{overflow-y:auto;-webkit-overflow-scrolling:touch}
+  #learn::-webkit-scrollbar{width:0}
+  .learn-head{display:flex;align-items:center;gap:10px}
+  .learn-head .back{border:1px solid var(--line);background:rgba(13,7,32,.5);color:var(--ink);
+    border-radius:10px;padding:8px 12px;font-weight:700;font-size:14px;cursor:pointer}
+  .learn-head .back:active{transform:scale(.96)}
+  .learn-head h2{font-family:'Orbitron',sans-serif;font-weight:900;font-size:16px;letter-spacing:1px;
+    background:linear-gradient(92deg,var(--gold),var(--magenta),var(--cyan));
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .learn-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 14px}
+  .learn-action{border:1px solid var(--line);background:rgba(157,123,255,.08);color:var(--ink);
+    border-radius:11px;padding:10px;cursor:pointer;font-weight:700;font-size:12px}
+  .learn-action:active{transform:scale(.98)}
+  .learn-sub{color:var(--muted);font-size:12px;margin:6px 0 14px}
+  .lesson-recommend{border-left:3px solid var(--gold);background:rgba(255,210,63,.08);
+    border-radius:0 10px 10px 0;padding:10px 12px;margin-bottom:12px;font-size:12px;line-height:1.45}
+  .study-btn{width:100%;margin-top:10px;border:1px solid var(--line);background:rgba(157,123,255,.08);
+    color:var(--ink);border-radius:14px;padding:14px;cursor:pointer;font-weight:700;font-size:15px;
+    display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .1s,border-color .12s}
+  .study-btn:active{transform:scale(.99)}
+  .menu-secondary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+  .menu-secondary .study-btn{margin-top:0;font-size:13px;padding:12px 8px}
+  .home-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+  .home-action{border:1px solid var(--line);background:rgba(157,123,255,.07);color:var(--ink);
+    border-radius:13px;padding:13px 8px;cursor:pointer;font-weight:700;font-size:13px}
+  .home-action span{display:block;font-size:18px;margin-bottom:4px}
+  .home-action:active{transform:scale(.98)}
+  #customize,#tools{overflow-y:auto;-webkit-overflow-scrolling:touch}
+  #customize::-webkit-scrollbar,#tools::-webkit-scrollbar{width:0}
+  .study-index{display:flex;gap:7px;margin-bottom:12px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none}
+  .study-index::-webkit-scrollbar{display:none}
+  .study-index-btn{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:10px;
+    flex:0 0 auto;min-width:118px;padding:9px;background:rgba(157,123,255,.05);color:var(--muted);font:inherit;font-size:11px;font-weight:700;cursor:pointer;text-align:left}
+  .study-index-btn .ix-sym{color:var(--c);font-weight:900;min-width:23px;text-align:center}
+  .study-index-btn.active{border-color:var(--c);color:var(--ink);background:color-mix(in srgb,var(--c) 11%,transparent)}
+  .study-item{display:none;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:8px;background:rgba(157,123,255,.05)}
+  .study-item.current{display:block}
+  .study-head{display:flex;width:100%;align-items:center;gap:11px;padding:13px;cursor:pointer;
+    border:0;background:transparent;color:var(--ink);font:inherit;text-align:left}
+  .study-head .sym{font-family:'Orbitron',sans-serif;font-weight:900;color:var(--c);min-width:30px;text-align:center;font-size:18px}
+  .study-head .sym.t{font-size:13px}
+  .study-head .nm{flex:1;font-weight:700;font-size:15px}
+  .study-head .lesson-score{font-size:9px;color:var(--muted);white-space:nowrap}
+  .study-head .arrow{color:var(--muted);transition:transform .2s;font-size:13px}
+  .study-head .arrow{display:none}
+  .study-item .study-head .nm{color:var(--c)}
+  .study-body{display:block;padding:0 13px 13px}
+  .lesson-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:0 13px 10px}
+  .lesson-tab{border:1px solid var(--line);border-radius:9px;padding:8px 4px;background:transparent;
+    color:var(--muted);font-size:10px;font-weight:800;cursor:pointer}
+  .lesson-tab.active{color:#100923;background:var(--c);border-color:var(--c)}
+  .lesson-panel{display:none}.lesson-panel.active{display:block}
+  .lesson-nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:10px 0 14px}
+  .lesson-nav button{border:1px solid var(--line);border-radius:10px;padding:9px;background:transparent;color:var(--ink);cursor:pointer;font-weight:700}
+  .lesson-nav button:last-child{grid-column:3}
+  .lesson-position{font-size:10px;color:var(--muted);text-align:center}
+  .ssec{padding:11px 0;border-top:1px solid rgba(157,123,255,.12)}
+  .ssec .slab{font-family:'Orbitron',sans-serif;font-size:9.5px;letter-spacing:1.5px;color:var(--c);text-transform:uppercase;font-weight:700;margin-bottom:5px}
+  .ssec .slab.tip{color:var(--lime)} .ssec .slab.warn{color:var(--coral)}
+  .ssec p{font-size:14px;color:var(--ink);line-height:1.55}
+  .sex{background:color-mix(in srgb,var(--c) 12%,var(--bg-1));border:1px solid color-mix(in srgb,var(--c) 30%,transparent);
+    border-radius:10px;padding:11px 12px;font-size:14px;line-height:1.6}
+  .sex .r{color:var(--c);font-weight:900;font-family:'Orbitron',sans-serif}
+  .sex sup{font-size:.6em;vertical-align:super}
+  .lesson-goal{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;
+    padding:12px;border-radius:12px;background:color-mix(in srgb,var(--c) 10%,var(--bg-1));
+    border:1px solid color-mix(in srgb,var(--c) 28%,transparent)}
+  .lesson-goal .icon{font-size:23px}.lesson-goal b{display:block;color:var(--c);font-size:12px;margin-bottom:3px}
+  .lesson-goal p{font-size:13px;line-height:1.45}
+  .prior{display:flex;gap:6px;flex-wrap:wrap}
+  .prior span{border:1px solid var(--line);border-radius:99px;padding:5px 8px;color:var(--muted);font-size:10px}
+  .visual-model{padding:14px;border-radius:12px;background:rgba(13,7,32,.52);text-align:center;overflow:hidden}
+  .visual-title{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+  .place-table{display:grid;grid-template-columns:repeat(3,1fr);max-width:230px;margin:auto;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .place-table span{padding:7px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .place-table span:nth-child(3n){border-right:0}.place-table .hd{font-size:9px;color:var(--muted);background:rgba(157,123,255,.1)}
+  .place-table .num{font-weight:900;font-size:17px}.place-table .result{color:var(--c)}
+  .number-line{display:flex;align-items:flex-end;justify-content:center;gap:4px;flex-wrap:wrap}
+  .number-line span{min-width:30px;padding:5px;border-radius:7px;background:rgba(157,123,255,.12);font-size:11px}
+  .number-line .jump{color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+  .group-model{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+  .group-box{border:1px solid var(--c);border-radius:9px;padding:7px;min-width:42px;color:var(--c);font-size:15px}
+  .factor-chain{display:flex;justify-content:center;align-items:center;gap:7px;flex-wrap:wrap;font-weight:900;font-size:18px}
+  .factor-chain .opmark{color:var(--muted)}.factor-chain .answer{color:var(--c)}
+  .dot-grid{display:grid;grid-template-columns:repeat(var(--cols),14px);gap:5px;justify-content:center}
+  .dot-grid i{width:11px;height:11px;border-radius:50%;background:var(--c);box-shadow:0 0 8px color-mix(in srgb,var(--c) 55%,transparent)}
+  .pair-list{display:flex;justify-content:center;gap:7px;flex-wrap:wrap}.pair-list span{border:1px solid var(--line);border-radius:8px;padding:7px;font-size:11px}
+  .pair-list b{color:var(--c)}
+  .compare-lists{display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:left}
+  .compare-lists div{border:1px solid var(--line);border-radius:9px;padding:8px;font-size:11px;line-height:1.6}
+  .compare-lists b{color:var(--c)}.common{color:var(--gold);font-weight:900}
+  .lesson-steps{display:grid;gap:7px}
+  .lesson-step{display:grid;grid-template-columns:27px 1fr;gap:8px;align-items:start;font-size:13px;line-height:1.45}
+  .lesson-step .n{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#100923;font-weight:900}
+  .remember{display:grid;gap:5px}.remember div{font-size:12px;padding-left:19px;position:relative}.remember div::before{content:"✓";position:absolute;left:0;color:var(--lime);font-weight:900}
+  .lesson-quiz{border:1px solid color-mix(in srgb,var(--c) 35%,transparent);border-radius:12px;padding:12px;background:rgba(13,7,32,.45)}
+  .quiz-progress{font-size:9px;color:var(--c);font-weight:900;letter-spacing:1px;text-transform:uppercase}
+  .quiz-question{font-size:14px;font-weight:700;line-height:1.45;margin:7px 0 10px}
+  .quiz-options{display:grid;gap:7px}.quiz-option{border:1px solid var(--line);border-radius:9px;padding:9px 10px;background:rgba(157,123,255,.06);color:var(--ink);text-align:left;cursor:pointer;font:inherit;font-size:12px}
+  .quiz-option.correct{border-color:var(--lime);color:var(--lime);background:rgba(124,255,107,.1)}
+  .quiz-option.wrong{border-color:var(--coral);color:var(--coral);background:rgba(255,92,92,.1)}
+  .quiz-feedback{min-height:34px;margin-top:8px;font-size:12px;line-height:1.4;color:var(--muted)}
+  .quiz-next{display:none;width:100%;margin-top:8px;border:0;border-radius:9px;padding:9px;background:var(--c);color:#100923;font-weight:900;cursor:pointer}
+  .quiz-next.show{display:block}.lesson-mastered{color:var(--lime);font-weight:700}
+  .extra{background:rgba(13,7,32,.55);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+  .extra h3{font-family:'Orbitron',sans-serif;font-weight:900;font-size:12px;letter-spacing:1px;margin-bottom:12px;
+    background:linear-gradient(92deg,var(--gold),var(--magenta));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .squares{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:7px}
+  .sq{background:rgba(157,123,255,.1);border:1px solid var(--line);border-radius:9px;padding:7px 4px;text-align:center;font-size:12px}
+  .sq b{font-family:'Orbitron',sans-serif;color:var(--cyan);display:block;font-size:14px}
+  .sq span{color:var(--muted)}
+  .vs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .vs .col{background:rgba(157,123,255,.08);border:1px solid var(--line);border-radius:11px;padding:12px}
+  .vs .col h4{font-family:'Orbitron',sans-serif;font-size:12px;margin-bottom:7px}
+  .vs .col.cd h4{color:var(--magenta)} .vs .col.cm h4{color:var(--violet)}
+  .vs .col p{font-size:12px;color:var(--ink);margin-top:3px;line-height:1.4}
+  .glossary{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .glossary div{border:1px solid var(--line);border-radius:9px;padding:9px;font-size:11px;line-height:1.35}
+  .glossary b{display:block;color:var(--cyan);margin-bottom:3px}
+  .times-wrap{overflow:auto;border:1px solid var(--line);border-radius:13px;background:rgba(13,7,32,.45)}
+  .times-table{border-collapse:collapse;min-width:580px;width:100%;font-size:12px;text-align:center}
+  .times-table th,.times-table td{border:1px solid var(--line);padding:8px;min-width:45px}
+  .times-table th{position:sticky;top:0;background:var(--bg-1);color:var(--gold);z-index:2}
+  .times-table th:first-child{left:0;z-index:3}.times-table tbody th{position:sticky;left:0;background:var(--bg-1);color:var(--cyan);font-weight:900}
+  .times-table tr.highlight td,.times-table tr.highlight th{background:rgba(255,210,63,.15)}
+  .times-table td.col-highlight,.times-table th.col-highlight{background:rgba(24,224,255,.14)}
+  .table-picks{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:10px 0}
+  .table-pick{border:1px solid var(--line);border-radius:9px;padding:8px;background:transparent;color:var(--muted);font-weight:800;cursor:pointer}
+  .table-pick.active{background:var(--gold);color:#160b2e;border-color:var(--gold)}
+  .tool-note{font-size:12px;color:var(--muted);line-height:1.45;margin:8px 0 12px}
+
+  /* progreso */
+  #progress{overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .progress-hero{border:1px solid var(--line);border-radius:16px;padding:16px;
+    background:linear-gradient(135deg,rgba(24,224,255,.1),rgba(157,123,255,.12));margin:12px 0}
+  .progress-hero .big{font-family:'Arial Black',system-ui,sans-serif;font-size:28px;color:var(--gold)}
+  .progress-hero p{color:var(--muted);font-size:12px;margin-top:4px}
+  .progress-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .progress-stat{border:1px solid var(--line);border-radius:12px;padding:12px 6px;text-align:center;background:rgba(157,123,255,.05)}
+  .progress-stat b{display:block;color:var(--cyan);font-size:18px}.progress-stat span{font-size:9px;color:var(--muted)}
+  .mastery-list{display:grid;gap:8px}
+  .mastery-row{border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(157,123,255,.05);cursor:pointer}
+  .mastery-row:hover{border-color:var(--cyan)}
+  .mastery-top{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:700}
+  .mastery-top span:last-child{color:var(--muted)}
+  .mastery-track{height:7px;border-radius:99px;background:rgba(157,123,255,.18);overflow:hidden;margin-top:7px}
+  .mastery-fill{height:100%;background:linear-gradient(90deg,var(--coral),var(--gold),var(--lime));border-radius:99px}
+  .achievement-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .achievement{border:1px solid var(--line);border-radius:12px;padding:11px;background:rgba(157,123,255,.05);opacity:.45}
+  .achievement.got{opacity:1;border-color:rgba(255,210,63,.55);background:rgba(255,210,63,.08)}
+  .achievement b{display:block;font-size:12px}.achievement span{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+  .data-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+  .data-actions button,.data-actions label{border:1px solid var(--line);background:transparent;color:var(--ink);
+    border-radius:10px;padding:10px;text-align:center;font-size:11px;font-weight:700;cursor:pointer}
+
+  /* paneles */
+  .overlay{position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;
+    padding:18px;background:rgba(5,2,14,.82);backdrop-filter:blur(8px)}
+  .overlay.show{display:flex}
+  .dialog-card{width:100%;max-width:390px;border:1px solid var(--line);border-radius:18px;
+    background:var(--bg-1);padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.55)}
+  .dialog-card h2{font-family:'Arial Black',system-ui,sans-serif;font-size:18px;color:var(--gold)}
+  .dialog-card p{font-size:12px;color:var(--muted);margin:5px 0 14px}
+  .dialog-card input{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px;
+    background:var(--bg-0);color:var(--ink);font:inherit}
+  .dialog-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .dialog-actions button{border:1px solid var(--line);border-radius:10px;padding:11px;background:transparent;color:var(--ink);font-weight:700;cursor:pointer}
+  .dialog-actions .primary{background:var(--cyan);border-color:var(--cyan);color:#08131a}
+  .dialog-actions .danger{color:var(--coral);border-color:rgba(255,92,92,.5)}
+  .pause-card{text-align:center}.pause-card .dialog-actions{margin-top:18px}
+  body.large-text{font-size:18px}
+  body.large-text .app{max-width:520px}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  :focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+  body.reduce-motion *{animation:none!important;transition:none!important}
+  body.high-contrast{
+    --bg-0:#000;--bg-1:#080808;--ink:#fff;--muted:#ddd;--line:rgba(255,255,255,.55);
+    --cyan:#5ff;--gold:#ffeb55;--lime:#8cff7b;--coral:#ff7777
+  }
+
+  @media print{
+    html,body{height:auto!important;overflow:visible!important;position:static!important;background:#fff!important;color:#111!important}
+    .grid-bg,.sound-toggle,#menu,#customize,#game,#end,#progress,.overlay,.learn-head .back,.learn-actions,.learn-sub,.study-index,.lesson-tabs,.lesson-nav,.table-picks,.tool-note{display:none!important}
+    .app{display:block!important;width:100%!important;max-width:none!important;height:auto!important;max-height:none!important;padding:0!important}
+    #learn,#tools{display:block!important;overflow:visible!important}
+    .learn-head{display:block!important;margin-bottom:14px}
+    .learn-head h2{font-size:24px!important;color:#111!important;background:none!important}
+    .study-item{display:block!important;break-inside:avoid;border-color:#bbb;background:#fff;color:#111}
+    .study-head{color:#111}
+    .study-head .arrow{display:none}
+    .study-body,.lesson-panel{display:block!important}
+    .ssec p,.sex,.vs .col p{color:#111}
+    .sex,.extra,.vs .col,.sq{background:#fff!important;border-color:#bbb!important;color:#111!important}
+    #tools{page-break-before:always}.extra{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<button class="sound-toggle" id="soundBtn" aria-label="Sonido">🔊</button>
+
+<div class="app">
+
+  <!-- MENÚ -->
+  <section class="screen active" id="menu">
+    <div class="brand">
+      <h1>MATE ARCADE</h1>
+      <p>Practicá a tu ritmo, repasá lo difícil o jugá contra el reloj.</p>
+    </div>
+    <div class="profile-box">
+      <label for="profileSelect">PERFIL</label>
+      <select id="profileSelect" aria-label="Perfil activo"></select>
+      <button class="profile-add" id="manageProfileBtn" aria-label="Administrar perfiles">⚙</button>
+    </div>
+    <div class="profile-progress" id="profileProgress"></div>
+    <div class="label">Elegí cómo jugar</div>
+    <div class="modes" id="modes">
+      <button class="mode" data-mode="arcade" data-active="1" aria-pressed="true"><b>Arcade</b><span>Tiempo y vidas</span></button>
+      <button class="mode" data-mode="practice" data-active="0" aria-pressed="false"><b>Práctica</b><span>Sin presión</span></button>
+      <button class="mode" data-mode="review" data-active="0" aria-pressed="false"><b>Repaso</b><span>Refuerza errores</span></button>
+    </div>
+    <button class="play" id="playBtn">JUGAR ▶</button>
+    <div class="home-actions">
+      <button class="home-action" id="customizeBtn"><span>⚙️</span>Personalizar</button>
+      <button class="home-action" id="studyBtn"><span>📖</span>Estudiar</button>
+      <button class="home-action" id="toolsBtn"><span>🧰</span>Herramientas</button>
+      <button class="home-action" id="progressBtn"><span>📊</span>Mi progreso</button>
+    </div>
+    <p class="credit">Hecho por Sacha · <a href="https://sachadev.me" target="_blank" rel="noopener">sachadev.me</a></p>
+  </section>
+
+  <!-- PERSONALIZAR -->
+  <section class="screen" id="customize">
+    <div class="learn-head">
+      <button class="back" id="customizeBack">‹ Volver</button>
+      <h2>PERSONALIZAR PARTIDA</h2>
+    </div>
+    <p class="learn-sub">Elegí qué practicar y cómo querés jugar. Todo queda guardado en el perfil.</p>
+    <div class="label">Operaciones</div>
+    <div class="ops" id="ops">
+      <button class="op" data-op="add" data-active="1"><span class="sym">+</span><span class="nm">SUMA</span></button>
+      <button class="op" data-op="sub" data-active="1"><span class="sym">−</span><span class="nm">RESTA</span></button>
+      <button class="op" data-op="mul" data-active="1"><span class="sym">×</span><span class="nm">MULTIPLICAR</span></button>
+      <button class="op" data-op="div" data-active="1"><span class="sym">÷</span><span class="nm">DIVIDIR</span></button>
+      <button class="op" data-op="pow" data-active="1"><span class="sym">xⁿ</span><span class="nm">POTENCIA</span></button>
+      <button class="op" data-op="root" data-active="1"><span class="sym">√</span><span class="nm">RAÍZ</span></button>
+      <button class="op" data-op="mlt" data-active="1"><span class="sym">M</span><span class="nm">MÚLTIPLOS</span></button>
+      <button class="op" data-op="dvs" data-active="1"><span class="sym">D</span><span class="nm">DIVISORES</span></button>
+      <button class="op" data-op="mcd" data-active="1"><span class="sym txt">MCD</span><span class="nm">MÁX COMÚN</span></button>
+      <button class="op" data-op="mcm" data-active="1"><span class="sym txt">MCM</span><span class="nm">MÍN COMÚN</span></button>
+    </div>
+    <div class="quick" id="quick">
+      <button class="chip" data-sel="all">Todas</button>
+      <button class="chip" data-sel="none">Ninguna</button>
+    </div>
+    <div class="label">Nivel de cada operación</div>
+    <div class="quick" id="allDiff">
+      <button class="chip" data-all="easy">Todo Fácil</button>
+      <button class="chip" data-all="normal">Todo Normal</button>
+      <button class="chip" data-all="hard">Todo Difícil</button>
+    </div>
+    <div class="levels" id="levelList"></div>
+    <div class="label">Preferencias</div>
+    <div class="settings">
+      <label class="setting">Respuesta
+        <select id="answerMode"><option value="mixed">Variada</option><option value="choice">Opciones</option><option value="write">Escrita</option></select>
+      </label>
+      <label class="setting">Preguntas
+        <select id="roundSetting"><option value="5">5</option><option value="10">10</option><option value="15">15</option><option value="20">20</option></select>
+      </label>
+      <label class="setting"><input type="checkbox" id="vibrationSetting" checked> Vibración</label>
+      <label class="setting"><input type="checkbox" id="contrastSetting"> Alto contraste</label>
+      <label class="setting"><input type="checkbox" id="motionSetting"> Menos movimiento</label>
+      <label class="setting"><input type="checkbox" id="textSetting"> Texto grande</label>
+    </div>
+    <button class="play" id="customizePlayBtn">JUGAR CON ESTA CONFIGURACIÓN ▶</button>
+  </section>
+
+  <!-- JUEGO -->
+  <section class="screen" id="game">
+    <div class="hud">
+      <div class="game-meta">
+        <button class="quit" id="quitBtn" aria-label="Terminar partida">‹</button>
+        <button class="quit" id="pauseBtn" aria-label="Pausar partida">Ⅱ</button>
+        <div><div class="mode-tag" id="gameModeTag">ARCADE</div><div class="lives" id="lives" aria-label="3 vidas">❤️❤️❤️</div></div>
+      </div>
+      <div class="score-box"><div class="lbl">PUNTAJE</div><div class="val" id="score">0</div></div>
+    </div>
+    <div class="timer" id="timerBar" role="progressbar" aria-label="Tiempo restante" aria-valuemin="0" aria-valuemax="100"><div class="fill" id="timerFill"></div></div>
+    <div class="combo-wrap">
+      <div class="combo-bar"><div class="cfill" id="comboFill"></div></div>
+      <div class="combo-txt" id="comboTxt">x1</div>
+    </div>
+    <div class="question">
+      <div class="level-tag" id="levelTag">NIVEL 1</div>
+      <div class="equation" id="equation" aria-live="polite">7 × 8 = <span class="q">?</span></div>
+      <button class="hint-btn" id="hintBtn">💡 Pista</button>
+    </div>
+    <div class="options" id="options"></div>
+    <form class="type-answer" id="typeAnswer">
+      <label class="sr-only" for="answerInput">Tu respuesta</label>
+      <input class="answer-input" id="answerInput" type="number" inputmode="numeric" autocomplete="off" placeholder="Tu respuesta">
+      <button class="answer-submit" type="submit">OK</button>
+    </form>
+    <div class="round-progress" id="roundProgress"></div>
+  </section>
+
+  <!-- PROGRESO -->
+  <section class="screen" id="progress">
+    <div class="learn-head">
+      <button class="back" id="progressBack">‹ Volver</button>
+      <h2>MI PROGRESO</h2>
+    </div>
+    <div class="progress-hero">
+      <div class="big" id="progressName">Jugador</div>
+      <p id="progressMessage">Cada respuesta ayuda a adaptar el próximo repaso.</p>
+    </div>
+    <div class="progress-grid">
+      <div class="progress-stat"><b id="progressAccuracy">0%</b><span>PRECISIÓN</span></div>
+      <div class="progress-stat"><b id="progressTotal">0</b><span>RESPUESTAS</span></div>
+      <div class="progress-stat"><b id="progressBest">0</b><span>RÉCORD</span></div>
+    </div>
+    <div class="label">Dominio por tema</div>
+    <div class="mastery-list" id="masteryList"></div>
+    <div class="label">Logros</div>
+    <div class="achievement-grid" id="achievementList"></div>
+    <div class="data-actions">
+      <button id="exportBtn">Exportar progreso</button>
+      <label for="importInput">Importar progreso</label>
+      <input class="sr-only" id="importInput" type="file" accept="application/json">
+    </div>
+  </section>
+
+  <!-- FIN -->
+  <section class="screen end" id="end">
+    <h2 id="endTitle">¡Buena partida!</h2>
+    <div class="record" id="recordLine">Récord: 0</div>
+    <div class="stat-grid">
+      <div class="stat"><div class="v" id="finalScore">0</div><div class="k">PUNTAJE</div></div>
+      <div class="stat"><div class="v" id="finalCorrect">0</div><div class="k">ACERTADAS</div></div>
+      <div class="stat"><div class="v" id="finalBest">x0</div><div class="k">MEJOR COMBO</div></div>
+      <div class="stat"><div class="v" id="finalLevel">1</div><div class="k">NIVEL</div></div>
+    </div>
+    <div class="summary" id="summary"></div>
+    <div class="end-actions">
+      <button class="play" id="againBtn">JUGAR DE NUEVO ↻</button>
+      <button class="btn-secondary" id="menuBtn">Volver al menú</button>
+    </div>
+  </section>
+
+  <!-- ESTUDIAR -->
+  <section class="screen" id="learn">
+    <div class="learn-head">
+      <button class="back" id="learnBack">‹ Volver</button>
+      <h2>GUÍA DE ESTUDIO</h2>
+    </div>
+    <p class="learn-sub">Elegí un tema. Cada lección se divide en Entender, Resolver y Practicar.</p>
+    <div class="learn-actions">
+      <button class="learn-action" id="printStudyBtn">🖨 Imprimir guía</button>
+      <button class="learn-action" id="learnToolsBtn">🧰 Ver herramientas</button>
+    </div>
+    <div class="lesson-recommend" id="studyRecommendation">Empezá por el tema que más necesites reforzar.</div>
+    <div class="study-index" id="studyIndex"></div>
+    <div id="studyList"></div>
+    <div class="lesson-nav">
+      <button id="prevLessonBtn">‹ Anterior</button>
+      <span class="lesson-position" id="lessonPosition">1 de 10</span>
+      <button id="nextLessonBtn">Siguiente ›</button>
+    </div>
+  </section>
+
+  <!-- HERRAMIENTAS -->
+  <section class="screen" id="tools">
+    <div class="learn-head">
+      <button class="back" id="toolsBack">‹ Volver</button>
+      <h2>HERRAMIENTAS</h2>
+    </div>
+    <p class="learn-sub">Tablas y referencias rápidas para consultar mientras estudiás.</p>
+    <section class="extra">
+      <h3>TABLA PITAGÓRICA · DEL 1 AL 10</h3>
+      <p class="tool-note">Tocá un número para resaltar su fila y su columna. Deslizá el cuadro hacia los costados si la pantalla es chica.</p>
+      <div class="table-picks" id="tablePicks"></div>
+      <div class="times-wrap">
+        <table class="times-table" id="timesTable" aria-label="Tabla de multiplicar del 1 al 10"></table>
+      </div>
+    </section>
+    <section class="extra">
+      <h3>CUADRADOS PERFECTOS</h3>
+      <div class="squares">
+        <div class="sq"><b>1</b><span>1²</span></div><div class="sq"><b>4</b><span>2²</span></div>
+        <div class="sq"><b>9</b><span>3²</span></div><div class="sq"><b>16</b><span>4²</span></div>
+        <div class="sq"><b>25</b><span>5²</span></div><div class="sq"><b>36</b><span>6²</span></div>
+        <div class="sq"><b>49</b><span>7²</span></div><div class="sq"><b>64</b><span>8²</span></div>
+        <div class="sq"><b>81</b><span>9²</span></div><div class="sq"><b>100</b><span>10²</span></div>
+        <div class="sq"><b>121</b><span>11²</span></div><div class="sq"><b>144</b><span>12²</span></div>
+      </div>
+    </section>
+    <section class="extra">
+      <h3>MCD vs MCM · NO LOS CONFUNDAS</h3>
+      <div class="vs">
+        <div class="col cd"><h4>MCD</h4><p>Mira <b>divisores</b>.</p><p>Busca el <b>mayor</b> en común.</p><p>Da un número <b>chico</b> (≤ que los originales).</p></div>
+        <div class="col cm"><h4>MCM</h4><p>Mira <b>múltiplos</b>.</p><p>Busca el <b>menor</b> en común.</p><p>Da un número <b>grande</b> (≥ que los originales).</p></div>
+      </div>
+    </section>
+    <section class="extra">
+      <h3>GLOSARIO MATEMÁTICO</h3>
+      <div class="glossary">
+        <div><b>Sumando</b>Número que participa en una suma.</div>
+        <div><b>Diferencia</b>Resultado de una resta.</div>
+        <div><b>Factor</b>Número que participa en una multiplicación.</div>
+        <div><b>Producto</b>Resultado de multiplicar.</div>
+        <div><b>Dividendo</b>Cantidad total que se divide.</div>
+        <div><b>Divisor</b>Número por el que se divide.</div>
+        <div><b>Cociente</b>Resultado principal de una división.</div>
+        <div><b>Resto</b>Cantidad que sobra al dividir.</div>
+        <div><b>Base</b>Número que se repite en una potencia.</div>
+        <div><b>Exponente</b>Indica cuántas veces se usa la base como factor.</div>
+        <div><b>Múltiplo</b>Resultado de multiplicar un número por un entero.</div>
+        <div><b>Divisor común</b>Número que divide exactamente a dos o más cantidades.</div>
+      </div>
+    </section>
+  </section>
+
+  <!-- tarjeta educativa -->
+  <div class="teach" id="teach">
+    <div class="tt" id="teachTitle">¿Por qué?</div>
+    <div class="body" id="teachBody"></div>
+    <div class="teach-actions">
+      <button class="tbtn" id="teachBtn">Seguir ▶</button>
+      <button class="study-link" id="studyErrorBtn">📖 Repasar este tema</button>
+    </div>
+  </div>
+
+  <div class="flash" id="flash"><span id="flashTxt"></span></div>
+  <div id="announcer" class="sr-only" aria-live="assertive"></div>
+
+  <div class="overlay" id="profileDialog" role="dialog" aria-modal="true" aria-labelledby="profileDialogTitle">
+    <div class="dialog-card">
+      <h2 id="profileDialogTitle">Administrar perfiles</h2>
+      <p>Creá un perfil nuevo o modificá el perfil activo.</p>
+      <label class="sr-only" for="profileNameInput">Nombre del perfil</label>
+      <input id="profileNameInput" maxlength="18" autocomplete="off" placeholder="Nombre">
+      <div class="dialog-actions">
+        <button class="primary" id="createProfileBtn">Crear nuevo</button>
+        <button id="renameProfileBtn">Renombrar</button>
+        <button class="danger" id="deleteProfileBtn">Eliminar</button>
+        <button id="closeProfileBtn">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="pauseOverlay" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+    <div class="dialog-card pause-card">
+      <h2 id="pauseTitle">Partida en pausa</h2>
+      <p>El reloj está detenido.</p>
+      <div class="dialog-actions">
+        <button class="primary" id="resumeBtn">Continuar</button>
+        <button id="pauseMenuBtn">Volver al menú</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $=function(s){return document.querySelector(s);};
+
+  // localStorage a prueba de balas (file://, modo privado, etc.)
+  var mem={};
+  function safeGet(k){try{return localStorage.getItem(k);}catch(e){return mem[k]||null;}}
+  function safeSet(k,v){try{localStorage.setItem(k,v);}catch(e){mem[k]=String(v);}}
+
+  var STORAGE_KEY="mateArcadeDataV2";
+  var DEFAULT_OPS=["add","sub","mul","div","pow","root","mlt","dvs","mcd","mcm"];
+  function blankProgress(){
+    return {best:0,total:0,correct:0,sessions:0,practiceSessions:0,reviewSessions:0,bestCombo:0,byOp:{},studyByOp:{},unlocked:[],
+      preferences:{mode:"arcade",answerMode:"mixed",rounds:10,sound:true,vibration:true,contrast:false,motion:false,largeText:false},
+      ops:DEFAULT_OPS.slice(),
+      diffByOp:{add:"normal",sub:"normal",mul:"normal",div:"normal",pow:"normal",root:"normal",mlt:"normal",dvs:"normal",mcd:"normal",mcm:"normal"}};
+  }
+  function loadStore(){
+    var raw=safeGet(STORAGE_KEY),data;
+    try{data=raw?JSON.parse(raw):null;}catch(e){data=null;}
+    if(!data||!data.profiles) data={version:3,active:"Jugador",profiles:{Jugador:blankProgress()}};
+    data.version=3;
+    if(!data.profiles[data.active]) data.active=Object.keys(data.profiles)[0]||"Jugador";
+    if(!data.profiles[data.active]) data.profiles[data.active]=blankProgress();
+    return data;
+  }
+  var store=loadStore();
+  function activeProfile(){
+    var p=store.profiles[store.active];
+    if(!p||typeof p!=="object"){p=blankProgress();store.profiles[store.active]=p;}
+    var fresh=blankProgress(),k;
+    for(k in fresh) if(p[k]===undefined) p[k]=fresh[k];
+    if(!Array.isArray(p.ops))p.ops=fresh.ops.slice();
+    p.ops=p.ops.filter(function(op){return DEFAULT_OPS.indexOf(op)!==-1;});
+    if(!p.ops.length)p.ops=fresh.ops.slice();
+    if(!Array.isArray(p.unlocked))p.unlocked=[];
+    if(!p.byOp||typeof p.byOp!=="object")p.byOp={};
+    if(!p.studyByOp||typeof p.studyByOp!=="object")p.studyByOp={};
+    if(!p.diffByOp||typeof p.diffByOp!=="object")p.diffByOp=fresh.diffByOp;
+    if(!p.preferences||typeof p.preferences!=="object")p.preferences=fresh.preferences;
+    ["best","total","correct","sessions","practiceSessions","reviewSessions","bestCombo"].forEach(function(key){
+      p[key]=Math.max(0,Number(p[key])||0);
+    });
+    for(k in fresh.preferences) if(p.preferences[k]===undefined) p.preferences[k]=fresh.preferences[k];
+    for(k in fresh.diffByOp) if(p.diffByOp[k]===undefined) p.diffByOp[k]=fresh.diffByOp[k];
+    if([5,10,15,20].indexOf(Number(p.preferences.rounds))===-1)p.preferences.rounds=10;
+    DEFAULT_OPS.forEach(function(op){
+      if(["easy","normal","hard"].indexOf(p.diffByOp[op])===-1)p.diffByOp[op]="normal";
+      if(p.byOp[op]){
+        p.byOp[op].ok=Math.max(0,Number(p.byOp[op].ok)||0);
+        p.byOp[op].fail=Math.max(0,Number(p.byOp[op].fail)||0);
+      }
+      if(p.studyByOp[op]){
+        p.studyByOp[op].ok=Math.max(0,Number(p.studyByOp[op].ok)||0);
+        p.studyByOp[op].fail=Math.max(0,Number(p.studyByOp[op].fail)||0);
+        p.studyByOp[op].completed=Math.max(0,Number(p.studyByOp[op].completed)||0);
+      }
+    });
+    return p;
+  }
+  function saveStore(){safeSet(STORAGE_KEY,JSON.stringify(store));}
+
+  var profile=activeProfile();
+  var state={ops:["add","sub","mul","div","pow","root","mlt","dvs","mcd","mcm"],
+    diffByOp:profile.diffByOp,
+    mode:profile.preferences.mode||"arcade",answerMode:profile.preferences.answerMode||"mixed",
+    curDiff:"normal",stats:{},
+    score:0,lives:3,combo:0,bestCombo:0,
+    correct:0,answered:0,targetRounds:10,level:1,answer:0,timer:null,timeLeft:0,timeTotal:0,
+    locked:false,usedHint:false,cur:null,inputKind:"choice",lastValue:null,paused:false,completed:false,
+    learnReturn:"menu",toolsReturn:"menu",studyFromError:false,currentStudyOp:"add",studyTab:"understand",retryQueue:[]};
+
+  var OPNAME={add:"Suma",sub:"Resta",mul:"Multiplicación",div:"División",pow:"Potencia",root:"Raíz",mlt:"Múltiplos",dvs:"Divisores",mcd:"Máx. común divisor",mcm:"Mín. común múltiplo"};
+  var OPSYM ={add:"+",sub:"−",mul:"×",div:"÷",pow:"xⁿ",root:"√",mlt:"M",dvs:"D",mcd:"MCD",mcm:"MCM"};
+  var OPORDER=["add","sub","mul","div","pow","root","mlt","dvs","mcd","mcm"];
+  var ACHIEVEMENTS=[
+    {id:"first",icon:"🌟",name:"Primer paso",desc:"Resolver una cuenta"},
+    {id:"first10",icon:"🎯",name:"En carrera",desc:"Alcanzar 10 aciertos"},
+    {id:"fifty",icon:"🚀",name:"Despegue",desc:"Alcanzar 50 aciertos"},
+    {id:"hundred",icon:"🏆",name:"Centena",desc:"Alcanzar 100 aciertos"},
+    {id:"combo5",icon:"⚡",name:"Racha 5",desc:"Lograr un combo de 5"},
+    {id:"combo10",icon:"🔥",name:"Imparable",desc:"Lograr un combo de 10"},
+    {id:"explorer",icon:"🧭",name:"Explorador",desc:"Practicar todos los temas"},
+    {id:"perfect",icon:"💎",name:"Sesión perfecta",desc:"Completar una sesión sin errores"},
+    {id:"practice5",icon:"📚",name:"Sin apuro",desc:"Completar 5 prácticas"},
+    {id:"review5",icon:"🧠",name:"A reforzar",desc:"Completar 5 repasos"}
+  ];
+
+  var DIFF={
+    easy:  {time:14,addMax:20, subMax:25, mulMax:10, powBase:9, powExps:[2],rootMax:100,factorMax:6,commonMax:4},
+    normal:{time:11,addMax:100,subMax:80, mulMax:12, powBase:12,powExps:[2,2,3],rootMax:225,factorMax:9,commonMax:6},
+    hard:  {time:8, addMax:500,subMax:400,mulMax:15, powBase:15,powExps:[2,3,3,4],rootMax:625,factorMax:14,commonMax:8}
+  };
+
+  // ---- sonido ----
+  var soundOn=true,ac=null;
+  function beep(freq,dur,type,vol){
+    if(!soundOn)return;
+    type=type||"sine"; vol=vol||.12;
+    try{
+      ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+      var o=ac.createOscillator(),g=ac.createGain();
+      o.type=type;o.frequency.value=freq;
+      g.gain.setValueAtTime(vol,ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+dur);
+      o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+dur);
+    }catch(e){}
+  }
+  function sndGood(){beep(660,.08,"triangle");setTimeout(function(){beep(990,.12,"triangle");},70);}
+  function sndBad(){beep(160,.25,"sawtooth",.1);}
+  function sndLvl(){beep(523,.1);setTimeout(function(){beep(659,.1);},90);setTimeout(function(){beep(784,.16);},180);}
+  function vibrate(p){try{if(activeProfile().preferences.vibration&&navigator.vibrate)navigator.vibrate(p);}catch(e){}}
+
+  // ---- utilidades ----
+  function ri(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+  function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+  function bump(op,key){
+    if(!state.stats[op]) state.stats[op]={ok:0,fail:0};
+    state.stats[op][key]++;
+  }
+  function recordAttempt(op,ok){
+    var p=activeProfile();
+    if(!p.byOp[op])p.byOp[op]={ok:0,fail:0};
+    p.byOp[op][ok?"ok":"fail"]++;
+    p.total++; if(ok)p.correct++;
+    saveStore();
+  }
+  function chooseOp(){
+    if(state.mode!=="review")return pick(state.ops);
+    for(var q=0;q<state.retryQueue.length;q++){
+      if(state.retryQueue[q].due<=state.answered&&state.ops.indexOf(state.retryQueue[q].op)!==-1){
+        return state.retryQueue.splice(q,1)[0].op;
+      }
+    }
+    var p=activeProfile(),weighted=[];
+    state.ops.forEach(function(op){
+      var s=p.byOp[op]||{ok:0,fail:0},total=s.ok+s.fail;
+      var weakness=total<3?4:Math.max(1,Math.round(1+(s.fail/total)*8));
+      for(var i=0;i<weakness;i++)weighted.push(op);
+    });
+    return pick(weighted);
+  }
+  function queueRetry(op){
+    if(state.mode!=="review")return;
+    var exists=state.retryQueue.some(function(item){return item.op===op;});
+    if(!exists)state.retryQueue.push({op:op,due:state.answered+2});
+  }
+  function adaptiveDifficulty(op){
+    if(state.mode!=="review")return state.diffByOp[op]||"normal";
+    var s=activeProfile().byOp[op]||{ok:0,fail:0},total=s.ok+s.fail;
+    if(total<4)return "easy";
+    var pct=s.ok/total;
+    if(pct<.65)return "easy";
+    if(pct<.88)return "normal";
+    return "hard";
+  }
+  function shuffle(arr){
+    for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=arr[i];arr[i]=arr[j];arr[j]=t;}
+    return arr;
+  }
+  function gcd(x,y){x=Math.abs(x);y=Math.abs(y);while(y){var t=y;y=x%y;x=t;}return x;}
+  function divisors(n){var r=[];for(var i=1;i<=n;i++)if(n%i===0)r.push(i);return r;}
+  function multsUpTo(x,lim){var r=[],k=1;while(x*k<=lim){r.push(x*k);k++;}return r;}
+  function fmtList(arr,maxn){
+    if(arr.length<=maxn) return arr.join(", ");
+    return arr.slice(0,maxn-1).join(", ")+", …, "+arr[arr.length-1];
+  }
+
+  // ---- generación de problemas con explicación ----
+  function makeProblem(){
+    var op=chooseOp();
+    state.curDiff=adaptiveDifficulty(op);
+    var lvl=state.curDiff;
+    var d=DIFF[lvl];
+    var boost=1+(state.level-1)*0.12;
+    var a,b,ans,text,hint,solve,base,exp,expand,distractors;
+
+    if(op==="add"){
+      a=ri(2,Math.round(d.addMax*boost)); b=ri(2,Math.round(d.addMax*boost));
+      ans=a+b; text=a+" + "+b;
+      distractors=[ans-1,ans+1,ans+10];
+      hint="Sumá primero las decenas y después las unidades.";
+      solve="Sumar es juntar cantidades.<br><b>"+a+" + "+b+"</b> = <span class='res'>"+ans+"</span>";
+    }else if(op==="sub"){
+      a=ri(5,Math.round(d.subMax*boost)); b=ri(1,a);
+      ans=a-b; text=a+" − "+b;
+      distractors=[ans-1,ans+1,a+b];
+      hint="¿Cuánto le falta a "+b+" para llegar a "+a+"?";
+      solve="Restar es quitar.<br><b>"+a+" − "+b+"</b> = <span class='res'>"+ans+"</span><br>Comprobalo: "+ans+" + "+b+" = "+a+" ✓";
+    }else if(op==="mul"){
+      a=ri(2,d.mulMax); b=ri(2,Math.round(d.mulMax*(lvl==="hard"?boost:1)));
+      ans=a*b; text=a+" × "+b;
+      distractors=[a*(b-1),a*(b+1),a+b];
+      hint="Es sumar "+b+" un total de "+a+" veces.";
+      solve="Multiplicar es sumar grupos iguales: "+a+" veces "+b+".<br><b>"+a+" × "+b+"</b> = <span class='res'>"+ans+"</span>";
+    }else if(op==="div"){
+      var divMax=lvl==="hard"?Math.round(d.mulMax*boost):d.mulMax;
+      b=ri(2,divMax); ans=ri(2,divMax); a=b*ans; text=a+" ÷ "+b;
+      distractors=[ans-1,ans+1,b];
+      hint="¿Qué número multiplicado por "+b+" te da "+a+"?";
+      solve="Dividir es repartir en partes iguales.<br><b>"+a+" ÷ "+b+"</b> = <span class='res'>"+ans+"</span> porque "+ans+" × "+b+" = "+a;
+    }else if(op==="pow"){
+      exp=pick(d.powExps);
+      var powCap=exp===4?5:exp===3?Math.min(8,d.powBase):d.powBase;
+      base=ri(2,powCap);
+      ans=Math.pow(base,exp); text=base+"<sup>"+exp+"</sup>";
+      distractors=[base*exp,Math.pow(base,Math.max(1,exp-1)),ans+base];
+      var parts=[]; for(var i=0;i<exp;i++)parts.push(base); expand=parts.join(" × ");
+      hint="Multiplicá "+base+" por sí mismo "+exp+" veces.";
+      solve="Una potencia es multiplicar la base por sí misma.<br><b>"+base+"<sup>"+exp+"</sup></b> = "+expand+" = <span class='res'>"+ans+"</span>";
+    }else if(op==="root"){
+      var rootLimit=Math.min(1600,Math.round(d.rootMax*(lvl==="hard"?boost:1)));
+      var r=ri(2,Math.floor(Math.sqrt(rootLimit))); a=r*r; ans=r; text="√"+a;
+      distractors=[Math.round(a/2),ans-1,ans+1];
+      hint="¿Qué número, multiplicado por sí mismo, da "+a+"?";
+      solve="La raíz cuadrada busca qué número al cuadrado da "+a+".<br><b>√"+a+"</b> = <span class='res'>"+ans+"</span> porque "+ans+" × "+ans+" = "+a;
+    }else if(op==="mlt"){
+      var hiB=d.factorMax;
+      var nb = ri(2,hiB), k = ri(2,lvl==="hard"?14:9);
+      ans = nb*k;
+      var maxM = ans+nb+6, distM=[], g1=0;
+      while(distM.length<3 && g1++<200){
+        var cm=ri(nb+1,maxM);
+        if(cm%nb!==0 && cm!==ans && distM.indexOf(cm)===-1) distM.push(cm);
+      }
+      state.answer=ans;
+      return {text:"¿Cuál es múltiplo de <b>"+nb+"</b>?", ans:ans, op:op, equals:false,
+        options:shuffle([ans].concat(distM)),
+        hint:"Pensá en la tabla del "+nb+": ¿cuál de los números aparece ahí?",
+        solve:"Un múltiplo sale de multiplicar "+nb+" por otro número.<br><b>"+ans+"</b> es múltiplo de "+nb+" porque "+nb+" × "+k+" = <span class='res'>"+ans+"</span>."};
+    }else if(op==="dvs"){ // divisores
+      var hiF=d.factorMax;
+      var N, divs, tries=0;
+      do{
+        N = ri(2,hiF)*ri(2,hiF);
+        divs=[]; for(var dd=2; dd<N; dd++) if(N%dd===0) divs.push(dd);
+        tries++;
+      }while(divs.length===0 && tries<30);
+      if(divs.length===0){ N=12; divs=[2,3,4,6]; }
+      ans = pick(divs);
+      var maxD=Math.max(N,14), distD=[], g2=0;
+      while(distD.length<3 && g2++<300){
+        var cd=ri(2,maxD);
+        if(N%cd!==0 && cd!==ans && distD.indexOf(cd)===-1) distD.push(cd);
+      }
+      state.answer=ans;
+      return {text:"¿Cuál es divisor de <b>"+N+"</b>?", ans:ans, op:op, equals:false,
+        options:shuffle([ans].concat(distD)),
+        hint:"Probá dividir "+N+" por cada opción: el divisor da resto 0.",
+        solve:"Un divisor entra justo, sin que sobre nada.<br><b>"+ans+"</b> es divisor de "+N+" porque "+N+" ÷ "+ans+" = <span class='res'>"+(N/ans)+"</span> (exacto)."};
+    }else if(op==="mcd"){
+      var gloD=d.commonMax;
+      var A,B,an,t3=0;
+      do{
+        var gg=ri(2,gloD), m1=ri(2,gloD+1), n1=ri(2,gloD+1);
+        A=gg*m1; B=gg*n1; an=gcd(A,B); t3++;
+      }while((A===B || an<2) && t3<40);
+      if(A===B||an<2){A=12;B=18;an=6;}
+      ans=an;
+      var comunes=divisors(A).filter(function(x){return B%x===0;});
+      var poolD=comunes.filter(function(x){return x!==ans;});
+      poolD.push(A); poolD.push(B); poolD.push(A*B/an);
+      var distMcd=[], seenD={}; seenD[ans]=1; poolD=shuffle(poolD);
+      for(var pi=0; pi<poolD.length && distMcd.length<3; pi++){
+        var v=poolD[pi]; if(v>0 && !seenD[v]){ seenD[v]=1; distMcd.push(v); }
+      }
+      var gd=0;
+      while(distMcd.length<3 && gd++<200){ var rc=ans+ri(1,6)*(Math.random()<.5?1:-1); if(rc>0 && !seenD[rc]){seenD[rc]=1;distMcd.push(rc);} }
+      state.answer=ans;
+      return {text:"¿Cuál es el <b>MCD</b> de "+A+" y "+B+"?", ans:ans, op:op, equals:false,
+        options:shuffle([ans].concat(distMcd)),
+        hint:"Anotá los divisores de "+A+" y de "+B+", y buscá el mayor que esté en las dos listas.",
+        solve:"El MCD es el mayor divisor que comparten.<br>Divisores de "+A+": "+fmtList(divisors(A),8)+"<br>Divisores de "+B+": "+fmtList(divisors(B),8)+"<br>El mayor en común es <span class='res'>"+ans+"</span>."};
+    }else{ // mcm
+      var gloM=d.commonMax;
+      var A2,B2,L,t4=0;
+      do{
+        var g2b=ri(2,gloM), m2=ri(2,gloM+1), n2=ri(2,gloM+1);
+        A2=g2b*m2; B2=g2b*n2; L=A2*B2/gcd(A2,B2); t4++;
+      }while((A2===B2) && t4<40);
+      if(A2===B2){A2=4;B2=6;L=12;}
+      ans=L;
+      var poolM=[ans*2, ans*3, A2, B2, gcd(A2,B2), A2*B2];
+      var distMcm=[], seenM={}; seenM[ans]=1; poolM=shuffle(poolM);
+      for(var pj=0; pj<poolM.length && distMcm.length<3; pj++){
+        var w=poolM[pj]; if(w>0 && w!==ans && !seenM[w]){ seenM[w]=1; distMcm.push(w); }
+      }
+      var gm=0;
+      while(distMcm.length<3 && gm++<200){ var rw=ans+ri(1,8)*(Math.random()<.5?1:-1); if(rw>0 && rw!==ans && !seenM[rw]){seenM[rw]=1;distMcm.push(rw);} }
+      state.answer=ans;
+      return {text:"¿Cuál es el <b>MCM</b> de "+A2+" y "+B2+"?", ans:ans, op:op, equals:false,
+        options:shuffle([ans].concat(distMcm)),
+        hint:"Anotá los múltiplos de "+A2+" y de "+B2+", y buscá el menor que aparezca en las dos.",
+        solve:"El MCM es el menor múltiplo que comparten.<br>Múltiplos de "+A2+": "+fmtList(multsUpTo(A2,ans),7)+"<br>Múltiplos de "+B2+": "+fmtList(multsUpTo(B2,ans),7)+"<br>El primero en común es <span class='res'>"+ans+"</span>."};
+    }
+    var equals;
+    if(state.mode!=="arcade"&&Math.random()<.3){
+      var result=ans;
+      if(op==="add"){
+        ans=b;text=a+" + <span class='q'>?</span> = "+result;equals=false;
+        hint="Pensá qué número falta para ir de "+a+" a "+result+".";
+        solve="Buscamos el sumando que falta: "+result+" − "+a+" = <span class='res'>"+ans+"</span>.";
+        distractors=[ans-1,ans+1,result+a];
+      }else if(op==="sub"){
+        ans=b;text=a+" − <span class='q'>?</span> = "+result;equals=false;
+        hint="Restale el resultado al número inicial.";
+        solve="Buscamos cuánto se quitó: "+a+" − "+result+" = <span class='res'>"+ans+"</span>.";
+        distractors=[ans-1,ans+1,a+result];
+      }else if(op==="mul"){
+        ans=b;text=a+" × <span class='q'>?</span> = "+result;equals=false;
+        hint="Dividí el resultado por "+a+".";
+        solve="Buscamos el factor que falta: "+result+" ÷ "+a+" = <span class='res'>"+ans+"</span>.";
+        distractors=[ans-1,ans+1,result-a];
+      }else if(op==="div"){
+        ans=b;text=a+" ÷ <span class='q'>?</span> = "+result;equals=false;
+        hint="Dividí "+a+" por el resultado "+result+".";
+        solve="Buscamos el divisor: "+a+" ÷ "+result+" = <span class='res'>"+ans+"</span>.";
+        distractors=[ans-1,ans+1,result];
+      }
+    }
+    state.answer=ans;
+    return {text:text,ans:ans,hint:hint,solve:solve,op:op,distractors:distractors,equals:equals,meta:{a:a,b:b}};
+  }
+
+  var CONCEPTS={
+    add:{q:"En 47 + 38, primero 7 + 8 da 15. ¿Qué hago?",choices:["Escribo 5 y llevo 1","Escribo 15 completo abajo","Resto 1 a las decenas"],correct:0,
+      h:"En la columna solo puede quedar una cifra.",s:"Se escribe el 5 en unidades y se lleva 1 a las decenas."},
+    sub:{q:"En 62 − 28, no puedo hacer 2 − 8. ¿Cuál es el primer paso?",choices:["Pedir prestado una decena","Cambiar el orden de la cuenta","Sumar 2 + 8"],correct:0,
+      h:"La columna de unidades necesita recibir diez.",s:"Se pide prestada una decena: el 2 pasa a 12 y el 6 baja a 5."},
+    mul:{q:"¿Qué significa 4 × 6?",choices:["Sumar 6 cuatro veces","Sumar 4 y 6","Multiplicar 4 por sí mismo"],correct:0,
+      h:"Pensá en cuatro grupos iguales.",s:"4 × 6 representa cuatro grupos de 6: 6 + 6 + 6 + 6."},
+    div:{q:"¿Cómo puedo comprobar 56 ÷ 8 = 7?",choices:["Haciendo 7 × 8","Haciendo 56 + 8","Haciendo 8 − 7"],correct:0,
+      h:"La división se comprueba con su operación inversa.",s:"Multiplicamos cociente por divisor: 7 × 8 = 56."},
+    pow:{q:"¿Qué indica el 3 en 2³?",choices:["Repetir el 2 tres veces como factor","Multiplicar 2 × 3","Sumar 3 al 2"],correct:0,
+      h:"El número pequeño es el exponente.",s:"2³ significa 2 × 2 × 2."},
+    root:{q:"¿Qué pregunta ayuda a resolver √81?",choices:["¿Qué número por sí mismo da 81?","¿Cuál es la mitad de 81?","¿Cuánto es 81 ÷ 2?"],correct:0,
+      h:"La raíz cuadrada deshace una potencia al cuadrado.",s:"Buscamos 9 porque 9 × 9 = 81."},
+    mlt:{q:"¿Cuál es el primer paso para buscar múltiplos de 6?",choices:["Multiplicar 6 por 1, 2, 3…","Dividir 6 por todos los números","Restar 6 repetidamente"],correct:0,
+      h:"Los múltiplos forman la tabla del número.",s:"Calculamos 6×1, 6×2, 6×3…: 6, 12, 18…"},
+    dvs:{q:"¿Cómo sé si 4 es divisor de 20?",choices:["20 ÷ 4 da exacto","4 es menor que 20","20 termina en cero"],correct:0,
+      h:"Un divisor no deja resto.",s:"20 ÷ 4 = 5, con resto cero; por eso 4 es divisor."},
+    mcd:{q:"Para calcular un MCD con listas, ¿qué hago primero?",choices:["Listo los divisores","Listo los múltiplos","Sumo los números"],correct:0,
+      h:"La D de MCD recuerda qué listas mirar.",s:"Primero listamos divisores; luego buscamos los comunes y elegimos el mayor."},
+    mcm:{q:"Para calcular un MCM con listas, ¿qué hago primero?",choices:["Listo los múltiplos","Listo los divisores","Resto los números"],correct:0,
+      h:"La M de MCM recuerda qué listas mirar.",s:"Primero listamos múltiplos; luego buscamos el primero que aparece en ambas listas."}
+  };
+
+  function prepareProblem(problem){
+    if(state.mode!=="arcade"&&Math.random()<.12){
+      var concept=CONCEPTS[problem.op];
+      return {text:concept.q,ans:concept.correct,op:problem.op,equals:false,
+        options:shuffle(concept.choices.map(function(label,index){return {value:index,label:label};})),
+        hint:concept.h,solve:concept.s};
+    }
+    if(state.mode!=="arcade"&&problem.equals!==false&&!problem.options&&problem.meta&&Math.random()<.18){
+      var m=problem.meta,story;
+      if(problem.op==="add")story="Tenías <b>"+m.a+"</b> figuritas y conseguiste <b>"+m.b+"</b> más. ¿Cuántas tenés ahora?";
+      if(problem.op==="sub")story="Había <b>"+m.a+"</b> cartas y se usaron <b>"+m.b+"</b>. ¿Cuántas quedaron?";
+      if(problem.op==="mul")story="Hay <b>"+m.a+"</b> cajas con <b>"+m.b+"</b> lápices cada una. ¿Cuántos lápices hay?";
+      if(problem.op==="div")story="Se reparten <b>"+m.a+"</b> fichas entre <b>"+m.b+"</b> chicos por igual. ¿Cuántas recibe cada uno?";
+      if(story){
+        problem.text=story;problem.equals=false;
+        problem.hint="Identificá qué operación representa la situación. "+problem.hint;
+        return problem;
+      }
+    }
+    if(state.mode==="arcade"||problem.options||problem.equals===false||Math.random()>=.22)return problem;
+    if(["add","sub","mul","div","pow","root"].indexOf(problem.op)===-1)return problem;
+    var original=problem.ans;
+    var showCorrect=Math.random()<.5;
+    var falseValues=(problem.distractors||makeOptions(original).filter(function(v){return v!==original;}));
+    var shown=showCorrect?original:pick(falseValues);
+    var verdict=showCorrect?1:0;
+    return {
+      text:problem.text+" = <b>"+shown+"</b><br><small>¿Verdadero o falso?</small>",
+      ans:verdict,op:problem.op,equals:false,
+      options:[{value:1,label:"Verdadero"},{value:0,label:"Falso"}],
+      hint:"Resolvé la cuenta primero y compará tu resultado con "+shown+".",
+      solve:problem.solve+"<br>La afirmación era <span class='res'>"+(showCorrect?"verdadera":"falsa")+"</span>."
+    };
+  }
+
+  function makeOptions(ans,preferred){
+    var set=[ans],guard=0;
+    (preferred||[]).forEach(function(v){
+      v=Math.round(v);
+      if(v>=0&&v!==ans&&set.indexOf(v)===-1&&set.length<4)set.push(v);
+    });
+    while(set.length<4 && guard++<60){
+      var spread=Math.max(2,Math.round(Math.abs(ans)*0.2)+ri(1,5));
+      var cand=ans+ri(-spread,spread);
+      if(cand===ans) cand+=ri(1,3);
+      if(cand<0 && ans>=0) cand=Math.abs(cand)+1;
+      if(set.indexOf(cand)===-1) set.push(cand);
+    }
+    for(var i=set.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=set[i];set[i]=set[j];set[j]=t;}
+    return set;
+  }
+
+  // ---- render ----
+  function renderLives(){
+    var h="";for(var i=0;i<3;i++)h+="<span class='"+(i<state.lives?"":"lost")+"'>❤️</span>";
+    $("#lives").innerHTML=h;
+    $("#lives").setAttribute("aria-label",state.lives+" vidas");
+  }
+  function comboMult(){return Math.min(1+state.combo*0.1,3);}
+  function renderCombo(){
+    $("#comboFill").style.width=(Math.min(state.combo,10)/10*100)+"%";
+    var t=$("#comboTxt");
+    if(state.combo>=2){t.textContent="x"+comboMult().toFixed(1);t.classList.add("show");}
+    else t.classList.remove("show");
+  }
+
+  function newRound(){
+    state.locked=false; state.usedHint=false;
+    hideTeach();
+    $("#hintBtn").disabled=false;
+    state.lastValue=null;
+    var p=prepareProblem(makeProblem()); state.cur=p; state.answer=p.ans;
+    var eq=$("#equation");
+    if(p.equals===false){ eq.classList.add("ask"); eq.innerHTML=p.text; }
+    else{ eq.classList.remove("ask"); eq.innerHTML=p.text+" = <span class='q'>?</span>"; }
+    $("#levelTag").textContent="NIVEL "+state.level;
+    var canWrite=!p.options;
+    state.inputKind=canWrite&&(state.answerMode==="write"||
+      (state.answerMode==="mixed"&&Math.random()<(state.mode==="arcade"?.25:.5)))?"write":"choice";
+    var box=$("#options"),form=$("#typeAnswer"); box.innerHTML="";
+    if(state.inputKind==="write"){
+      box.style.display="none"; form.classList.add("show");
+      $("#answerInput").value=""; $("#answerInput").disabled=false;
+      setTimeout(function(){$("#answerInput").focus();},50);
+    }else{
+      box.style.display="grid"; form.classList.remove("show");
+      var opts=p.options?p.options:makeOptions(p.ans,p.distractors);
+      opts.forEach(function(v){
+        var b=document.createElement("button");
+        var value=typeof v==="object"?v.value:v;
+        b.className="opt"; b.textContent=typeof v==="object"?v.label:v;
+        b.dataset.value=value;
+        b.onclick=function(){answer(value,b);};
+        box.appendChild(b);
+      });
+    }
+    $("#roundProgress").textContent=state.mode==="arcade"?"":("Pregunta "+(state.answered+1)+" de "+state.targetRounds);
+    $("#announcer").textContent="Nueva pregunta de "+OPNAME[p.op];
+    startTimer();
+  }
+
+  function startTimer(){
+    clearInterval(state.timer);
+    if(state.mode!=="arcade"){
+      $("#timerBar").style.display="none";
+      state.timeLeft=0; state.timeTotal=0;
+      return;
+    }
+    $("#timerBar").style.display="block";
+    state.timeTotal=DIFF[state.curDiff].time;
+    state.timeLeft=state.timeTotal;
+    $("#timerFill").style.width="100%";
+    runTimer();
+  }
+  function runTimer(){
+    clearInterval(state.timer);
+    var fill=$("#timerFill"); fill.classList.remove("low");
+    state.timer=setInterval(function(){
+      state.timeLeft-=0.1;
+      var pct=Math.max(0,state.timeLeft/state.timeTotal*100);
+      fill.style.width=pct+"%";
+      $("#timerBar").setAttribute("aria-valuenow",Math.round(pct));
+      if(pct<30)fill.classList.add("low");
+      if(state.timeLeft<=0){clearInterval(state.timer);timeout();}
+    },100);
+  }
+
+  function wrongTip(op){
+    var tips={
+      add:"Revisá primero las unidades y después las decenas.",
+      sub:"Comprobá la resta sumando tu resultado con el número que quitaste.",
+      mul:"Buscá la tabla de uno de los dos números o descomponé la cuenta.",
+      div:"Multiplicá tu respuesta por el divisor: debería volver al número inicial.",
+      pow:"El exponente indica cuántas veces se repite la base; no se multiplica por ella.",
+      root:"La raíz busca un número que, multiplicado por sí mismo, dé el valor de adentro.",
+      mlt:"Un múltiplo tiene que aparecer en la tabla del número indicado.",
+      dvs:"Un divisor debe dar una división exacta, con resto cero.",
+      mcd:"MCD: mirá divisores comunes y elegí el mayor.",
+      mcm:"MCM: mirá múltiplos comunes y elegí el menor."
+    };
+    return tips[op];
+  }
+  function unlockAchievements(){
+    var p=activeProfile(),earned=[];
+    function unlock(id,label,condition){
+      if(condition&&p.unlocked.indexOf(id)===-1){p.unlocked.push(id);earned.push(label);}
+    }
+    unlock("first","Primer paso",p.correct>=1);
+    unlock("first10","10 aciertos",p.correct>=10);
+    unlock("fifty","50 aciertos",p.correct>=50);
+    unlock("combo5","Combo x5",state.bestCombo>=5);
+    unlock("combo10","Combo x10",state.bestCombo>=10);
+    unlock("hundred","100 aciertos",p.correct>=100);
+    unlock("explorer","Todos los temas",OPORDER.every(function(op){
+      var s=p.byOp[op];return s&&(s.ok+s.fail)>0;
+    }));
+    unlock("perfect","Sesión perfecta",state.completed&&state.answered>0&&state.correct===state.answered);
+    unlock("practice5","5 prácticas",p.practiceSessions>=5);
+    unlock("review5","5 repasos",p.reviewSessions>=5);
+    if(earned.length){saveStore();setTimeout(function(){showFlash("🏅 "+earned[0]);},120);}
+  }
+  function finishOrNext(){
+    if(state.mode==="arcade"&&state.lives<=0){gameOver();return;}
+    if(state.mode!=="arcade"&&state.answered>=state.targetRounds){gameOver();return;}
+    newRound();
+  }
+  function answerLabel(){
+    var opts=state.cur&&state.cur.options;
+    if(opts){
+      for(var i=0;i<opts.length;i++)if(typeof opts[i]==="object"&&Number(opts[i].value)===state.answer)return opts[i].label;
+    }
+    return state.answer;
+  }
+  function answer(val,btn){
+    if(state.locked)return;
+    if(typeof val==="string"&&val.trim()===""){
+      $("#announcer").textContent="Escribí una respuesta antes de continuar";
+      $("#answerInput").focus();
+      return;
+    }
+    val=Number(val);
+    if(!Number.isFinite(val))return;
+    state.locked=true; clearInterval(state.timer);
+    state.lastValue=val; state.answered++;
+    $("#hintBtn").disabled=true;
+    $("#answerInput").disabled=true;
+    var all=document.querySelectorAll(".opt");
+    all.forEach(function(o){o.classList.add("disabled");});
+    if(val===state.answer){
+      if(btn)btn.classList.add("correct");
+      var gained;
+      if(state.usedHint){ gained=8; } // con pista: puntos base, sin bonus ni combo
+      else{
+        gained=Math.round((10+(state.mode==="arcade"?Math.max(0,Math.ceil(state.timeLeft))*2:5))*comboMult());
+        state.combo++; state.bestCombo=Math.max(state.bestCombo,state.combo);
+      }
+      state.score+=gained; state.correct++;
+      bump(state.cur.op,"ok");
+      recordAttempt(state.cur.op,true);
+      $("#score").textContent=state.score;
+      sndGood(); vibrate(30); renderCombo();
+      $("#announcer").textContent="Respuesta correcta";
+      unlockAchievements();
+      if(state.correct%5===0){state.level++;sndLvl();showFlash("¡NIVEL "+state.level+"!");}
+      setTimeout(finishOrNext,650);
+    }else{
+      if(btn)btn.classList.add("wrong");
+      all.forEach(function(o){if(Number(o.dataset.value)===state.answer)o.classList.add("correct");});
+      bump(state.cur.op,"fail");
+      recordAttempt(state.cur.op,false);
+      queueRetry(state.cur.op);
+      sndBad(); vibrate([0,40,30,60]);
+      if(state.mode==="arcade")state.lives--;
+      state.combo=0; renderLives(); renderCombo();
+      $("#announcer").textContent="Respuesta incorrecta. La respuesta era "+answerLabel();
+      showTeach("solve");
+    }
+  }
+
+  function timeout(){
+    if(state.locked)return;
+    state.locked=true; state.answered++; state.lastValue=null; $("#hintBtn").disabled=true;
+    document.querySelectorAll(".opt").forEach(function(o){
+      o.classList.add("disabled");
+      if(Number(o.dataset.value)===state.answer)o.classList.add("correct");
+    });
+    sndBad(); vibrate([0,40,30,60]);
+    bump(state.cur.op,"fail");
+    recordAttempt(state.cur.op,false);
+    queueRetry(state.cur.op);
+    state.lives--; state.combo=0; renderLives(); renderCombo();
+    $("#announcer").textContent="Se terminó el tiempo. La respuesta era "+answerLabel();
+    showTeach("solve");
+  }
+
+  // ---- tarjeta educativa ----
+  function showTeach(mode){
+    var t=$("#teach");
+    t.classList.remove("is-hint","is-solve");
+    if(mode==="hint"){
+      clearInterval(state.timer); // pausa el reloj mientras lee la pista
+      t.classList.add("is-hint");
+      $("#teachTitle").textContent="💡 PISTA";
+      $("#teachBody").innerHTML=state.cur.hint;
+      $("#teachBtn").textContent="Seguir jugando ▶";
+    }else{
+      t.classList.add("is-solve");
+      $("#teachTitle").textContent="ASÍ SE RESUELVE";
+      $("#teachBody").innerHTML=state.cur.solve+"<div class='mistake'>"+wrongTip(state.cur.op)+"</div>";
+      $("#teachBtn").textContent="Entendí, seguir ▶";
+    }
+    t.dataset.mode=mode;
+    t.classList.add("show");
+  }
+  function hideTeach(){$("#teach").classList.remove("show");}
+
+  $("#teachBtn").onclick=function(){
+    var mode=$("#teach").dataset.mode;
+    hideTeach();
+    if(mode==="hint"){
+      if(state.mode==="arcade")runTimer();
+    }else{setTimeout(finishOrNext,150);}
+  };
+  $("#studyErrorBtn").onclick=function(){
+    clearInterval(state.timer);hideTeach();
+    state.learnReturn="game";state.studyFromError=true;
+    openStudyTopic(state.cur.op);
+  };
+
+  $("#hintBtn").onclick=function(){
+    if(state.locked || state.usedHint)return;
+    state.usedHint=true;
+    $("#hintBtn").disabled=true;
+    showTeach("hint");
+  };
+
+  function showFlash(txt){
+    var f=$("#flash"); $("#flashTxt").textContent=txt;
+    f.classList.remove("show"); void f.offsetWidth; f.classList.add("show");
+    setTimeout(function(){f.classList.remove("show");},900);
+  }
+
+  function show(id){
+    var s=document.querySelectorAll(".screen");
+    for(var i=0;i<s.length;i++){s[i].classList.remove("active");s[i].setAttribute("aria-hidden","true");}
+    $("#"+id).classList.add("active");$("#"+id).setAttribute("aria-hidden","false");
+    var focusByScreen={menu:"#playBtn",customize:"#customizeBack",end:"#againBtn",learn:"#learnBack",tools:"#toolsBack",progress:"#progressBack"};
+    if(focusByScreen[id])setTimeout(function(){$(focusByScreen[id]).focus();},30);
+  }
+
+  function startGame(){
+    if(state.ops.length===0){
+      var g=$("#ops"); g.classList.remove("warn"); void g.offsetWidth; g.classList.add("warn");
+      beep(180,.18,"sawtooth",.1);
+      return;
+    }
+    state.score=0;state.lives=3;state.combo=0;state.bestCombo=0;
+    state.correct=0;state.answered=0;state.level=1;state.locked=false;state.usedHint=false;state.completed=false;state.paused=false;
+    state.retryQueue=[];
+    state.stats={};
+    $("#answerInput").disabled=false;
+    $("#score").textContent="0"; renderLives(); renderCombo(); hideTeach();
+    $("#lives").style.visibility=state.mode==="arcade"?"visible":"hidden";
+    $("#gameModeTag").textContent=state.mode==="arcade"?"ARCADE":state.mode==="practice"?"PRÁCTICA":"REPASO ADAPTATIVO";
+    show("game"); newRound();
+  }
+
+  function gameOver(){
+    if(state.completed)return;
+    state.completed=true;
+    clearInterval(state.timer); hideTeach();
+    var p=activeProfile(),best=p.best||0;
+    p.sessions++;
+    if(state.mode==="practice")p.practiceSessions++;
+    if(state.mode==="review")p.reviewSessions++;
+    p.bestCombo=Math.max(p.bestCombo||0,state.bestCombo);
+    var isRecord=state.mode==="arcade"&&state.score>best;
+    if(isRecord)p.best=state.score;
+    saveStore();
+    unlockAchievements();
+    $("#endTitle").textContent=state.mode==="arcade"?"¡Buena partida!":"¡Sesión completada!";
+    $("#finalScore").textContent=state.score;
+    $("#finalCorrect").textContent=state.correct;
+    $("#finalBest").textContent="x"+state.bestCombo;
+    $("#finalLevel").textContent=state.level;
+    var rl=$("#recordLine");
+    if(isRecord){rl.textContent="🏆 ¡NUEVO RÉCORD!";rl.classList.add("new-record");}
+    else if(state.mode==="arcade"){rl.textContent="Récord de "+store.active+": "+Math.max(best,state.score);rl.classList.remove("new-record");}
+    else{rl.textContent="Precisión: "+Math.round(state.correct/Math.max(1,state.answered)*100)+"%";rl.classList.remove("new-record");}
+    renderSummary();
+    show("end");
+  }
+
+  function renderSummary(){
+    var box=$("#summary"); box.innerHTML="";
+    var played=OPORDER.filter(function(op){var s=state.stats[op];return s&&(s.ok+s.fail)>0;});
+    if(played.length===0){ return; }
+    // operación más floja: más fallos; desempate por menor % de acierto
+    var worst=null,worstFail=-1,worstPct=101;
+    played.forEach(function(op){
+      var s=state.stats[op],tot=s.ok+s.fail,pct=Math.round(s.ok/tot*100);
+      if(s.fail>worstFail || (s.fail===worstFail && pct<worstPct)){
+        worst=op; worstFail=s.fail; worstPct=pct;
+      }
+    });
+    var w=document.createElement("div"); w.className="weak";
+    if(worstFail===0){ w.classList.add("good"); w.innerHTML="🎯 ¡Sin errores! Subí un nivel de dificultad."; }
+    else{ w.innerHTML="Para reforzar: <b>"+OPNAME[worst]+"</b>"; }
+    box.appendChild(w);
+
+    played.forEach(function(op){
+      var s=state.stats[op],tot=s.ok+s.fail,pct=Math.round(s.ok/tot*100);
+      var row=document.createElement("div"); row.className="sumRow";
+      row.innerHTML="<div class='lab'><span class='s'>"+OPSYM[op]+"</span>"+OPNAME[op]+"</div>"+
+        "<div class='sumTrack'><div class='f' style='width:"+pct+"%'></div></div>"+
+        "<div class='pct'>"+s.ok+"/"+tot+"</div>";
+      box.appendChild(row);
+    });
+  }
+
+  function renderProgress(){
+    var p=activeProfile();
+    $("#progressName").textContent=store.active;
+    $("#progressAccuracy").textContent=(p.total?Math.round(p.correct/p.total*100):0)+"%";
+    $("#progressTotal").textContent=p.total;
+    $("#progressBest").textContent=p.best||0;
+    var weakest=null,weakPct=101;
+    var mastery=$("#masteryList");mastery.innerHTML="";
+    OPORDER.forEach(function(op){
+      var s=p.byOp[op]||{ok:0,fail:0},total=s.ok+s.fail,pct=total?Math.round(s.ok/total*100):0;
+      var lesson=p.studyByOp[op]||{ok:0,fail:0,completed:0},lessonTotal=lesson.ok+lesson.fail;
+      var lessonPct=lessonTotal?Math.round(lesson.ok/lessonTotal*100):0;
+      if(total&&pct<weakPct){weakPct=pct;weakest=op;}
+      var row=document.createElement("div");row.className="mastery-row";
+      row.dataset.op=op;row.setAttribute("role","button");row.setAttribute("tabindex","0");
+      row.setAttribute("aria-label","Estudiar "+OPNAME[op]+". Dominio "+pct+" por ciento");
+      row.innerHTML="<div class='mastery-top'><span>"+OPSYM[op]+" · "+OPNAME[op]+"</span><span>"+(total?"Juego "+pct+"%":"Sin jugar")+(lessonTotal?" · Estudio "+lessonPct+"%":"")+"</span></div>"+
+        "<div class='mastery-track'><div class='mastery-fill' style='width:"+pct+"%'></div></div>";
+      mastery.appendChild(row);
+    });
+    $("#progressMessage").textContent=weakest?
+      "Tu próximo Repaso dará prioridad a "+OPNAME[weakest]+".":
+      "Jugá una sesión para empezar a construir tu mapa de aprendizaje.";
+    var achievements=$("#achievementList");achievements.innerHTML="";
+    ACHIEVEMENTS.forEach(function(a){
+      var got=p.unlocked.indexOf(a.id)!==-1;
+      var card=document.createElement("div");card.className="achievement"+(got?" got":"");
+      card.innerHTML="<b>"+a.icon+" "+a.name+"</b><span>"+a.desc+(got?" · conseguido":"")+"</span>";
+      achievements.appendChild(card);
+    });
+  }
+
+  // ---- guía de estudio ----
+  var STUDY=[
+    {s:"+",c:"#7CFF6B",name:"Suma",
+     q:"Juntar dos o más cantidades para obtener un total. El resultado se llama <b>suma</b> y los números que sumás se llaman <b>sumandos</b>.",
+     h:"Alineás los números por la derecha y sumás columna por columna, desde las unidades hacia las decenas. Si una columna pasa de 9, escribís la unidad y te llevás 1 a la columna siguiente.",
+     e:"<b>47 + 38</b>: 7 + 8 = 15 → escribo 5 y me llevo 1. Después 4 + 3 + 1 = 8. Resultado: <span class='r'>85</span>.",
+     t:"Redondeá para estimar y controlar: 47 ≈ 50 y 38 ≈ 40 dan ≈ 90. Si tu cuenta queda muy lejos, revisala.",
+     w:"No te olvides de sumar “lo que te llevás”; es el error más común en cuentas largas."},
+    {s:"−",c:"#18E0FF",name:"Resta",
+     q:"Quitar una cantidad de otra: cuánto queda, o cuánto falta para llegar de un número a otro.",
+     h:"Restás de derecha a izquierda. Si la cifra de arriba es menor, le pedís prestado 10 a la columna de la izquierda (que baja en 1).",
+     e:"<b>62 − 28</b>: 2 − 8 no se puede → 12 − 8 = 4. El 6 pasó a 5: 5 − 2 = 3. Da <span class='r'>34</span>.",
+     t:"Comprobá sumando el resultado con lo que restaste: 34 + 28 = 62. La resta y la suma son operaciones inversas.",
+     w:"El orden importa: 8 − 2 no es lo mismo que 2 − 8. En este nivel ponemos primero el número mayor."},
+    {s:"×",c:"#FF3CAC",name:"Multiplicación",
+     q:"Una forma rápida de sumar un mismo número varias veces. 4 × 6 es “sumar 6 cuatro veces”.",
+     h:"Para números chicos usás las tablas. Para números grandes, multiplicás por cada cifra y después sumás los resultados parciales.",
+     e:"<b>7 × 8</b> = 8+8+8+8+8+8+8 = <span class='r'>56</span>.",
+     t:"Multiplicar por 10 agrega un cero. También podés descomponer: 7 × 8 = (7×10) − (7×2) = 70 − 14 = 56.",
+     w:"El orden no cambia el resultado: 4 × 6 = 6 × 4. Esa propiedad se llama conmutativa."},
+    {s:"÷",c:"#FFD23F",name:"División",
+     q:"Repartir en partes iguales, o ver cuántas veces entra un número dentro de otro.",
+     h:"Te preguntás cuántas veces cabe el divisor. 56 ÷ 8 → 8 entra 7 veces en 56.",
+     e:"<b>24 ÷ 6</b> = <span class='r'>4</span>, porque 6 entra 4 veces en 24: 6 + 6 + 6 + 6 = 24.",
+     t:"Es la inversa de multiplicar: 56 ÷ 8 = 7 porque 7 × 8 = 56. Si sabés las tablas, ya sabés dividir.",
+     w:"No se puede dividir por 0. A veces queda resto, aunque en este juego usamos divisiones exactas (resto 0)."},
+    {s:"xⁿ",c:"#9D7BFF",name:"Potencia",
+     q:"Multiplicar un número (la base) por sí mismo tantas veces como indica el exponente.",
+     h:"El exponente dice cuántas veces se repite la base. En 3³, la base es 3 y el exponente 3.",
+     e:"<b>3<sup>3</sup></b> = 3 × 3 × 3 = <span class='r'>27</span>.  Otros: 5<sup>2</sup> = 25, 2<sup>4</sup> = 16.",
+     t:"“Al cuadrado” es base × base. “Al cubo” es base × base × base.",
+     w:"3<sup>2</sup> no es 3 × 2 = 6. Es 3 × 3 = 9."},
+    {s:"√",c:"#FF5C5C",name:"Raíz cuadrada",
+     q:"La operación inversa de elevar al cuadrado. Busca qué número, por sí mismo, da el de adentro.",
+     h:"Te preguntás: ¿qué número por sí mismo da esto? √49 → 7 × 7 = 49, así que √49 = 7.",
+     e:"<b>√81</b> = <span class='r'>9</span> (porque 9 × 9 = 81). √144 = 12.",
+     t:"Aprendé de memoria los cuadrados perfectos de la tabla de abajo. Si reconocés el número, la raíz sale de una.",
+     w:"La raíz no es dividir por 2. √16 = 4, no 8."},
+    {s:"M",c:"#2EE6C0",name:"Múltiplos",
+     q:"Los múltiplos de un número son los resultados de multiplicarlo por 1, 2, 3, 4… Su tabla, sin fin.",
+     h:"Multiplicás el número por cada natural. Múltiplos de 5: 5, 10, 15, 20, 25…",
+     e:"¿<b>28</b> es múltiplo de 7? <span class='r'>Sí</span>, porque 7 × 4 = 28.",
+     t:"Es múltiplo si al dividir da exacto (resto 0).",
+     w:"Los múltiplos son infinitos. Todo número es múltiplo de sí mismo y de 1."},
+    {s:"D",c:"#FFB23F",name:"Divisores",
+     q:"Los divisores de un número son los que lo dividen justo, sin que sobre nada.",
+     h:"Probás qué números lo dividen exacto. Divisores de 12: 1, 2, 3, 4, 6 y 12.",
+     e:"¿<b>6</b> es divisor de 24? <span class='r'>Sí</span>, porque 24 ÷ 6 = 4 exacto. El 5 no lo es porque deja resto.",
+     t:"Vienen de a pares: en el 12, 1-12, 2-6, 3-4.",
+     w:"Son finitos (el mayor es el propio número). Si 4 es divisor de 12, 12 es múltiplo de 4."},
+    {s:"MCD",c:"#FF6FC1",name:"Máx. común divisor",
+     q:"El divisor más grande que dos números comparten al mismo tiempo.",
+     h:"Listás los divisores de cada uno, marcás los comunes y elegís el mayor.",
+     e:"<b>MCD(12, 18)</b><br>Divisores de 12: 1, 2, 3, 4, 6, 12<br>Divisores de 18: 1, 2, 3, 6, 9, 18<br>Comunes: 1, 2, 3, 6 → <span class='r'>6</span>.",
+     t:"Sirve para simplificar fracciones. Da un número menor o igual que los originales.",
+     w:"No confundir con MCM. El MCD mira divisores y busca el mayor."},
+    {s:"MCM",c:"#B79CFF",name:"Mín. común múltiplo",
+     q:"El múltiplo más chico que dos números comparten al mismo tiempo.",
+     h:"Listás los múltiplos de cada uno y buscás el primero que aparece en las dos listas.",
+     e:"<b>MCM(4, 6)</b><br>Múltiplos de 4: 4, 8, 12, 16…<br>Múltiplos de 6: 6, 12, 18…<br>Primero común: <span class='r'>12</span>.",
+     t:"Sirve para sumar fracciones de distinto denominador. Da un número mayor o igual que los originales.",
+     w:"No confundir con MCD. El MCM mira múltiplos y busca el menor."}
+  ];
+  var LESSONS={
+    add:{
+      goal:"Sumar cantidades y explicar qué ocurre cuando una columna supera 9.",
+      prior:["Reconocer unidades y decenas","Contar hacia adelante","Sumas hasta 10"],
+      visual:"<div class='place-table'><span class='hd'>CENTENAS</span><span class='hd'>DECENAS</span><span class='hd'>UNIDADES</span><span class='num'>–</span><span class='num'>4</span><span class='num'>7</span><span class='num'>+</span><span class='num'>3</span><span class='num'>8</span><span class='num result'>–</span><span class='num result'>8</span><span class='num result'>5</span></div>",
+      steps:["Alineá unidades debajo de unidades y decenas debajo de decenas.","Sumá las unidades: 7 + 8 = 15. Escribí 5 y llevá 1 decena.","Sumá las decenas incluyendo la que llevaste: 4 + 3 + 1 = 8.","Estimá el resultado para comprobar que tenga sentido."],
+      mental:"Para 39 + 26, pensá 40 + 26 = 66 y después restá 1: da 65.",
+      remember:["Sumar es juntar.","Empezá por la derecha.","Si pasás de 9, llevás una decena.","Podés cambiar el orden de los sumandos."],
+      quiz:[
+        {q:"En 58 + 27, ¿qué hacés con 8 + 7 = 15?",o:["Escribo 5 y llevo 1","Escribo 15 en unidades","Llevo 5"],a:0,e:"En unidades queda el 5; el 1 representa una decena y se lleva."},
+        {q:"¿Cuál es una buena estimación para 48 + 33?",o:["Cerca de 80","Cerca de 20","Cerca de 150"],a:0,e:"48 ≈ 50 y 33 ≈ 30; 50 + 30 ≈ 80."}
+      ]
+    },
+    sub:{
+      goal:"Calcular cuánto queda o cuánto falta y comprobarlo con una suma.",
+      prior:["Valor posicional","Contar hacia atrás","Relación entre suma y resta"],
+      visual:"<div class='number-line'><span>28</span><span class='jump'>+2</span><span>30</span><span class='jump'>+30</span><span>60</span><span class='jump'>+2</span><span>62</span></div><div class='visual-title' style='margin-top:9px'>2 + 30 + 2 = 34 de diferencia</div>",
+      steps:["Identificá de qué cantidad partís y cuánto tenés que quitar.","Restá desde las unidades hacia la izquierda.","Si arriba hay una cifra menor, cambiá una decena por 10 unidades.","Comprobá: diferencia + cantidad quitada = cantidad inicial."],
+      mental:"Para 62 − 28, contá de 28 a 62: +2, +30 y +2. En total faltan 34.",
+      remember:["Restar puede significar quitar o comparar.","El orden cambia el resultado.","Pedir prestado es cambiar 1 decena por 10 unidades.","La suma sirve para comprobar."],
+      quiz:[
+        {q:"En 72 − 38, ¿por qué el 2 puede convertirse en 12?",o:["Porque cambiamos una decena por 10 unidades","Porque sumamos 10 al resultado","Porque 38 es par"],a:0,e:"Una de las 7 decenas se cambia por 10 unidades; quedan 6 decenas y 12 unidades."},
+        {q:"¿Cómo comprobás que 64 − 19 = 45?",o:["45 + 19 = 64","64 + 19 = 45","45 − 19 = 64"],a:0,e:"La resta se comprueba sumando la diferencia y lo que se quitó."}
+      ]
+    },
+    mul:{
+      goal:"Reconocer grupos iguales y usar estrategias para calcular productos.",
+      prior:["Suma repetida","Contar de 2 en 2, de 5 en 5 y de 10 en 10","Dobles"],
+      visual:"<div class='group-model'><span class='group-box'>● ● ●</span><span class='group-box'>● ● ●</span><span class='group-box'>● ● ●</span><span class='group-box'>● ● ●</span></div><div class='visual-title' style='margin-top:9px'>4 grupos de 3 = 12</div>",
+      steps:["Leé el primer factor como cantidad de grupos y el segundo como elementos por grupo.","Usá una tabla conocida o una suma repetida.","Para números grandes, descomponé uno de los factores.","Comprobá intercambiando el orden: 4 × 6 = 6 × 4."],
+      mental:"Para 7 × 8, usá 7 × 10 − 7 × 2: 70 − 14 = 56.",
+      remember:["Multiplicar forma grupos iguales.","Los factores pueden cambiar de orden.","Todo número por 0 da 0.","Descomponer ayuda a calcular mentalmente."],
+      quiz:[
+        {q:"¿Qué representa 5 × 4?",o:["5 grupos de 4","5 + 4","4 menos 5"],a:0,e:"La multiplicación representa cinco grupos con cuatro elementos cada uno."},
+        {q:"¿Qué estrategia sirve para 9 × 6?",o:["10 × 6 − 6","9 + 6","6 × 6 − 10"],a:0,e:"Como 9 es uno menos que 10, calculás 60 − 6 = 54."}
+      ]
+    },
+    div:{
+      goal:"Repartir en partes iguales y relacionar cada división con una multiplicación.",
+      prior:["Tablas de multiplicar","Restas repetidas","Grupos iguales"],
+      visual:"<div class='group-model'><span class='group-box'>● ● ● ●</span><span class='group-box'>● ● ● ●</span><span class='group-box'>● ● ● ●</span></div><div class='visual-title' style='margin-top:9px'>12 repartido en 3 grupos = 4 por grupo</div>",
+      steps:["Identificá el total y en cuántos grupos se reparte.","Buscá qué número multiplicado por el divisor produce el total.","Si no entra justo, distinguí cociente y resto.","Comprobá multiplicando cociente × divisor y sumando el resto."],
+      mental:"Para 84 ÷ 7, pensá: ¿7 por cuánto da 84? Como 7 × 12 = 84, el cociente es 12.",
+      remember:["Dividir es repartir o agrupar.","No se puede dividir por 0.","La multiplicación comprueba la división.","El resto siempre es menor que el divisor."],
+      quiz:[
+        {q:"Si repartís 20 fichas entre 5 chicos, ¿qué cuenta ayuda?",o:["20 ÷ 5","20 × 5","20 − 5 una sola vez"],a:0,e:"Se reparte un total de 20 en 5 grupos iguales."},
+        {q:"En 17 ÷ 5, ¿cuál puede ser el resto?",o:["2","5","7"],a:0,e:"5 × 3 = 15 y sobran 2. El resto debe ser menor que 5."}
+      ]
+    },
+    pow:{
+      goal:"Distinguir base y exponente y desarrollar potencias como multiplicaciones.",
+      prior:["Multiplicación","Factores iguales","Lectura de superíndices"],
+      visual:"<div class='factor-chain'><span>3³</span><span class='opmark'>=</span><span>3</span><span class='opmark'>×</span><span>3</span><span class='opmark'>×</span><span>3</span><span class='opmark'>=</span><span class='answer'>27</span></div>",
+      steps:["Identificá la base: es el número grande.","Leé el exponente: indica cuántas veces aparece la base como factor.","Escribí la multiplicación repetida.","Multiplicá paso a paso."],
+      mental:"Los cuadrados terminados en 5 pueden pensarse como 5² = 25, 15² = 225; para este nivel conviene memorizar del 1² al 12².",
+      remember:["El exponente no multiplica a la base.","Exponente 2 significa al cuadrado.","Exponente 3 significa al cubo.","Toda base distinta de 0 elevada a 0 vale 1."],
+      quiz:[
+        {q:"¿Cuál es el desarrollo de 4³?",o:["4 × 4 × 4","4 × 3","3 × 3 × 3 × 3"],a:0,e:"El exponente 3 indica que la base 4 aparece tres veces."},
+        {q:"¿Cuánto vale 6²?",o:["36","12","18"],a:0,e:"6² = 6 × 6 = 36."}
+      ]
+    },
+    root:{
+      goal:"Encontrar el lado de un cuadrado conociendo su cantidad total de casillas.",
+      prior:["Potencias al cuadrado","Tablas de multiplicar","Cuadrados perfectos"],
+      visual:"<div class='dot-grid' style='--cols:4'><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class='visual-title' style='margin-top:9px'>16 puntos forman un cuadrado de 4 × 4: √16 = 4</div>",
+      steps:["Reconocé el número dentro del símbolo radical.","Preguntá qué número multiplicado por sí mismo produce ese valor.","Buscalo en la tabla de cuadrados perfectos.","Comprobá elevando tu respuesta al cuadrado."],
+      mental:"Ubicá el número entre cuadrados conocidos: 64 = 8² y 81 = 9².",
+      remember:["La raíz cuadrada deshace el cuadrado.","√49 = 7 porque 7² = 49.","No es dividir el número por 2.","En este juego usamos raíces exactas."],
+      quiz:[
+        {q:"¿Por qué √36 = 6?",o:["Porque 6 × 6 = 36","Porque 36 ÷ 2 = 18","Porque 3 + 6 = 9"],a:0,e:"La raíz busca el número cuyo cuadrado es 36."},
+        {q:"¿Entre qué raíces enteras está √50?",o:["Entre 7 y 8","Entre 5 y 6","Entre 10 y 11"],a:0,e:"7² = 49 y 8² = 64, por eso √50 está apenas por encima de 7."}
+      ]
+    },
+    mlt:{
+      goal:"Generar múltiplos y reconocer cuándo un número pertenece a una tabla.",
+      prior:["Tablas de multiplicar","Secuencias","División exacta"],
+      visual:"<div class='number-line'><span>0</span><span class='jump'>+5</span><span>5</span><span class='jump'>+5</span><span>10</span><span class='jump'>+5</span><span>15</span><span class='jump'>+5</span><span>20</span></div>",
+      steps:["Elegí el número del que buscás múltiplos.","Multiplicalo por 0, 1, 2, 3 y así sucesivamente.","Observá que la secuencia continúa sin terminar.","Para comprobar uno, dividilo por el número base y mirá si el resto es 0."],
+      mental:"Los múltiplos de 2 son pares; los de 5 terminan en 0 o 5; los de 10 terminan en 0.",
+      remember:["Los múltiplos son infinitos.","0 es múltiplo de todo número.","Cada número es múltiplo de sí mismo.","Una división exacta confirma la relación."],
+      quiz:[
+        {q:"¿Cuál de estos números es múltiplo de 6?",o:["42","40","25"],a:0,e:"42 = 6 × 7."},
+        {q:"¿Por qué 35 es múltiplo de 5?",o:["Porque 35 ÷ 5 = 7 exacto","Porque es mayor que 5","Porque 3 + 5 = 8"],a:0,e:"La división exacta demuestra que 35 pertenece a la tabla del 5."}
+      ]
+    },
+    dvs:{
+      goal:"Encontrar todos los números que dividen exactamente a otro.",
+      prior:["División exacta","Multiplicación","Pares de factores"],
+      visual:"<div class='pair-list'><span><b>1</b> × 12</span><span><b>2</b> × 6</span><span><b>3</b> × 4</span></div><div class='visual-title' style='margin-top:9px'>Cada pareja produce 12</div>",
+      steps:["Empezá probando con 1, que siempre es divisor.","Buscá pares de números cuyo producto sea el número dado.","Anotá los dos integrantes de cada pareja.","Detenete cuando las parejas empiecen a repetirse."],
+      mental:"Para saber si 3 divide a un número, sumá sus cifras: si esa suma es múltiplo de 3, la división es exacta.",
+      remember:["Los divisores son finitos.","1 y el propio número siempre son divisores.","Aparecen en parejas de factores.","Divisor significa resto 0."],
+      quiz:[
+        {q:"¿Qué pareja de divisores de 24 falta: 1×24, 2×12, 3×8, …?",o:["4 × 6","5 × 5","6 × 6"],a:0,e:"4 × 6 = 24, así que ambos son divisores."},
+        {q:"¿Es 7 divisor de 30?",o:["No, porque deja resto","Sí, porque 7 es menor","Sí, porque es primo"],a:0,e:"30 ÷ 7 no es exacto."}
+      ]
+    },
+    mcd:{
+      goal:"Encontrar el divisor común más grande y comprender para qué sirve.",
+      prior:["Divisores","Comparar números","Pares de factores"],
+      visual:"<div class='compare-lists'><div><b>12</b><br>1, <span class='common'>2</span>, <span class='common'>3</span>, 4, <span class='common'>6</span>, 12</div><div><b>18</b><br>1, <span class='common'>2</span>, <span class='common'>3</span>, <span class='common'>6</span>, 9, 18</div></div><div class='visual-title' style='margin-top:9px'>El común más grande es 6</div>",
+      steps:["Listá todos los divisores del primer número.","Listá todos los divisores del segundo.","Marcá los que aparecen en ambas listas.","Elegí el común de mayor valor."],
+      mental:"Si un número divide exactamente al otro, el menor es el MCD. Por ejemplo, MCD(6, 18) = 6.",
+      remember:["MCD trabaja con divisores.","Deben ser comunes a ambos números.","Se elige el mayor.","Sirve para repartir en grupos máximos o simplificar."],
+      quiz:[
+        {q:"Divisores comunes de 8 y 12: 1, 2 y 4. ¿Cuál es el MCD?",o:["4","2","12"],a:0,e:"Entre los divisores comunes, 4 es el mayor."},
+        {q:"¿Qué lista necesitás para calcular un MCD?",o:["Divisores","Múltiplos","Potencias"],a:0,e:"La D de MCD recuerda que se buscan divisores."}
+      ]
+    },
+    mcm:{
+      goal:"Encontrar el primer múltiplo que dos números comparten.",
+      prior:["Múltiplos","Tablas de multiplicar","Comparar secuencias"],
+      visual:"<div class='compare-lists'><div><b>4</b><br>4, 8, <span class='common'>12</span>, 16, 20…</div><div><b>6</b><br>6, <span class='common'>12</span>, 18, 24…</div></div><div class='visual-title' style='margin-top:9px'>El primer común es 12</div>",
+      steps:["Escribí varios múltiplos del primer número.","Escribí varios múltiplos del segundo.","Buscá el primer valor que aparece en ambas listas.","Comprobá que ese valor se divida exactamente por los dos."],
+      mental:"Si dos números no comparten factores salvo 1, su MCM es el producto. Por ejemplo, MCM(4, 5) = 20.",
+      remember:["MCM trabaja con múltiplos.","Se busca el primero en común.","Suele ser mayor o igual que los números.","Sirve para averiguar cuándo coinciden ciclos."],
+      quiz:[
+        {q:"Múltiplos de 3: 3, 6, 9, 12…; de 4: 4, 8, 12… ¿Cuál es el MCM?",o:["12","4","24"],a:0,e:"12 es el primer número que aparece en las dos listas."},
+        {q:"¿Qué lista necesitás para calcular un MCM?",o:["Múltiplos","Divisores","Raíces"],a:0,e:"La primera M de MCM recuerda que se buscan múltiplos."}
+      ]
+    }
+  };
+  function studyStatus(op){
+    var s=activeProfile().studyByOp[op];
+    if(!s||!(s.ok+s.fail))return "Nueva";
+    var pct=Math.round(s.ok/(s.ok+s.fail)*100);
+    return (s.completed?"✓ ":"")+pct+"%";
+  }
+  function updateStudyRecommendation(){
+    var p=activeProfile(),bestOp=null,bestNeed=-1;
+    OPORDER.forEach(function(op){
+      var game=p.byOp[op]||{ok:0,fail:0},gt=game.ok+game.fail;
+      var study=p.studyByOp[op]||{ok:0,fail:0,completed:0},st=study.ok+study.fail;
+      var gameNeed=gt?1-game.ok/gt:.45;
+      var studyNeed=st?1-study.ok/st:.3;
+      var need=gameNeed+studyNeed+(study.completed?0:.18);
+      if(need>bestNeed){bestNeed=need;bestOp=op;}
+    });
+    $("#studyRecommendation").innerHTML="🧭 Ruta sugerida para <b>"+store.active+"</b>: empezá por <b>"+OPNAME[bestOp]+"</b>. La recomendación combina tus errores del juego y las prácticas de estudio.";
+  }
+  function quizMarkup(op,index){
+    var lesson=LESSONS[op],quiz=lesson.quiz[index];
+    return "<div class='quiz-progress'>Probalo vos · "+(index+1)+" de "+lesson.quiz.length+"</div>"+
+      "<div class='quiz-question'>"+quiz.q+"</div>"+
+      "<div class='quiz-options'>"+quiz.o.map(function(option,i){
+        return "<button class='quiz-option' type='button' data-quiz-answer='"+i+"'>"+option+"</button>";
+      }).join("")+"</div>"+
+      "<div class='quiz-feedback' aria-live='polite'></div>"+
+      "<button class='quiz-next' type='button' data-quiz-next='"+(index+1)+"'>"+(index+1<lesson.quiz.length?"Siguiente pregunta ▶":"Ver resultado ▶")+"</button>";
+  }
+  function renderStudy(){
+    var box=$("#studyList"),indexBox=$("#studyIndex");box.innerHTML="";indexBox.innerHTML="";
+    STUDY.forEach(function(it,index){
+      var op=OPORDER[index],lesson=LESSONS[op];
+      var indexBtn=document.createElement("button");
+      indexBtn.className="study-index-btn";indexBtn.type="button";indexBtn.dataset.studyOp=op;
+      indexBtn.style.setProperty("--c",it.c);
+      indexBtn.innerHTML="<span class='ix-sym'>"+it.s+"</span><span>"+it.name+"</span>";
+      indexBox.appendChild(indexBtn);
+      var d=document.createElement("div");
+      d.className="study-item"; d.style.setProperty("--c",it.c);
+      d.dataset.op=op;d.dataset.quizCorrect="0";
+      var symCls = it.s.length>=3 ? "sym t" : "sym";
+      var panelId="studyPanel"+index;
+      d.innerHTML=
+        "<div class='study-head'><span class='"+symCls+"'>"+it.s+"</span><span class='nm'>"+it.name+"</span><span class='lesson-score'>"+studyStatus(op)+"</span></div>"+
+        "<div class='lesson-tabs' role='tablist' aria-label='Partes de la lección'>"+
+          "<button class='lesson-tab active' type='button' role='tab' data-lesson-tab='understand' aria-selected='true'>Entender</button>"+
+          "<button class='lesson-tab' type='button' role='tab' data-lesson-tab='solve' aria-selected='false'>Resolver</button>"+
+          "<button class='lesson-tab' type='button' role='tab' data-lesson-tab='practice' aria-selected='false'>Practicar</button>"+
+        "</div>"+
+        "<div class='study-body' id='"+panelId+"' role='region'>"+
+          "<div class='lesson-panel active' data-lesson-panel='understand'>"+
+            "<div class='ssec'><div class='lesson-goal'><span class='icon'>🎯</span><div><b>QUÉ VAS A APRENDER</b><p>"+lesson.goal+"</p></div></div></div>"+
+            "<div class='ssec'><div class='slab'>Antes de empezar</div><div class='prior'>"+lesson.prior.map(function(x){return "<span>"+x+"</span>";}).join("")+"</div></div>"+
+            "<div class='ssec'><div class='slab'>¿Qué es?</div><p>"+it.q+"</p></div>"+
+            "<div class='ssec'><div class='slab'>Miralo de otra forma</div><div class='visual-model'><div class='visual-title'>Modelo visual</div>"+lesson.visual+"</div></div>"+
+          "</div>"+
+          "<div class='lesson-panel' data-lesson-panel='solve'>"+
+            "<div class='ssec'><div class='slab'>Paso a paso</div><div class='lesson-steps'>"+lesson.steps.map(function(step,i){return "<div class='lesson-step'><span class='n'>"+(i+1)+"</span><span>"+step+"</span></div>";}).join("")+"</div></div>"+
+            "<div class='ssec'><div class='slab'>Ejemplo resuelto</div><div class='sex'>"+it.e+"</div></div>"+
+            "<div class='ssec'><div class='slab tip'>⚡ Cálculo mental</div><p>"+lesson.mental+"</p></div>"+
+            "<div class='ssec'><div class='slab warn'>⚠ Ojo con…</div><p>"+it.w+"</p></div>"+
+            "<div class='ssec'><div class='slab'>Recordá estas ideas</div><div class='remember'>"+lesson.remember.map(function(x){return "<div>"+x+"</div>";}).join("")+"</div></div>"+
+          "</div>"+
+          "<div class='lesson-panel' data-lesson-panel='practice'>"+
+            "<div class='ssec'><div class='lesson-quiz' data-quiz-index='0'>"+quizMarkup(op,0)+"</div></div>"+
+          "</div>"+
+        "</div>";
+      box.appendChild(d);
+    });
+    selectStudyTopic(state.currentStudyOp||"add",false);
+  }
+  function selectStudyTab(item,tabName){
+    state.studyTab=tabName;
+    item.querySelectorAll(".lesson-tab").forEach(function(btn){
+      var active=btn.dataset.lessonTab===tabName;btn.classList.toggle("active",active);btn.setAttribute("aria-selected",active?"true":"false");
+    });
+    item.querySelectorAll(".lesson-panel").forEach(function(panel){panel.classList.toggle("active",panel.dataset.lessonPanel===tabName);});
+  }
+  function selectStudyTopic(op,scroll){
+    var index=OPORDER.indexOf(op);if(index<0){op="add";index=0;}
+    state.currentStudyOp=op;
+    document.querySelectorAll(".study-item").forEach(function(item){item.classList.toggle("current",item.dataset.op===op);});
+    var activeIndexBtn=null;
+    document.querySelectorAll(".study-index-btn").forEach(function(btn){
+      var active=btn.dataset.studyOp===op;btn.classList.toggle("active",active);if(active)activeIndexBtn=btn;
+    });
+    $("#lessonPosition").textContent=(index+1)+" de "+OPORDER.length;
+    $("#prevLessonBtn").disabled=index===0;$("#nextLessonBtn").disabled=index===OPORDER.length-1;
+    var current=document.querySelector(".study-item[data-op='"+op+"']");
+    if(current)selectStudyTab(current,state.studyTab||"understand");
+    if(activeIndexBtn&&scroll)activeIndexBtn.scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});
+    if(scroll)$("#learn").scrollTop=0;
+  }
+  $("#studyIndex").addEventListener("click",function(e){
+    var btn=e.target.closest(".study-index-btn");if(!btn)return;
+    state.studyTab="understand";selectStudyTopic(btn.dataset.studyOp,true);beep(440,.04);
+  });
+  $("#studyList").addEventListener("click",function(e){
+    var tab=e.target.closest(".lesson-tab");if(!tab)return;
+    selectStudyTab(tab.closest(".study-item"),tab.dataset.lessonTab);
+  });
+  function updateStudyScore(item){
+    item.querySelector(".lesson-score").textContent=studyStatus(item.dataset.op);
+  }
+  $("#studyList").addEventListener("click",function(e){
+    var answerBtn=e.target.closest(".quiz-option");
+    var nextBtn=e.target.closest(".quiz-next");
+    if(!answerBtn&&!nextBtn)return;
+    var item=e.target.closest(".study-item"),op=item.dataset.op,lesson=LESSONS[op];
+    var quizBox=e.target.closest(".lesson-quiz");
+    if(answerBtn){
+      if(answerBtn.disabled)return;
+      var index=Number(quizBox.dataset.quizIndex||0),quiz=lesson.quiz[index];
+      var chosen=Number(answerBtn.dataset.quizAnswer),correct=chosen===quiz.a;
+      quizBox.querySelectorAll(".quiz-option").forEach(function(btn){
+        btn.disabled=true;
+        if(Number(btn.dataset.quizAnswer)===quiz.a)btn.classList.add("correct");
+      });
+      if(!correct)answerBtn.classList.add("wrong");
+      var progress=activeProfile().studyByOp[op]||(activeProfile().studyByOp[op]={ok:0,fail:0,completed:0});
+      progress[correct?"ok":"fail"]++;
+      if(correct)item.dataset.quizCorrect=String(Number(item.dataset.quizCorrect||0)+1);
+      quizBox.querySelector(".quiz-feedback").innerHTML=(correct?"✅ <b>¡Bien!</b> ":"💡 ")+quiz.e;
+      quizBox.querySelector(".quiz-next").classList.add("show");
+      updateStudyScore(item);saveStore();
+      beep(correct?660:240,.07,correct?"triangle":"sawtooth");
+      $("#announcer").textContent=correct?"Respuesta correcta":quiz.e;
+      return;
+    }
+    if(nextBtn.dataset.quizNext==="0"){
+      quizBox.dataset.quizIndex="0";quizBox.innerHTML=quizMarkup(op,0);item.dataset.quizCorrect="0";
+      quizBox.querySelector(".quiz-option").focus();
+      return;
+    }
+    var next=Number(nextBtn.dataset.quizNext);
+    if(next<lesson.quiz.length){
+      quizBox.dataset.quizIndex=String(next);
+      quizBox.innerHTML=quizMarkup(op,next);
+      quizBox.querySelector(".quiz-option").focus();
+      return;
+    }
+    var score=Number(item.dataset.quizCorrect||0),total=lesson.quiz.length;
+    var record=activeProfile().studyByOp[op]||(activeProfile().studyByOp[op]={ok:0,fail:0,completed:0});
+    record.completed++;
+    saveStore();updateStudyScore(item);updateStudyRecommendation();
+    quizBox.innerHTML="<div class='quiz-progress'>Mini evaluación terminada</div>"+
+      "<div class='quiz-question "+(score===total?"lesson-mastered":"")+"'>"+(score===total?
+        "🌟 ¡Dominaste esta lección!":"Acertaste "+score+" de "+total+". Revisá los pasos y probá otra vez.")+"</div>"+
+      "<button class='quiz-next show' type='button' data-quiz-next='0'>Repetir evaluación ↻</button>";
+    item.dataset.quizCorrect="0";
+    $("#announcer").textContent="Evaluación completada: "+score+" de "+total;
+  });
+  $("#prevLessonBtn").onclick=function(){var i=OPORDER.indexOf(state.currentStudyOp);if(i>0){state.studyTab="understand";selectStudyTopic(OPORDER[i-1],true);}};
+  $("#nextLessonBtn").onclick=function(){var i=OPORDER.indexOf(state.currentStudyOp);if(i<OPORDER.length-1){state.studyTab="understand";selectStudyTopic(OPORDER[i+1],true);}};
+  $("#printStudyBtn").onclick=function(){renderTimesTable(0);window.print();};
+  $("#studyBtn").onclick=function(){state.learnReturn="menu";state.studyFromError=false;updateStudyRecommendation();show("learn");$("#learn").scrollTop=0;beep(560,.06);};
+  $("#learnToolsBtn").onclick=function(){state.toolsReturn="learn";renderTimesTable(0);show("tools");};
+  $("#learnBack").onclick=function(){
+    var destination=state.learnReturn||"menu";show(destination);
+    if(destination==="game"&&state.studyFromError){state.studyFromError=false;showTeach("solve");}
+  };
+  function openStudyTopic(op){
+    updateStudyRecommendation();
+    state.studyTab="understand";show("learn");selectStudyTopic(op,true);
+  }
+  function openStudyFromProgress(target){
+    var row=target.closest(".mastery-row");if(!row)return;
+    state.learnReturn="progress";state.studyFromError=false;
+    openStudyTopic(row.dataset.op);
+  }
+  $("#masteryList").addEventListener("click",function(e){openStudyFromProgress(e.target);});
+  $("#masteryList").addEventListener("keydown",function(e){
+    if(e.key==="Enter"||e.key===" "){e.preventDefault();openStudyFromProgress(e.target);}
+  });
+
+  // ---- herramientas ----
+  function renderTimesTable(selected){
+    selected=Number(selected)||0;
+    var picks=$("#tablePicks"),table=$("#timesTable"),html="<thead><tr><th scope='col'>×</th>";
+    picks.innerHTML="";
+    for(var p=1;p<=10;p++){
+      var pickBtn=document.createElement("button");
+      pickBtn.className="table-pick"+(p===selected?" active":"");pickBtn.type="button";
+      pickBtn.dataset.tableNumber=p;pickBtn.textContent="×"+p;picks.appendChild(pickBtn);
+      html+="<th scope='col' class='"+(p===selected?"col-highlight":"")+"' data-col='"+p+"'>"+p+"</th>";
+    }
+    html+="</tr></thead><tbody>";
+    for(var r=1;r<=10;r++){
+      html+="<tr data-row='"+r+"' class='"+(r===selected?"highlight":"")+"'><th scope='row'>"+r+"</th>";
+      for(var c=1;c<=10;c++)html+="<td class='"+(c===selected?"col-highlight":"")+"' data-col='"+c+"'>"+(r*c)+"</td>";
+      html+="</tr>";
+    }
+    table.innerHTML=html+"</tbody>";
+  }
+  $("#tablePicks").addEventListener("click",function(e){
+    var btn=e.target.closest(".table-pick");if(btn)renderTimesTable(btn.dataset.tableNumber);
+  });
+  $("#timesTable").addEventListener("click",function(e){
+    var row=e.target.closest("tr[data-row]");if(row)renderTimesTable(row.dataset.row);
+  });
+
+  // ---- menú ----
+  function renderLevelList(){
+    var list=$("#levelList"); list.innerHTML="";
+    if(state.ops.length===0){
+      list.innerHTML="<div class='lvlRow' style='justify-content:center;color:var(--muted);font-size:12px'>Elegí al menos una operación arriba</div>";
+      return;
+    }
+    OPORDER.forEach(function(op){
+      if(state.ops.indexOf(op)===-1) return;
+      var cur=state.diffByOp[op]||"normal";
+      var row=document.createElement("div"); row.className="lvlRow"; row.dataset.op=op;
+      var picks=[["easy","F"],["normal","N"],["hard","D"]].map(function(p){
+        var active=cur===p[0];
+        return "<button class='lvlBtn' data-lvl='"+p[0]+"' data-active='"+(active?"1":"0")+"' aria-pressed='"+active+
+          "' aria-label='"+OPNAME[op]+": "+(p[0]==="easy"?"fácil":p[0]==="normal"?"normal":"difícil")+"'>"+p[1]+"</button>";
+      }).join("");
+      row.innerHTML="<div class='nm2'><span class='s'>"+OPSYM[op]+"</span>"+OPNAME[op]+"</div>"+
+        "<div class='lvlPick'>"+picks+"</div>";
+      list.appendChild(row);
+    });
+  }
+  function syncOps(){
+    var sel=[];
+    document.querySelectorAll(".op").forEach(function(o){
+      o.setAttribute("aria-pressed",o.dataset.active==="1"?"true":"false");
+      if(o.dataset.active==="1") sel.push(o.dataset.op);
+    });
+    state.ops=sel;
+    activeProfile().ops=sel.slice();
+    saveStore();
+    renderLevelList();
+  }
+  $("#ops").addEventListener("click",function(e){
+    var b=e.target.closest(".op"); if(!b)return;
+    b.dataset.active = b.dataset.active==="1" ? "0" : "1";
+    syncOps(); beep(440,.05);
+  });
+  $("#quick").addEventListener("click",function(e){
+    var b=e.target.closest(".chip"); if(!b)return;
+    var on = b.dataset.sel==="all" ? "1" : "0";
+    document.querySelectorAll(".op").forEach(function(o){o.dataset.active=on;});
+    syncOps(); beep(on==="1"?660:300,.06);
+  });
+  $("#allDiff").addEventListener("click",function(e){
+    var b=e.target.closest(".chip"); if(!b)return;
+    var lvl=b.dataset.all;
+    OPORDER.forEach(function(op){state.diffByOp[op]=lvl;});
+    activeProfile().diffByOp=state.diffByOp; saveStore();
+    renderLevelList(); beep(520,.06);
+  });
+  $("#levelList").addEventListener("click",function(e){
+    var b=e.target.closest(".lvlBtn"); if(!b)return;
+    var row=b.closest(".lvlRow"), op=row.dataset.op, lvl=b.dataset.lvl;
+    state.diffByOp[op]=lvl;
+    activeProfile().diffByOp=state.diffByOp; saveStore();
+    row.querySelectorAll(".lvlBtn").forEach(function(x){
+      var on=x===b;x.dataset.active=on?"1":"0";x.setAttribute("aria-pressed",on?"true":"false");
+    });
+    beep(440,.05);
+  });
+  $("#customizeBtn").onclick=function(){show("customize");$("#customize").scrollTop=0;};
+  $("#customizeBack").onclick=function(){show("menu");};
+  $("#customizePlayBtn").onclick=startGame;
+  $("#toolsBtn").onclick=function(){state.toolsReturn="menu";renderTimesTable(0);show("tools");$("#tools").scrollTop=0;};
+  $("#toolsBack").onclick=function(){show(state.toolsReturn||"menu");};
+  function renderProfiles(){
+    var select=$("#profileSelect"); select.innerHTML="";
+    Object.keys(store.profiles).sort().forEach(function(name){
+      var o=document.createElement("option");o.value=name;o.textContent=name;
+      if(name===store.active)o.selected=true;
+      select.appendChild(o);
+    });
+  }
+  function applyPreferences(){
+    var p=activeProfile();
+    state.mode=p.preferences.mode||"arcade";
+    state.answerMode=p.preferences.answerMode||"mixed";
+    state.targetRounds=Number(p.preferences.rounds)||10;
+    soundOn=p.preferences.sound!==false;
+    $("#answerMode").value=state.answerMode;
+    $("#roundSetting").value=String(state.targetRounds);
+    $("#vibrationSetting").checked=!!p.preferences.vibration;
+    $("#contrastSetting").checked=!!p.preferences.contrast;
+    $("#motionSetting").checked=!!p.preferences.motion;
+    $("#textSetting").checked=!!p.preferences.largeText;
+    $("#soundBtn").textContent=soundOn?"🔊":"🔇";
+    $("#soundBtn").setAttribute("aria-label",soundOn?"Desactivar sonido":"Activar sonido");
+    document.body.classList.toggle("high-contrast",!!p.preferences.contrast);
+    document.body.classList.toggle("reduce-motion",!!p.preferences.motion);
+    document.body.classList.toggle("large-text",!!p.preferences.largeText);
+    document.querySelectorAll(".mode").forEach(function(b){
+      var on=b.dataset.mode===state.mode;b.dataset.active=on?"1":"0";b.setAttribute("aria-pressed",on?"true":"false");
+    });
+  }
+  function applyProfile(name){
+    if(!store.profiles[name])return;
+    store.active=name;profile=activeProfile();
+    state.diffByOp=profile.diffByOp;
+    document.querySelectorAll(".op").forEach(function(o){
+      o.dataset.active=profile.ops.indexOf(o.dataset.op)!==-1?"1":"0";
+    });
+    applyPreferences();renderProfiles();syncOps();renderStudy();saveStore();
+    $("#profileProgress").textContent=profile.total?
+      name+" · "+profile.correct+" aciertos de "+profile.total+" · "+Math.round(profile.correct/profile.total*100)+"% de precisión":
+      name+" · todavía no hay partidas guardadas";
+  }
+  $("#profileSelect").onchange=function(){applyProfile(this.value);};
+  function cleanProfileName(value){return String(value||"").trim().replace(/\s+/g," ").slice(0,18);}
+  function openProfileDialog(){
+    $("#profileNameInput").value=store.active;
+    $("#profileDialog").classList.add("show");
+    setTimeout(function(){$("#profileNameInput").focus();$("#profileNameInput").select();},30);
+  }
+  function closeProfileDialog(){$("#profileDialog").classList.remove("show");$("#manageProfileBtn").focus();}
+  $("#manageProfileBtn").onclick=openProfileDialog;
+  $("#closeProfileBtn").onclick=closeProfileDialog;
+  $("#createProfileBtn").onclick=function(){
+    var name=cleanProfileName($("#profileNameInput").value);
+    if(!name){$("#announcer").textContent="Escribí un nombre para el perfil";return;}
+    if(store.profiles[name]){$("#announcer").textContent="Ese perfil ya existe";return;}
+    store.profiles[name]=blankProgress();applyProfile(name);closeProfileDialog();
+  };
+  $("#renameProfileBtn").onclick=function(){
+    var old=store.active,name=cleanProfileName($("#profileNameInput").value);
+    if(!name||name===old)return;
+    if(store.profiles[name]){$("#announcer").textContent="Ese perfil ya existe";return;}
+    store.profiles[name]=store.profiles[old];delete store.profiles[old];applyProfile(name);closeProfileDialog();
+  };
+  $("#deleteProfileBtn").onclick=function(){
+    var names=Object.keys(store.profiles);
+    if(names.length<=1){$("#announcer").textContent="Tiene que quedar al menos un perfil";return;}
+    if(!confirm("¿Eliminar el perfil "+store.active+" y todo su progreso?"))return;
+    delete store.profiles[store.active];applyProfile(Object.keys(store.profiles)[0]);closeProfileDialog();
+  };
+  $("#modes").addEventListener("click",function(e){
+    var b=e.target.closest(".mode");if(!b)return;
+    state.mode=b.dataset.mode;
+    activeProfile().preferences.mode=state.mode;saveStore();applyPreferences();beep(520,.05);
+  });
+  $("#answerMode").onchange=function(){
+    state.answerMode=this.value;activeProfile().preferences.answerMode=this.value;saveStore();
+  };
+  $("#roundSetting").onchange=function(){
+    state.targetRounds=Number(this.value)||10;activeProfile().preferences.rounds=state.targetRounds;saveStore();
+  };
+  $("#vibrationSetting").onchange=function(){activeProfile().preferences.vibration=this.checked;saveStore();};
+  $("#contrastSetting").onchange=function(){
+    activeProfile().preferences.contrast=this.checked;document.body.classList.toggle("high-contrast",this.checked);saveStore();
+  };
+  $("#motionSetting").onchange=function(){
+    activeProfile().preferences.motion=this.checked;document.body.classList.toggle("reduce-motion",this.checked);saveStore();
+  };
+  $("#textSetting").onchange=function(){
+    activeProfile().preferences.largeText=this.checked;document.body.classList.toggle("large-text",this.checked);saveStore();
+  };
+  $("#progressBtn").onclick=function(){renderProgress();show("progress");$("#progress").scrollTop=0;};
+  $("#progressBack").onclick=function(){show("menu");};
+  $("#exportBtn").onclick=function(){
+    var blob=new Blob([JSON.stringify(store,null,2)],{type:"application/json"});
+    var url=URL.createObjectURL(blob),a=document.createElement("a");
+    a.href=url;a.download="mate-arcade-progreso.json";a.click();
+    setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  };
+  $("#importInput").onchange=function(){
+    var file=this.files&&this.files[0];if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(){
+      var incoming;
+      try{incoming=JSON.parse(reader.result);}catch(e){$("#announcer").textContent="El archivo no es un progreso válido";return;}
+      if(!incoming||!incoming.profiles||typeof incoming.profiles!=="object"){
+        $("#announcer").textContent="El archivo no es un progreso válido";return;
+      }
+      if(Object.keys(incoming.profiles).length===0){
+        $("#announcer").textContent="El archivo no contiene perfiles";return;
+      }
+      incoming.version=3;store=incoming;
+      if(!store.active||!store.profiles[store.active])store.active=Object.keys(store.profiles)[0];
+      saveStore();renderProfiles();applyProfile(store.active);renderProgress();
+      $("#announcer").textContent="Progreso importado";
+    };
+    reader.readAsText(file);this.value="";
+  };
+  $("#typeAnswer").onsubmit=function(e){
+    e.preventDefault();answer($("#answerInput").value,null);
+  };
+  function closePause(){$("#pauseOverlay").classList.remove("show");state.paused=false;}
+  function pauseGame(){
+    if(state.paused||state.completed)return;
+    state.paused=true;clearInterval(state.timer);$("#pauseOverlay").classList.add("show");$("#resumeBtn").focus();
+  }
+  function resumeGame(){
+    closePause();
+    if(state.mode==="arcade"&&!state.locked&&!$("#teach").classList.contains("show"))runTimer();
+  }
+  $("#pauseBtn").onclick=pauseGame;
+  $("#resumeBtn").onclick=resumeGame;
+  $("#pauseMenuBtn").onclick=function(){closePause();hideTeach();applyProfile(store.active);show("menu");};
+  $("#quitBtn").onclick=function(){clearInterval(state.timer);closePause();hideTeach();applyProfile(store.active);show("menu");};
+  $("#playBtn").onclick=startGame;
+  $("#againBtn").onclick=startGame;
+  $("#menuBtn").onclick=function(){applyProfile(store.active);show("menu");};
+  $("#soundBtn").onclick=function(){
+    soundOn=!soundOn;
+    activeProfile().preferences.sound=soundOn;saveStore();
+    $("#soundBtn").textContent=soundOn?"🔊":"🔇";
+    $("#soundBtn").setAttribute("aria-label",soundOn?"Desactivar sonido":"Activar sonido");
+    if(soundOn)beep(660,.08);
+  };
+  document.addEventListener("visibilitychange",function(){
+    if(document.hidden&&$("#game").classList.contains("active")&&!state.paused&&!state.completed)pauseGame();
+  });
+  document.addEventListener("keydown",function(e){
+    if(e.key==="Escape"){
+      if($("#profileDialog").classList.contains("show"))closeProfileDialog();
+      else if($("#pauseOverlay").classList.contains("show"))resumeGame();
+      else if($("#game").classList.contains("active"))pauseGame();
+    }
+  });
+
+  var legacyBest=Number(safeGet("mateArcadeBest")||0);
+  if(legacyBest>activeProfile().best){activeProfile().best=legacyBest;saveStore();}
+  renderProfiles();
+  applyProfile(store.active);
+})();
+</script>
+</body>
+</html>

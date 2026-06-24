@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#5A3FC0">
+<title>Mate Arcade · Guía de estudio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4F3F8; --card:#FFFFFF; --ink:#1B1530; --soft:#6B6385;
+    --line:#E4E1EE; --line2:#EFEDF6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Rubik',system-ui,-apple-system,sans-serif;background:var(--paper);
+    color:var(--ink);line-height:1.5;padding:0 0 60px}
+  .wrap{max-width:760px;margin:0 auto;padding:0 18px}
+
+  /* header */
+  header{padding:34px 0 20px;text-align:center}
+  .kicker{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;color:var(--soft);text-transform:uppercase}
+  header h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(30px,9vw,46px);line-height:1.02;margin:8px 0 6px;
+    background:linear-gradient(92deg,#E08A00,#D81B86 52%,#1597B8);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  header p{color:var(--soft);font-size:15px;max-width:46ch;margin:0 auto}
+
+  /* índice */
+  .index{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:22px 0 8px}
+  @media(min-width:560px){.index{grid-template-columns:repeat(3,1fr)}}
+  .ix{display:flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;padding:10px 11px;text-decoration:none;color:var(--ink);transition:transform .1s,border-color .12s}
+  .ix:hover{border-color:var(--c);transform:translateY(-1px)}
+  .ix .n{font-family:'Orbitron',sans-serif;font-weight:900;font-size:12px;color:var(--c);min-width:20px}
+  .ix .s{font-family:'Orbitron',sans-serif;font-weight:700;font-size:15px;color:var(--c);min-width:26px;text-align:center}
+  .ix .nm{font-size:12.5px;font-weight:600}
+
+  /* ficha */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;
+    margin:16px 0;scroll-margin-top:14px;box-shadow:0 1px 0 var(--line2)}
+  .card .top{display:flex;align-items:center;gap:14px;padding:18px 20px;
+    background:linear-gradient(100deg,color-mix(in srgb,var(--c) 14%,white),white)}
+  .card .badge{width:54px;height:54px;border-radius:14px;flex:none;display:grid;place-items:center;
+    background:var(--c);color:white;font-family:'Orbitron',sans-serif;font-weight:900;
+    font-size:24px;box-shadow:0 6px 16px color-mix(in srgb,var(--c) 35%,transparent)}
+  .card .badge.sm{font-size:15px;letter-spacing:.5px}
+  .card .ttl .num{font-family:'Orbitron',sans-serif;font-weight:900;font-size:11px;letter-spacing:2px;color:var(--c)}
+  .card .ttl h2{font-family:'Orbitron',sans-serif;font-weight:700;font-size:21px;margin-top:1px}
+  .card .body{padding:6px 20px 20px}
+  .sec{padding:13px 0;border-top:1px solid var(--line2)}
+  .sec:first-child{border-top:none}
+  .sec .lab{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:2px;color:var(--c);
+    text-transform:uppercase;font-weight:700;margin-bottom:6px}
+  .sec p{font-size:15px}
+  .sec p+p{margin-top:6px}
+  b{color:var(--ink)}
+  .ex{background:color-mix(in srgb,var(--c) 8%,white);border:1px solid color-mix(in srgb,var(--c) 22%,white);
+    border-radius:12px;padding:12px 14px;font-size:15px}
+  .ex .calc{font-family:'Orbitron',sans-serif;font-weight:700;color:var(--ink)}
+  .ex .r{color:var(--c);font-weight:900}
+  .ex sup{font-size:.62em;vertical-align:super}
+  .pill{display:inline-flex;gap:7px;align-items:flex-start;font-size:14.5px}
+  .pill .ic{flex:none}
+  .tip .lab{color:#0E9E8E}
+  .warn .lab{color:#E0484B}
+
+  /* recuadros de apoyo */
+  .extra{background:#1B1530;color:#EDEAF6;border-radius:18px;padding:22px;margin:26px 0 8px}
+  .extra h3{font-family:'Orbitron',sans-serif;font-weight:900;font-size:15px;letter-spacing:1px;margin-bottom:14px;
+    background:linear-gradient(92deg,#FFD23F,#FF3CAC);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .squares{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
+  .sq{background:rgba(157,123,255,.14);border:1px solid rgba(157,123,255,.25);border-radius:10px;
+    padding:8px 4px;text-align:center;font-size:13px}
+  .sq b{font-family:'Orbitron',sans-serif;color:#18E0FF;display:block;font-size:15px}
+  .sq span{color:#9A8FC4}
+  .vs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+  .vs .col{background:rgba(157,123,255,.1);border:1px solid rgba(157,123,255,.22);border-radius:12px;padding:14px}
+  .vs .col h4{font-family:'Orbitron',sans-serif;font-size:13px;margin-bottom:8px}
+  .vs .col.cd h4{color:#FF6FC1}.vs .col.cm h4{color:#9D7BFF}
+  .vs .col p{font-size:13px;color:#CFC8E6;margin-top:4px}
+
+  footer{text-align:center;color:var(--soft);font-size:12px;margin-top:28px}
+  footer a{color:#7A4FE0;text-decoration:none}
+  .toplink{display:inline-block;margin-top:10px;font-size:12px;color:var(--c);text-decoration:none;font-weight:600}
+
+  @media print{
+    body{background:white}
+    .index,.toplink,footer .pr{display:none}
+    .card{break-inside:avoid;box-shadow:none;border-color:#ccc}
+    .extra{background:white;color:#1B1530;border:1px solid #ccc}
+    .extra h3{color:#1B1530}
+    .sq,.vs .col{background:#f4f3f8;border-color:#ddd}
+    .sq b{color:#1597B8}.sq span{color:#555}.vs .col p{color:#333}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Mate Arcade</div>
+    <h1>GUÍA DE ESTUDIO</h1>
+    <p>Una ficha por tema: qué es, cómo se hace, un ejemplo resuelto, un truco y el error que conviene evitar. Estudiá acá y después practicá en el juego.</p>
+  </header>
+
+  <nav class="index">
+    <a class="ix" href="#t1"  style="--c:#2BA84A"><span class="n">01</span><span class="s">+</span><span class="nm">Suma</span></a>
+    <a class="ix" href="#t2"  style="--c:#1597B8"><span class="n">02</span><span class="s">−</span><span class="nm">Resta</span></a>
+    <a class="ix" href="#t3"  style="--c:#D81B86"><span class="n">03</span><span class="s">×</span><span class="nm">Multiplicación</span></a>
+    <a class="ix" href="#t4"  style="--c:#E08A00"><span class="n">04</span><span class="s">÷</span><span class="nm">División</span></a>
+    <a class="ix" href="#t5"  style="--c:#7A4FE0"><span class="n">05</span><span class="s">xⁿ</span><span class="nm">Potencia</span></a>
+    <a class="ix" href="#t6"  style="--c:#E0484B"><span class="n">06</span><span class="s">√</span><span class="nm">Raíz</span></a>
+    <a class="ix" href="#t7"  style="--c:#0E9E8E"><span class="n">07</span><span class="s">M</span><span class="nm">Múltiplos</span></a>
+    <a class="ix" href="#t8"  style="--c:#C77900"><span class="n">08</span><span class="s">D</span><span class="nm">Divisores</span></a>
+    <a class="ix" href="#t9"  style="--c:#B5179E"><span class="n">09</span><span class="s" style="font-size:12px">MCD</span><span class="nm">Máx. común divisor</span></a>
+    <a class="ix" href="#t10" style="--c:#5A3FC0"><span class="n">10</span><span class="s" style="font-size:12px">MCM</span><span class="nm">Mín. común múltiplo</span></a>
+  </nav>
+
+  <!-- 01 SUMA -->
+  <article class="card" id="t1" style="--c:#2BA84A">
+    <div class="top"><div class="badge">+</div><div class="ttl"><div class="num">FICHA 01</div><h2>Suma</h2></div></div>
+    <div class="body">
+      <div class="sec"><div class="lab">¿Qué es?</div><p>Juntar dos o más cantidades para obtener un total. El resultado se llama <b>suma</b> y los números que sumás, <b>sumandos</b>.</p></div>
+      <div class="sec"><div class="lab">Cómo se hace</div><p>Alineás los números por la derecha y sumás columna por columna, de las unidades hacia las decenas. Si una columna pasa de 9, escribís la unidad y <b>te llevás</b> 1 a la columna siguiente.</p></div>
+      <div class="sec"><div class="lab">Ejemplo</div><div class="ex"><span class="calc">47 + 38</span>: 7 + 8 = 15 → escribo 5 y me llevo 1. Después 4 + 3 + 1 = 8. Resultado <span class="r">85</span>.</div></div>
+      <div class="sec tip"><div class="lab">💡 Truco</div><p>Redondeá para estimar y controlar: 47 ≈ 50 y 38 ≈ 40 dan ≈ 90. Si tu cuenta da algo muy lejos de 90, revisala.</p></div>
+      <div class="sec warn"><div class="lab">⚠ Ojo con…</div><p>No olvidarte de sumar “lo que te llevás”. Es el error más común en cuentas largas.</p></div>
+      <a class="toplink" href="#top">↑ Volver al índice</a>
+    </div>
+  </article>
+
+  <!-- 02 RESTA -->
+  <article class="card" id="t2" style="--c:#1597B8">
+    <div class="top"><div class="badge">−</div><div class="ttl"><div class="num">FICHA 02</div><h2>Resta</h2></div></div>
+    <div class="body">
+      <div class="sec"><div class="lab">¿Qué es?</div><p>Quitar una cantidad de otra: cuánto <b>queda</b>, o cuánto <b>falta</b> para llegar de un número a otro.</p></div>
+      <div class="sec"><div class="lab">Cómo se hace</div><p>Restás de derecha a izquierda. Si la cifra de arriba es menor que la de abajo, le <b>pedís prestado</b> 10 a la columna de la izquierda (que baja en 1).</p></div>
+      <div class="sec"><div class="lab">Ejemplo</div><div class="ex"><span class="calc">62 − 28</span>: 2 − 8 no se puede → pido prestado: 12 − 8 = 4. El 6 pasó a 5: 5 − 2 = 3. Resultado <span class="r">34</span>.</div></div>
+      <div class="sec tip"><div class="lab">💡 Truco</div><p>Comprobá sumando el resultado con lo que restaste: 34 + 28 = 62. La resta y la suma son operaciones <b>inversas</b>.</p></div>
+      <div class="sec warn"><div class="lab">⚠ Ojo con…</div><p>El orden importa: 8 − 2 no es lo mismo que 2 − 8. En la resta, primero va el número mayor (en este nivel).</p></div>
+      <a class="toplink" href="#top">↑ Volver al índice</a>
+    </div>
+  </article>
+
+  <!-- 03 MULTIPLICACIÓN -->
+  <article class="card" id="t3" style="--c:#D81B86">
+    <div class="top"><div class="badge">×</div><div class="ttl"><div class="num">FICHA 03</div><h2>Multiplicación</h2></div></div>
+    <div class="body">
+      <div class="sec"><div class="lab">¿Qué es?</div><p>Una forma rápida de sumar un mismo número varias veces. <b>4 × 6</b> significa “sumar 6 cuatro veces”.</p></div>
+      <div class="sec"><div class="lab">Cómo se hace</div><p>De memoria con las tablas para números chicos. 4 × 6 = 6 + 6 + 6 + 6 = 24. Para números grandes, multiplicás por cada cifra y sumás los resultados.</p></div>
+      <div class="sec"><div class="lab">Ejemplo</div><div class="ex"><span class="calc">7 × 8</span> = 8 + 8 + 8 + 8 + 8 + 8 + 8 = <span class="r">56</span>.</div></div>
+      <div class="sec tip"><div class="lab">💡 Truco</div><p>Multiplicar por 10 agrega un cero. Y podés descomponer: 7 × 8 = (7 × 10) − (7 × 2) = 70 − 14 = 56.</p></div>
+      <div class="sec warn"><div class="lab">⚠ Ojo con…</div><p>El orden no cambia el resultado: 4 × 6 = 6 × 4. Eso se llama propiedad <b>conmutativa</b> y sirve para elegir la cuenta más fácil.</p></div>
+      <a class="toplink" href="#top">↑ Volver al índice</a>
+    </div>
+  </article>
+
+  <!-- 04 DIVISIÓN -->
+  <article class="card" id="t4" style="--c:#E08A00">
+    <div class="top"><div class="badge">÷</div><div class="ttl"><div class="num">FICHA 04</div><h2>División</h2></div></div>
+    <div class="body">
+      <div class="sec"><div class="lab">¿Qué es?</div><p>Repartir en partes iguales, o ver cuántas veces <b>entra</b> un número dentro de otro.</p></div>
+      <div class="sec"><div class="lab">Cómo se hace</div><p>Te preguntás cuántas veces cabe el divisor en el número. 56 ÷ 8 → ¿cuántas veces entra 8 en 56? Entra 7 veces.</p></div>
+      <div class="sec"><div class="lab">Ejemplo</div><div class="ex"><span class="calc">24 ÷ 6</span> = <span class="r">4</span>, porque 6 entra 4 veces en 24 (6 + 6 + 6 + 6 = 24).</div></div>
+      <div class="sec tip"><div class="lab">💡 Truco</div><p>Es la <b>inversa</b> de multiplicar: 56 ÷ 8 = 7 porque 7 × 8 = 56. Si sabés las tablas, sabés dividir.</p></div>
+      <div class="sec warn"><div class="lab">⚠ Ojo con…</div><p>No se puede dividir por 0. Y a veces sobra un resto; en este juego usamos siempre divisiones <b>exactas</b> (resto 0).</p></div>
+      <a class="toplink" href="#top">↑ Volver al índice</a>
+    </div>
+  </article>
+
+  <!-- 05 POTENCIA -->
+  <article class="card" id="t5" style="--c:#7A4FE0">
+    <div class="top"><div class="badge sm">xⁿ</div><div class="ttl"><div class="num">FICHA 05</div><h2>Potencia</h2></div></div>
+    <div class="body">
+      <div class="sec"><div class="lab">¿Qué es?</div><p>Multiplicar un número (la <b>base</b>) por sí mismo tantas veces como indica el <b>exponente</b> (el numerito de arriba).</p></div>
+      <div class="sec"><div class="lab">Cómo se hace</div><p>El exponente te dice cuántas veces se repite la base en la multiplicación. En 3<sup>3</sup>, la base es 3 y el exponente 3.</p></div>
+      <div class="sec"><div class="lab">Ejemplo</div><div class="ex"><span class="calc">3<sup>3</sup></span> = 3 × 3 × 3 = <span class="r">27</span>. &nbsp;Otros: 5<sup>2</sup> = 25, &nbsp;2<sup>4</sup> = 16.</div></div>
+      <div class="sec tip"><div class="lab">💡 Truco</div><p>“Al cuadrado” (<sup>2</sup>) es base × base. “Al cubo” (<sup>3</sup>) es base × base × base. Nada más.</p></div>
+      <div class="sec warn"><div class="lab">⚠ Ojo con…</div><p>3<sup>2</sup> <b>no</b> es 3 × 2 = 6. Es 3 × 3 = 9. El exponente no se multiplica, indica cuántas veces se repite la base.</p></div>
+      <a class="toplink" href="#top">↑ Volver al índice</a>
+    </div>
+  </article>
+
+  <!-- 06 RAÍZ -->
+  <article class="card" id="t6" style="--c:#E0484B">
+    <div class="top"><div class="badge">√</div><div class="ttl"><div class="num">FICHA 06</div><h2>Raíz cuadrada</h2></div></div>
+    <div class="body">
+      <div class="sec"><div class="lab">¿Qué es?</div><p>La operación <b>inversa</b> de elevar al cuadrado. Busca qué número, multiplicado por sí mismo, da el número de adentro.</p></div>
+      <div class="sec"><div class="lab">Cómo se hace</div><p>Te preguntás: “¿qué número por sí mismo da esto?”. √49 → 7 × 7 = 49, así que √49 = 7.</p></div>
+      <div class="sec"><div class="lab">Ejemplo</div><div class="ex"><span class="calc">√81</span> = <span class="r">9</span> (porque 9 × 9 = 81). &nbsp;√144 = 12 (porque 12 × 12 = 144).</div></div>
+      <div class="sec tip"><div class="lab">💡 Truco</div><p>Aprendé de memoria los <b>cuadrados perfectos</b> (abajo tenés la tabla). Si reconocés el número, la raíz te sale de una.</p></div>
+      <div class="sec warn"><div class="lab">⚠ Ojo con…</div><p>La raíz <b>no</b> es dividir por 2. √16 = 4 (porque 4 × 4 = 16), no 8.</p></div>
+      <a class="toplink" href="#top">↑ Volver al índice</a>
+    </div>
+  </article>
+
+  <!-- 07 MÚLTIPLOS -->
+  <article class="card" id="t7" style="--c:#0E9E8E">
+    <div class="top"><div class="badge">M</div><div class="ttl"><div class="num">FICHA 07</div><h2>Múltiplos</h2></div></div>
+    <div class="body">
+      <div class="sec"><div class="lab">¿Qué es?</div><p>Los múltiplos de un número son los resultados de multiplicarlo por 1, 2, 3, 4… Es decir, su tabla, que sigue sin fin.</p></div>
+      <div class="sec"><div class="lab">Cómo se hace</div><p>Multiplicás el número por cada natural. Múltiplos de 5: 5, 10, 15, 20, 25, 30…</p></div>
+      <div class="sec"><div class="lab">Ejemplo</div><div class="ex">¿<span class="calc">28</span> es múltiplo de 7? <span class="r">Sí</span>, porque 7 × 4 = 28. ¿Y 30? No, porque ningún número entero por 7 da 30.</div></div>
+      <div class="sec tip"><div class="lab">💡 Truco</div><p>Un número es múltiplo de otro si al dividirlos la cuenta da <b>exacta</b> (resto 0).</p></div>
+      <div class="sec warn"><div class="lab">⚠ Ojo con…</div><p>Los múltiplos son <b>infinitos</b>. Todo número es múltiplo de sí mismo y también de 1.</p></div>
+      <a class="toplink" href="#top">↑ Volver al índice</a>
+    </div>
+  </article>
+
+  <!-- 08 DIVISORES -->
+  <article class="card" id="t8" style="--c:#C77900">
+    <div class="top"><div class="badge">D</div><div class="ttl"><div class="num">FICHA 08</div><h2>Divisores</h2></div></div>
+    <div class="body">
+      <div class="sec"><div class="lab">¿Qué es?</div><p>Los divisores de un número son todos los que lo dividen <b>justo</b>, sin que sobre nada.</p></div>
+      <div class="sec"><div class="lab">Cómo se hace</div><p>Probás qué números lo dividen exacto. Divisores de 12: 1, 2, 3, 4, 6 y 12.</p></div>
+      <div class="sec"><div class="lab">Ejemplo</div><div class="ex">¿<span class="calc">6</span> es divisor de 24? <span class="r">Sí</span>, porque 24 ÷ 6 = 4 exacto. ¿Y 5? No, porque 24 ÷ 5 deja resto.</div></div>
+      <div class="sec tip"><div class="lab">💡 Truco</div><p>Los divisores vienen <b>de a pares</b>: en el 12, 1 con 12, 2 con 6, 3 con 4. Buscando hasta la mitad ya los tenés todos.</p></div>
+      <div class="sec warn"><div class="lab">⚠ Ojo con…</div><p>Los divisores son <b>finitos</b> (el mayor es el propio número). Y son la cara opuesta de los múltiplos: si 4 es divisor de 12, entonces 12 es múltiplo de 4.</p></div>
+      <a class="toplink" href="#top">↑ Volver al índice</a>
+    </div>
+  </article>
+
+  <!-- 09 MCD -->
+  <article class="card" id="t9" style="--c:#B5179E">
+    <div class="top"><div class="badge sm">MCD</div><div class="ttl"><div class="num">FICHA 09</div><h2>Máximo Común Divisor</h2></div></div>
+    <div class="body">
+      <div class="sec"><div class="lab">¿Qué es?</div><p>El divisor <b>más grande</b> que dos (o más) números comparten al mismo tiempo.</p></div>
+      <div class="sec"><div class="lab">Cómo se hace</div><p>Listás los divisores de cada número, marcás los que aparecen en las dos listas y elegís el <b>mayor</b>.</p></div>
+      <div class="sec"><div class="lab">Ejemplo</div><div class="ex"><span class="calc">MCD(12, 18)</span><br>Divisores de 12: 1, 2, 3, 4, 6, 12<br>Divisores de 18: 1, 2, 3, 6, 9, 18<br>Comunes: 1, 2, 3, 6 → el mayor es <span class="r">6</span>.</div></div>
+      <div class="sec tip"><div class="lab">💡 Truco</div><p>Sirve para <b>simplificar fracciones</b> y para repartir en grupos iguales lo más grandes posible. El MCD siempre es <b>menor o igual</b> que los números.</p></div>
+      <div class="sec warn"><div class="lab">⚠ Ojo con…</div><p>No confundirlo con el MCM. <b>MCD</b> mira <b>divisores</b> y busca el <b>mayor</b>.</p></div>
+      <a class="toplink" href="#top">↑ Volver al índice</a>
+    </div>
+  </article>
+
+  <!-- 10 MCM -->
+  <article class="card" id="t10" style="--c:#5A3FC0">
+    <div class="top"><div class="badge sm">MCM</div><div class="ttl"><div class="num">FICHA 10</div><h2>Mínimo Común Múltiplo</h2></div></div>
+    <div class="body">
+      <div class="sec"><div class="lab">¿Qué es?</div><p>El múltiplo <b>más chico</b> que dos (o más) números comparten al mismo tiempo.</p></div>
+      <div class="sec"><div class="lab">Cómo se hace</div><p>Listás los múltiplos de cada número y buscás el <b>primero</b> que aparezca en las dos listas.</p></div>
+      <div class="sec"><div class="lab">Ejemplo</div><div class="ex"><span class="calc">MCM(4, 6)</span><br>Múltiplos de 4: 4, 8, 12, 16…<br>Múltiplos de 6: 6, 12, 18…<br>El primero en común es <span class="r">12</span>.</div></div>
+      <div class="sec tip"><div class="lab">💡 Truco</div><p>Sirve para <b>sumar fracciones</b> de distinto denominador y para problemas de “¿cada cuánto coinciden?”. El MCM siempre es <b>mayor o igual</b> que los números.</p></div>
+      <div class="sec warn"><div class="lab">⚠ Ojo con…</div><p>No confundirlo con el MCD. <b>MCM</b> mira <b>múltiplos</b> y busca el <b>menor</b>.</p></div>
+      <a class="toplink" href="#top">↑ Volver al índice</a>
+    </div>
+  </article>
+
+  <!-- recuadro: cuadrados perfectos -->
+  <section class="extra">
+    <h3>TABLA DE CUADRADOS PERFECTOS</h3>
+    <div class="squares">
+      <div class="sq"><b>1</b><span>1²</span></div>
+      <div class="sq"><b>4</b><span>2²</span></div>
+      <div class="sq"><b>9</b><span>3²</span></div>
+      <div class="sq"><b>16</b><span>4²</span></div>
+      <div class="sq"><b>25</b><span>5²</span></div>
+      <div class="sq"><b>36</b><span>6²</span></div>
+      <div class="sq"><b>49</b><span>7²</span></div>
+      <div class="sq"><b>64</b><span>8²</span></div>
+      <div class="sq"><b>81</b><span>9²</span></div>
+      <div class="sq"><b>100</b><span>10²</span></div>
+      <div class="sq"><b>121</b><span>11²</span></div>
+      <div class="sq"><b>144</b><span>12²</span></div>
+    </div>
+  </section>
+
+  <!-- recuadro: MCD vs MCM -->
+  <section class="extra">
+    <h3>MCD vs MCM · NO LOS CONFUNDAS</h3>
+    <div class="vs">
+      <div class="col cd">
+        <h4>MCD</h4>
+        <p>Mira <b>divisores</b>.</p>
+        <p>Busca el <b>mayor</b> en común.</p>
+        <p>Da un número <b>chico</b> (≤ que los originales).</p>
+      </div>
+      <div class="col cm">
+        <h4>MCM</h4>
+        <p>Mira <b>múltiplos</b>.</p>
+        <p>Busca el <b>menor</b> en común.</p>
+        <p>Da un número <b>grande</b> (≥ que los originales).</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="pr">Imprimí esta guía desde el navegador (Ctrl/Cmd + P) para repartir en clase.</div>
+    Hecho por Sacha · <a href="https://sachadev.me" target="_blank" rel="noopener">sachadev.me</a>
+  </footer>
+
+</div>
+<span id="top" style="position:fixed;top:0"></span>
+</body>
+</html>
