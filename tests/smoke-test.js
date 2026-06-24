@@ -150,7 +150,7 @@ assert.strictEqual(elements.get("studyList").children.length, 10, "Debe renderiz
 assert.strictEqual(elements.get("studyIndex").children.length, 10, "Debe renderizar un índice compacto");
 assert.strictEqual(elements.get("studyTopicSelect").children.length, 10, "Debe permitir saltar directamente a cualquiera de las diez lecciones");
 assert.match(elements.get("studyList").children[0].innerHTML, /QUÉ VAS A APRENDER/, "Cada ficha debe incluir un objetivo");
-assert.match(elements.get("studyList").children[0].innerHTML, /Laboratorio visual/, "Cada ficha debe incluir un laboratorio visual");
+assert.match(elements.get("studyList").children[0].innerHTML, /Ejemplo visual guiado/, "Cada ficha debe incluir un ejemplo visual guiado");
 assert.match(elements.get("studyList").children[0].innerHTML, /Radar de errores/, "Cada ficha debe contrastar errores plausibles");
 assert.match(elements.get("studyList").children[0].innerHTML, /lesson-quiz/, "Cada ficha debe incluir una mini evaluación");
 assert.match(elements.get("studyList").children[0].innerHTML, /lesson-tabs/, "Cada lección debe dividirse en pestañas");

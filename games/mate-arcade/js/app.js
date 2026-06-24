@@ -878,7 +878,7 @@
             "<div class='ssec context-section'><div class='slab'>Dónde aparece</div><div class='context-card'><span class='context-icon'>"+lesson.context.icon+"</span><div><b>"+lesson.context.title+"</b><p>"+lesson.context.text+"</p><div class='context-math'>"+lesson.context.math+"</div></div></div></div>"+
             "<div class='ssec'><div class='slab'>Antes de empezar</div><div class='prior'>"+lesson.prior.map(function(x){return "<span>"+x+"</span>";}).join("")+"</div></div>"+
             "<div class='ssec'><div class='slab'>¿Qué es?</div><p>"+it.q+"</p></div>"+
-            "<div class='ssec visual-section'><div class='slab'>Laboratorio visual</div><div class='visual-model'><div class='visual-title'>Leé el dibujo de izquierda a derecha</div>"+lesson.visual+"</div></div>"+
+            "<div class='ssec visual-section'><div class='slab'>Ejemplo visual guiado</div><div class='visual-model'><div class='visual-title'>Seguí los pasos en orden</div>"+lesson.visual+"</div></div>"+
           "</div>"+
           "<div class='lesson-panel' id='panel-"+op+"-solve' role='tabpanel' aria-labelledby='tab-"+op+"-solve' data-lesson-panel='solve' hidden>"+
             "<div class='ssec'><div class='slab'>Paso a paso</div><div class='lesson-steps'>"+lesson.steps.map(function(step,i){return "<div class='lesson-step'><span class='n'>"+(i+1)+"</span><span>"+step+"</span></div>";}).join("")+"</div></div>"+

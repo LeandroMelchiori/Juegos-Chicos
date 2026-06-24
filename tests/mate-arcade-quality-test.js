@@ -32,7 +32,7 @@ assert(app.includes("ArrowLeft") && app.includes("ArrowRight"), "Las pestañas d
 assert(app.includes('$("#studyTopicSelect").value=op'), "El selector directo debe mantenerse sincronizado");
 assert(app.includes("sanitizeImportedStore"), "La importación debe pasar por normalización");
 assert(app.includes("recentAccuracy") && app.includes("retryQueue"), "Repaso debe usar evidencia reciente y reaparición espaciada");
-assert(app.includes("Radar de errores") && app.includes("Laboratorio visual"), "Las lecciones deben incluir explicación visual y contraste de errores");
+assert(app.includes("Radar de errores") && app.includes("Ejemplo visual guiado"), "Las lecciones deben incluir explicación visual y contraste de errores");
 assert(css.includes(".reason-compare") && css.includes(".context-card"), "Deben existir componentes visuales para contexto y razonamiento");
 
 for (const op of ["add", "sub", "mul", "div", "pow", "root", "mlt", "dvs", "mcd", "mcm"]) {
