@@ -141,10 +141,10 @@
   }
   function masteryStatus(op){
     var e=evidenceFor(op);
-    if(e.total<3)return {label:"Recién empezando",level:0};
-    if(e.accuracy<.68)return {label:"Conviene repasar",level:1};
-    if(e.confidence<.58||e.accuracy<.84)return {label:"En práctica",level:2};
-    return {label:"Bastante firme",level:3};
+    if(e.total<3)return {label:"Recién empezás",level:0};
+    if(e.accuracy<.68)return {label:"Conviene practicar",level:1};
+    if(e.confidence<.58||e.accuracy<.84)return {label:"Vas avanzando",level:2};
+    return {label:"Lo tenés bastante claro",level:3};
   }
   function recordAttempt(op,ok,errorType){
     var p=activeProfile();
@@ -229,7 +229,7 @@
       ans=a*b; text=a+" × "+b;
       distractors=[a*(b-1),a*(b+1),a+b];
       hint="Es sumar "+b+" un total de "+a+" veces.";
-      solve="Multiplicar es sumar grupos iguales: "+a+" veces "+b+".<br><b>"+a+" × "+b+"</b> = <span class='res'>"+ans+"</span>";
+      solve="Pensá en "+a+" grupos de "+b+".<br><b>"+a+" × "+b+"</b> = <span class='res'>"+ans+"</span>";
     }else if(op==="div"){
       var divMax=lvl==="hard"?Math.round(d.mulMax*boost):d.mulMax;
       b=ri(2,divMax); ans=ri(2,divMax); a=b*ans; text=a+" ÷ "+b;
@@ -285,8 +285,8 @@
       return {text:"¿Cuál es divisor de <b>"+N+"</b>?", ans:ans, op:op, equals:false,
         options:shuffle([ans].concat(distD)),
         meta:{a:N,b:ans},
-        hint:"Probá dividir "+N+" por cada opción: el divisor da resto 0.",
-        solve:"Un divisor entra justo, sin que sobre nada.<br><b>"+ans+"</b> es divisor de "+N+" porque "+N+" ÷ "+ans+" = <span class='res'>"+(N/ans)+"</span> (exacto)."};
+        hint:"Probá dividir "+N+" por cada opción. La correcta no deja resto.",
+        solve:"Un divisor entra justo, sin que sobre nada.<br><b>"+ans+"</b> es divisor de "+N+" porque "+N+" ÷ "+ans+" = <span class='res'>"+(N/ans)+"</span> y no sobra nada."};
     }else if(op==="mcd"){
       var gloD=d.commonMax;
       var A,B,an,t3=0;
@@ -373,15 +373,15 @@
     mul:{q:"¿Qué significa 4 × 6?",choices:["Sumar 6 cuatro veces","Sumar 4 y 6","Multiplicar 4 por sí mismo"],correct:0,
       h:"Pensá en cuatro grupos iguales.",s:"4 × 6 representa cuatro grupos de 6: 6 + 6 + 6 + 6."},
     div:{q:"¿Cómo puedo comprobar 56 ÷ 8 = 7?",choices:["Haciendo 7 × 8","Haciendo 56 + 8","Haciendo 8 − 7"],correct:0,
-      h:"La división se comprueba con su operación inversa.",s:"Multiplicamos cociente por divisor: 7 × 8 = 56."},
+      h:"Usá una multiplicación para revisar.",s:"Multiplicamos la respuesta por 8: 7 × 8 = 56."},
     pow:{q:"¿Qué indica el 3 en 2³?",choices:["Repetir el 2 tres veces como factor","Multiplicar 2 × 3","Sumar 3 al 2"],correct:0,
       h:"El número pequeño es el exponente.",s:"2³ significa 2 × 2 × 2."},
     root:{q:"¿Qué pregunta ayuda a resolver √81?",choices:["¿Qué número por sí mismo da 81?","¿Cuál es la mitad de 81?","¿Cuánto es 81 ÷ 2?"],correct:0,
-      h:"La raíz cuadrada deshace una potencia al cuadrado.",s:"Buscamos 9 porque 9 × 9 = 81."},
+      h:"Buscá un número que, multiplicado por sí mismo, dé 81.",s:"La respuesta es 9 porque 9 × 9 = 81."},
     mlt:{q:"¿Cuál es el primer paso para buscar múltiplos de 6?",choices:["Multiplicar 6 por 1, 2, 3…","Dividir 6 por todos los números","Restar 6 repetidamente"],correct:0,
       h:"Los múltiplos forman la tabla del número.",s:"Calculamos 6×1, 6×2, 6×3…: 6, 12, 18…"},
     dvs:{q:"¿Cómo sé si 4 es divisor de 20?",choices:["20 ÷ 4 da exacto","4 es menor que 20","20 termina en cero"],correct:0,
-      h:"Un divisor no deja resto.",s:"20 ÷ 4 = 5, con resto cero; por eso 4 es divisor."},
+      h:"Un divisor divide justo: no sobra nada.",s:"20 ÷ 4 = 5 y no sobra nada; por eso 4 es divisor."},
     mcd:{q:"Para calcular un MCD con listas, ¿qué hago primero?",choices:["Listo los divisores","Listo los múltiplos","Sumo los números"],correct:0,
       h:"La D de MCD recuerda qué listas mirar.",s:"Primero listamos divisores; luego buscamos los comunes y elegimos el mayor."},
     mcm:{q:"Para calcular un MCM con listas, ¿qué hago primero?",choices:["Listo los múltiplos","Listo los divisores","Resto los números"],correct:0,
@@ -520,11 +520,11 @@
       add:"Revisá primero las unidades y después las decenas.",
       sub:"Comprobá la resta sumando tu resultado con el número que quitaste.",
       mul:"Buscá la tabla de uno de los dos números o descomponé la cuenta.",
-      div:"Multiplicá tu respuesta por el divisor: debería volver al número inicial.",
+      div:"Multiplicá tu respuesta por el número que divide: debería darte el total inicial.",
       pow:"El exponente indica cuántas veces se repite la base; no se multiplica por ella.",
       root:"La raíz busca un número que, multiplicado por sí mismo, dé el valor de adentro.",
       mlt:"Un múltiplo tiene que aparecer en la tabla del número indicado.",
-      dvs:"Un divisor debe dar una división exacta, con resto cero.",
+      dvs:"Un divisor tiene que dividir justo, sin que sobre nada.",
       mcd:"MCD: mirá divisores comunes y elegí el mayor.",
       mcm:"MCM: mirá múltiplos comunes y elegí el menor."
     };
@@ -542,11 +542,11 @@
       if(value===a+b){type="operacion-confundida";message="Sumaste los números. En una resta hay que quitar "+b+" de "+a+".";}
       else if(value===Math.abs(b-a)){type="orden";message="En la resta importa el orden: empezamos en "+a+" y quitamos "+b+".";}
     }else if(problem.op==="mul"&&Number.isFinite(a)&&Number.isFinite(b)){
-      if(value===a+b){type="suma-en-vez-de-producto";message="Sumaste los factores. "+a+" × "+b+" significa "+a+" grupos de "+b+".";}
+      if(value===a+b){type="suma-en-vez-de-producto";message="Sumaste los dos números una sola vez. "+a+" × "+b+" significa "+a+" grupos de "+b+".";}
       else if(value===a*(b-1)||value===a*(b+1)){type="tabla-vecina";message="Usaste una fila vecina de la tabla. Volvé a contar exactamente "+b+" grupos.";}
     }else if(problem.op==="div"&&Number.isFinite(a)&&Number.isFinite(b)){
-      if(value===b){type="repite-divisor";message="Repetiste el divisor. Buscamos cuántas veces entra "+b+" en "+a+".";}
-      else if(value===problem.ans-1||value===problem.ans+1){type="cociente-cercano";message="Probá tu respuesta multiplicándola por "+b+": tiene que dar exactamente "+a+".";}
+      if(value===b){type="repite-divisor";message="Repetiste el número por el que dividís. Buscamos cuántas veces entra "+b+" en "+a+".";}
+      else if(value===problem.ans-1||value===problem.ans+1){type="resultado-cercano";message="Probá tu respuesta multiplicándola por "+b+": tiene que dar exactamente "+a+".";}
     }else if(problem.op==="pow"&&Number.isFinite(a)&&Number.isFinite(b)){
       if(value===a*b){type="base-por-exponente";message="Multiplicaste base por exponente. El exponente indica cuántas veces repetir la base como factor.";}
     }else if(problem.op==="root"&&Number.isFinite(a)){
@@ -721,7 +721,7 @@
     $("#answerInput").disabled=false;
     $("#score").textContent="0"; renderLives(); renderCombo(); hideTeach();
     $("#lives").style.visibility=state.mode==="arcade"?"visible":"hidden";
-    $("#gameModeTag").textContent=state.mode==="arcade"?"ARCADE":state.mode==="practice"?"PRÁCTICA":"REPASO ADAPTATIVO";
+    $("#gameModeTag").textContent=state.mode==="arcade"?"ARCADE":state.mode==="practice"?"PRÁCTICA":"REPASO PERSONALIZADO";
     show("game"); newRound();
   }
 
@@ -746,7 +746,7 @@
     var rl=$("#recordLine");
     if(isRecord){rl.textContent="🏆 ¡NUEVO RÉCORD!";rl.classList.add("new-record");}
     else if(state.mode==="arcade"){rl.textContent="Récord de "+store.active+": "+Math.max(best,state.score);rl.classList.remove("new-record");}
-    else{rl.textContent="Precisión: "+Math.round(state.correct/Math.max(1,state.answered)*100)+"%";rl.classList.remove("new-record");}
+    else{rl.textContent="Respuestas bien: "+Math.round(state.correct/Math.max(1,state.answered)*100)+"%";rl.classList.remove("new-record");}
     renderSummary();
     show("end");
   }
@@ -764,8 +764,8 @@
       }
     });
     var w=document.createElement("div"); w.className="weak";
-    if(worstFail===0){ w.classList.add("good"); w.innerHTML="🎯 ¡Sin errores! Subí un nivel de dificultad."; }
-    else{ w.innerHTML="Para reforzar: <b>"+OPNAME[worst]+"</b>"; }
+    if(worstFail===0){ w.classList.add("good"); w.innerHTML="🎯 ¡Todas bien! Podés probar un nivel más difícil."; }
+    else{ w.innerHTML="Te conviene practicar un poco más: <b>"+OPNAME[worst]+"</b>"; }
     box.appendChild(w);
 
     played.forEach(function(op){
@@ -794,14 +794,14 @@
       if(need>weakNeed){weakNeed=need;weakest=op;}
       var row=document.createElement("div");row.className="mastery-row";
       row.dataset.op=op;row.setAttribute("role","button");row.setAttribute("tabindex","0");
-      row.setAttribute("aria-label","Estudiar "+OPNAME[op]+". Estado: "+status.label);
+      row.setAttribute("aria-label","Estudiar "+OPNAME[op]+". Cómo venís: "+status.label);
       row.innerHTML="<div class='mastery-top'><span>"+OPSYM[op]+" · "+OPNAME[op]+"</span><span>"+status.label+(lessonTotal?" · Estudio "+lessonPct+"%":"")+"</span></div>"+
-        "<div class='mastery-track' role='progressbar' aria-label='Evidencia de aprendizaje' aria-valuemin='0' aria-valuemax='3' aria-valuenow='"+status.level+"'><div class='mastery-fill' style='width:"+(status.level/3*100)+"%'></div></div>";
+        "<div class='mastery-track' role='progressbar' aria-label='Avance en el tema' aria-valuemin='0' aria-valuemax='3' aria-valuenow='"+status.level+"'><div class='mastery-fill' style='width:"+(status.level/3*100)+"%'></div></div>";
       mastery.appendChild(row);
     });
     $("#progressMessage").textContent=weakest?
-      "Tu próximo Repaso dará prioridad a "+OPNAME[weakest]+".":
-      "Jugá una sesión para empezar a construir tu mapa de aprendizaje.";
+      "En tu próximo Repaso aparecerá más seguido "+OPNAME[weakest]+".":
+      "Jugá una sesión para descubrir qué temas te conviene practicar.";
     var achievements=$("#achievementList");achievements.innerHTML="";
     ACHIEVEMENTS.forEach(function(a){
       var got=p.unlocked.indexOf(a.id)!==-1;
@@ -817,9 +817,9 @@
 
   function studyStatus(op){
     var s=activeProfile().studyByOp[op];
-    if(!s||!(s.ok+s.fail))return "Nueva";
+    if(!s||!(s.ok+s.fail))return "Sin empezar";
     var pct=Math.round(s.ok/(s.ok+s.fail)*100);
-    return (s.completed?"✓ ":"")+pct+"%";
+    return (s.completed?"Hecha · ":"")+pct+"% bien";
   }
   function updateStudyRecommendation(){
     var p=activeProfile(),bestOp=null,bestNeed=-1;
@@ -832,15 +832,15 @@
       if(need>bestNeed){bestNeed=need;bestOp=op;}
     });
     var box=$("#studyRecommendation");box.textContent="";
-    box.appendChild(document.createTextNode("🧭 Ruta sugerida para "));
+    box.appendChild(document.createTextNode("🧭 Para seguir practicando, "));
     var who=document.createElement("b");who.textContent=store.active;box.appendChild(who);
-    box.appendChild(document.createTextNode(": empezá por "));
+    box.appendChild(document.createTextNode(", te sugerimos empezar por "));
     var topic=document.createElement("b");topic.textContent=OPNAME[bestOp];box.appendChild(topic);
-    box.appendChild(document.createTextNode(". La recomendación combina errores recientes, dificultad y práctica de estudio."));
+    box.appendChild(document.createTextNode(". Es el tema que más te conviene practicar ahora."));
   }
   function quizMarkup(op,index){
     var lesson=LESSONS[op],quiz=lesson.quiz[index];
-    return "<div class='quiz-progress'>Probalo vos · "+(index+1)+" de "+lesson.quiz.length+"</div>"+
+    return "<div class='quiz-progress'>Desafío corto · "+(index+1)+" de "+lesson.quiz.length+"</div>"+
       "<div class='quiz-question'>"+quiz.q+"</div>"+
       "<div class='quiz-options'>"+quiz.o.map(function(option,i){
         return "<button class='quiz-option' type='button' data-quiz-answer='"+i+"'>"+option+"</button>";
@@ -866,7 +866,7 @@
       var panelId="studyPanel"+index;
       d.innerHTML=
         "<div class='study-head'><span class='"+symCls+"'>"+it.s+"</span><span class='nm'>"+it.name+"</span><span class='lesson-score'>"+studyStatus(op)+"</span>"+
-          "<span class='lesson-kicker'>Lección "+(index+1)+" de "+OPORDER.length+"</span></div>"+
+          "<span class='lesson-kicker'>"+lesson.grade+" · Lección "+(index+1)+" de "+OPORDER.length+"</span></div>"+
         "<div class='lesson-tabs' role='tablist' aria-label='Partes de la lección'>"+
           "<button class='lesson-tab active' id='tab-"+op+"-understand' type='button' role='tab' data-lesson-tab='understand' aria-controls='panel-"+op+"-understand' aria-selected='true' tabindex='0'>Entender</button>"+
           "<button class='lesson-tab' id='tab-"+op+"-solve' type='button' role='tab' data-lesson-tab='solve' aria-controls='panel-"+op+"-solve' aria-selected='false' tabindex='-1'>Resolver</button>"+
@@ -982,12 +982,12 @@
     var record=activeProfile().studyByOp[op]||(activeProfile().studyByOp[op]={ok:0,fail:0,completed:0});
     record.completed++;
     saveStore();updateStudyScore(item);updateStudyRecommendation();
-    quizBox.innerHTML="<div class='quiz-progress'>Mini evaluación terminada</div>"+
+    quizBox.innerHTML="<div class='quiz-progress'>Desafío terminado</div>"+
       "<div class='quiz-question "+(score===total?"lesson-mastered":"")+"'>"+(score===total?
-        "🌟 ¡Dominaste esta lección!":"Acertaste "+score+" de "+total+". Revisá los pasos y probá otra vez.")+"</div>"+
-      "<button class='quiz-next show' type='button' data-quiz-next='0'>Repetir evaluación ↻</button>";
+        "🌟 ¡Las dos salieron bien!":"Acertaste "+score+" de "+total+". Mirá el ejemplo una vez más y volvé a probar.")+"</div>"+
+      "<button class='quiz-next show' type='button' data-quiz-next='0'>Volver a intentar ↻</button>";
     item.dataset.quizCorrect="0";
-    $("#announcer").textContent="Evaluación completada: "+score+" de "+total;
+    $("#announcer").textContent="Desafío completado: "+score+" de "+total;
   });
   $("#prevLessonBtn").onclick=function(){var i=OPORDER.indexOf(state.currentStudyOp);if(i>0){state.studyTab="understand";selectStudyTopic(OPORDER[i-1],true);}};
   $("#nextLessonBtn").onclick=function(){var i=OPORDER.indexOf(state.currentStudyOp);if(i<OPORDER.length-1){state.studyTab="understand";selectStudyTopic(OPORDER[i+1],true);}};
@@ -1143,7 +1143,7 @@
     });
     applyPreferences();renderProfiles();syncOps();renderStudy();saveStore();
     $("#profileProgress").textContent=profile.total?
-      name+" · "+profile.correct+" aciertos de "+profile.total+" · "+Math.round(profile.correct/profile.total*100)+"% de precisión":
+      name+" · "+profile.correct+" respuestas bien de "+profile.total+" · "+Math.round(profile.correct/profile.total*100)+"%":
       name+" · todavía no hay partidas guardadas";
   }
   $("#profileSelect").onchange=function(){applyProfile(this.value);};

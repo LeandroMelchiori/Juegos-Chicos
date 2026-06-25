@@ -2,6 +2,8 @@
 
 Juego educativo de matemática perteneciente a la colección Juegos Chicos.
 
+El lenguaje, los ejemplos y la dificultad están pensados principalmente para chicos de 6.º grado, con contenidos que también preparan o acompañan 7.º.
+
 ## Entrada
 
 `index.html`

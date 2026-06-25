@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0D0720">
 <title>Mate Arcade</title>
-<link rel="stylesheet" href="styles.css?v=20260624-4">
+<link rel="stylesheet" href="styles.css?v=20260624-5">
 </head>
 <body>
 <div class="grid-bg"></div>
@@ -18,7 +18,7 @@
   <section class="screen active" id="menu">
     <div class="brand">
       <h1>MATE ARCADE</h1>
-      <p>Practicá a tu ritmo, repasá lo difícil o jugá contra el reloj.</p>
+      <p>Matemática de 6.º y 7.º para practicar, entender y ganar confianza.</p>
     </div>
     <div class="profile-box">
       <label for="profileSelect">PERFIL</label>
@@ -30,7 +30,7 @@
     <div class="modes" id="modes">
       <button class="mode" data-mode="arcade" data-active="1" aria-pressed="true"><b>Arcade</b><span>Tiempo y vidas</span></button>
       <button class="mode" data-mode="practice" data-active="0" aria-pressed="false"><b>Práctica</b><span>Sin presión</span></button>
-      <button class="mode" data-mode="review" data-active="0" aria-pressed="false"><b>Repaso</b><span>Refuerza errores</span></button>
+      <button class="mode" data-mode="review" data-active="0" aria-pressed="false"><b>Repaso</b><span>Vuelve a lo difícil</span></button>
     </div>
     <button class="play" id="playBtn">JUGAR ▶</button>
     <div class="home-actions">
@@ -127,14 +127,14 @@
     </div>
     <div class="progress-hero">
       <div class="big" id="progressName">Jugador</div>
-      <p id="progressMessage">Cada respuesta ayuda a adaptar el próximo repaso.</p>
+      <p id="progressMessage">Tus respuestas ayudan a elegir qué conviene practicar después.</p>
     </div>
     <div class="progress-grid">
-      <div class="progress-stat"><b id="progressAccuracy">0%</b><span>PRECISIÓN</span></div>
+      <div class="progress-stat"><b id="progressAccuracy">0%</b><span>RESPUESTAS BIEN</span></div>
       <div class="progress-stat"><b id="progressTotal">0</b><span>RESPUESTAS</span></div>
       <div class="progress-stat"><b id="progressBest">0</b><span>RÉCORD</span></div>
     </div>
-    <div class="label">Dominio por tema</div>
+    <div class="label">Cómo venís en cada tema</div>
     <div class="mastery-list" id="masteryList"></div>
     <div class="label">Logros</div>
     <div class="achievement-grid" id="achievementList"></div>
@@ -168,7 +168,7 @@
       <button class="back" id="learnBack">‹ Volver</button>
       <h2>GUÍA DE ESTUDIO</h2>
     </div>
-    <p class="learn-sub">Elegí un tema. Cada lección se divide en Entender, Resolver y Practicar.</p>
+    <p class="learn-sub">Elegí un tema de 6.º o 7.º. Podés leer la explicación, mirar un ejemplo y practicar.</p>
     <div class="learn-actions">
       <button class="learn-action" id="printStudyBtn">🖨 Imprimir guía</button>
       <button class="learn-action" id="learnToolsBtn">🧰 Ver herramientas</button>
@@ -217,25 +217,25 @@
     <section class="extra">
       <h3>MCD vs MCM · NO LOS CONFUNDAS</h3>
       <div class="vs">
-        <div class="col cd"><h4>MCD</h4><p>Mira <b>divisores</b>.</p><p>Busca el <b>mayor</b> en común.</p><p>Da un número <b>chico</b> (≤ que los originales).</p></div>
-        <div class="col cm"><h4>MCM</h4><p>Mira <b>múltiplos</b>.</p><p>Busca el <b>menor</b> en común.</p><p>Da un número <b>grande</b> (≥ que los originales).</p></div>
+        <div class="col cd"><h4>MCD</h4><p>Mirá los <b>divisores</b>.</p><p>Marcá los que se repiten.</p><p>Elegí el <b>mayor</b> de esos números.</p></div>
+        <div class="col cm"><h4>MCM</h4><p>Mirá los <b>múltiplos</b>.</p><p>Marcá los que se repiten.</p><p>Elegí el <b>primero</b> que aparece.</p></div>
       </div>
     </section>
     <section class="extra">
       <h3>GLOSARIO MATEMÁTICO</h3>
       <div class="glossary">
-        <div><b>Sumando</b>Número que participa en una suma.</div>
-        <div><b>Diferencia</b>Resultado de una resta.</div>
-        <div><b>Factor</b>Número que participa en una multiplicación.</div>
-        <div><b>Producto</b>Resultado de multiplicar.</div>
-        <div><b>Dividendo</b>Cantidad total que se divide.</div>
-        <div><b>Divisor</b>Número por el que se divide.</div>
-        <div><b>Cociente</b>Resultado principal de una división.</div>
-        <div><b>Resto</b>Cantidad que sobra al dividir.</div>
-        <div><b>Base</b>Número que se repite en una potencia.</div>
-        <div><b>Exponente</b>Indica cuántas veces se usa la base como factor.</div>
-        <div><b>Múltiplo</b>Resultado de multiplicar un número por un entero.</div>
-        <div><b>Divisor común</b>Número que divide exactamente a dos o más cantidades.</div>
+        <div><b>Sumando</b>Cada número que se suma.</div>
+        <div><b>Diferencia</b>El resultado de una resta.</div>
+        <div><b>Factor</b>Cada número que se multiplica.</div>
+        <div><b>Producto</b>El resultado de una multiplicación.</div>
+        <div><b>Dividendo</b>El total que queremos repartir o dividir.</div>
+        <div><b>Divisor</b>El número de grupos, o el número por el que dividimos.</div>
+        <div><b>Cociente</b>El resultado de la división: cuánto toca por grupo.</div>
+        <div><b>Resto</b>Lo que sobra después de repartir.</div>
+        <div><b>Base</b>El número grande de una potencia; es el que se repite.</div>
+        <div><b>Exponente</b>El número pequeño; dice cuántas veces se repite la base.</div>
+        <div><b>Múltiplo</b>Un número que aparece en la tabla de otro.</div>
+        <div><b>Divisor común</b>Un número que divide justo a dos números diferentes.</div>
       </div>
     </section>
   </section>
@@ -280,7 +280,7 @@
   </div>
 </div>
 
-<script src="js/lessons.js?v=20260624-4"></script>
-<script src="js/app.js?v=20260624-4"></script>
+<script src="js/lessons.js?v=20260624-5"></script>
+<script src="js/app.js?v=20260624-5"></script>
 </body>
 </html>

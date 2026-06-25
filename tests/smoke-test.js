@@ -152,15 +152,16 @@ assert.strictEqual(elements.get("studyTopicSelect").children.length, 10, "Debe p
 assert.match(elements.get("studyList").children[0].innerHTML, /QUÉ VAS A APRENDER/, "Cada ficha debe incluir un objetivo");
 assert.match(elements.get("studyList").children[0].innerHTML, /Miralo en acción/, "Cada ficha debe incluir una representación matemática visual");
 assert.match(elements.get("studyList").children[0].innerHTML, /Radar de errores/, "Cada ficha debe contrastar errores plausibles");
-assert.match(elements.get("studyList").children[0].innerHTML, /lesson-quiz/, "Cada ficha debe incluir una mini evaluación");
+assert.match(elements.get("studyList").children[0].innerHTML, /lesson-quiz/, "Cada ficha debe incluir un desafío corto");
 assert.match(elements.get("studyList").children[0].innerHTML, /lesson-tabs/, "Cada lección debe dividirse en pestañas");
 assert.strictEqual(Object.keys(window.__test.LESSONS).length, 10, "Deben existir diez microlecciones");
 for (const [op, lesson] of Object.entries(window.__test.LESSONS)) {
   assert(lesson.goal && lesson.visual && lesson.steps.length >= 3, `${op} debe tener objetivo, visual y pasos`);
+  assert(["6.º", "6.º–7.º"].includes(lesson.grade), `${op} debe indicar el grado sugerido`);
   assert(lesson.context && lesson.context.icon && lesson.context.math, `${op} debe conectar la idea con una situación visual`);
   assert(lesson.compare && lesson.compare.bad && lesson.compare.good, `${op} debe comparar un error plausible con el razonamiento correcto`);
   assert.strictEqual(lesson.quiz.length, 2, `${op} debe tener dos preguntas guiadas`);
-  assert.match(window.__test.quizMarkup(op, 0), /quiz-option/, `${op} debe renderizar opciones de evaluación`);
+  assert.match(window.__test.quizMarkup(op, 0), /quiz-option/, `${op} debe renderizar opciones de práctica`);
 }
 assert.strictEqual(elements.get("levelList").children.length, 10, "Debe renderizar niveles por operación");
 elements.get("studyTopicSelect").value = "mcm";
@@ -202,7 +203,7 @@ assert.match(elements.get("roundProgress").textContent, /Pregunta 1 de 10/, "Pr�
 elements.get("quitBtn").onclick();
 elements.get("modes").onclick({ target: modes[2] });
 elements.get("playBtn").onclick();
-assert.strictEqual(elements.get("gameModeTag").textContent, "REPASO ADAPTATIVO", "Debe activar Repaso");
+assert.strictEqual(elements.get("gameModeTag").textContent, "REPASO PERSONALIZADO", "Debe activar Repaso");
 assert.strictEqual(elements.get("timerBar").style.display, "none", "Repaso no debe usar cronómetro");
 elements.get("options").children[0].onclick();
 const savedAfterAnswer = JSON.parse(storage.get("mateArcadeDataV2"));
@@ -344,6 +345,6 @@ profileForMastery.byOp.add = {
   errors: {},
   recent: Array.from({ length: 10 }, () => ({ ok: true, difficulty: "hard", at: Date.now() })),
 };
-assert.strictEqual(window.__test.masteryStatus("add").label, "Bastante firme", "El dominio debe exigir evidencia reciente y difícil");
+assert.strictEqual(window.__test.masteryStatus("add").label, "Lo tenés bastante claro", "El avance debe exigir práctica reciente y difícil");
 
 console.log("Smoke test OK: inicio, teoría, Arcade, Práctica, Repaso y perfiles");

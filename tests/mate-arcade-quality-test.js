@@ -25,6 +25,7 @@ assert(!/\b(fetch|XMLHttpRequest)\s*\(/.test(app + lessons), "El juego no debe d
 assert(html.includes('href="../../index.html"'), "Debe conservar el regreso al portal");
 assert(html.includes('id="calmSetting"'), "Debe incluir una alternativa visual sin presión");
 assert(html.includes('id="studyTopicSelect"'), "La guía debe permitir elegir cualquier lección directamente");
+assert(html.includes("6.º") && html.includes("7.º"), "La presentación debe indicar que está pensada para 6.º y 7.º");
 assert(html.includes('aria-live="assertive"'), "Debe anunciar cambios importantes");
 assert(html.includes('aria-modal="true"'), "Los diálogos deben ser modales para tecnologías de asistencia");
 assert(app.includes("aria-controls='panel-"), "Las pestañas deben estar asociadas a sus paneles");
@@ -35,6 +36,9 @@ assert(app.includes("recentAccuracy") && app.includes("retryQueue"), "Repaso deb
 assert(app.includes("Radar de errores") && app.includes("Miralo en acción"), "Las lecciones deben incluir explicación visual y contraste de errores");
 assert(css.includes(".reason-compare") && css.includes(".math-scene") && css.includes(".math-result"), "Deben existir componentes visuales para contexto y razonamiento");
 assert(/styles\.css\?v=\d+/.test(html) && /js\/app\.js\?v=\d+/.test(html), "Los recursos deben llevar versión para evitar mezclar cachés");
+for (const expression of [/\bdominio\b/i, /\bprecisión\b/i, /\badaptativo\b/i, /\bmini evaluación\b/i]) {
+  assert(!expression.test(html + lessons), `El texto para estudiantes no debe usar la expresión ${expression}`);
+}
 
 for (const op of ["add", "sub", "mul", "div", "pow", "root", "mlt", "dvs", "mcd", "mcm"]) {
   assert(lessons.includes(`${op}:`), `Debe existir contenido de estudio para ${op}`);
