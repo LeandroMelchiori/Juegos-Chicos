@@ -336,6 +336,8 @@ for (const difficulty of ["easy", "normal", "hard"]) {
     }
   }
 }
+assert.match(window.__test.LESSONS.root.visual, /measured-square/, "La medida de la raíz debe estar anclada a la cuadrícula");
+assert.match(window.__test.LESSONS.dvs.visual, /Pareja 1[\s\S]*Pareja 2[\s\S]*Pareja 3/, "Los divisores deben mostrar tres parejas claramente separadas");
 
 const profileForMastery = window.__test.activeProfile();
 profileForMastery.byOp.add = {

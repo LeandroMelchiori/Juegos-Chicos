@@ -371,23 +371,29 @@
   .factor-tiles b{width:39px;height:45px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--c);
     color:var(--c);background:color-mix(in srgb,var(--c) 10%,var(--bg-1));font-family:'Orbitron',sans-serif;font-size:18px}
   .factor-tiles i{font-style:normal;color:var(--muted)}
-  .root-scene{position:relative;display:flex;align-items:center;justify-content:center;gap:30px;min-height:125px}
+  .root-scene{display:flex;align-items:center;justify-content:center;gap:38px;min-height:155px;padding:15px 0 5px}
+  .measured-square{position:relative;padding:23px 0 0 31px;flex:0 0 auto}
   .square-grid{display:grid;grid-template-columns:repeat(4,20px);gap:5px;padding:8px;border:2px solid var(--c)}
   .square-grid i{width:20px;height:20px;border-radius:4px;background:color-mix(in srgb,var(--c) 55%,var(--bg-1))}
-  .root-scene .side{position:absolute;color:var(--c);font-family:'Orbitron',sans-serif;font-size:10px;font-weight:900}
-  .root-scene .side.top{top:0;left:calc(50% - 76px)}
-  .root-scene .side.left{left:calc(50% - 133px);top:52px}
-  .root-question{display:grid;gap:8px;text-align:left}.root-question b{color:var(--ink);font-size:16px}.root-question span{color:var(--muted);font-size:10px}
+  .measure-top,.measure-left{position:absolute;color:var(--c);font-size:9px;font-weight:900;white-space:nowrap}
+  .measure-top{top:0;left:31px;width:114px;text-align:center}
+  .measure-top::after{content:"";display:block;height:5px;border-left:1px solid var(--c);border-right:1px solid var(--c);
+    border-top:1px solid var(--c);margin-top:4px}
+  .measure-left{left:0;top:23px;height:114px;display:flex;align-items:center;writing-mode:vertical-rl;transform:rotate(180deg);text-align:center}
+  .measure-left::after{content:"";display:block;width:5px;height:108px;border-top:1px solid var(--c);border-bottom:1px solid var(--c);
+    border-left:1px solid var(--c);margin-top:5px}
+  .root-question{display:grid;gap:9px;max-width:145px;text-align:left}.root-question b{color:var(--ink);font-size:18px}.root-question span{color:var(--muted);font-size:11px;line-height:1.5}
   .multiple-track{display:flex;align-items:center;justify-content:center}
   .multiple-track span{width:37px;height:37px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--c);
     color:var(--c);background:color-mix(in srgb,var(--c) 8%,var(--bg-1));font-size:10px;font-weight:900}
   .multiple-track i{width:18px;height:2px;background:color-mix(in srgb,var(--c) 50%,transparent)}
   .track-labels{display:grid;grid-template-columns:repeat(5,1fr);max-width:245px;margin:7px auto 0;color:var(--muted);font-size:8px}
-  .pair-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
-  .pair-cards>div{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center}
-  .pair-cards span{height:46px;border:1px solid var(--c);border-radius:10px;display:grid;place-items:center;color:var(--c);
-    background:color-mix(in srgb,var(--c) 9%,var(--bg-1));font-family:'Orbitron',sans-serif;font-weight:900}
-  .pair-cards i{color:var(--muted);font-style:normal}
+  .divisor-pairs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .divisor-pairs>div{display:grid;gap:8px;border:1px solid color-mix(in srgb,var(--c) 35%,var(--line));border-radius:12px;
+    padding:12px 9px;background:color-mix(in srgb,var(--c) 7%,var(--bg-1));text-align:center}
+  .divisor-pairs .pair-label{color:var(--muted);font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.8px}
+  .divisor-pairs b{color:var(--c);font-family:'Orbitron',sans-serif;font-size:18px;white-space:nowrap}
+  .divisor-pairs small{color:var(--muted);font-size:9px;line-height:1.45}
   .compare-rows{display:grid;gap:12px;text-align:left}
   .compare-rows>div{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
   .compare-rows small{width:100%;color:var(--muted);font-size:9px;font-weight:900;text-transform:uppercase}
@@ -425,8 +431,9 @@
     .share-groups{grid-template-columns:1fr}
     .power-scene{flex-direction:column;gap:13px}
     .scene-arrow{transform:rotate(90deg)}
-    .root-scene{gap:18px}
-    .pair-cards{grid-template-columns:1fr}
+    .root-scene{flex-direction:column;gap:17px;padding-top:8px}
+    .root-question{max-width:260px;text-align:center}
+    .divisor-pairs{grid-template-columns:1fr}
   }
   .extra{background:rgba(13,7,32,.55);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
   .extra h3{font-family:'Orbitron',sans-serif;font-weight:900;font-size:12px;letter-spacing:1px;margin-bottom:12px;

@@ -35,6 +35,7 @@ assert(app.includes("sanitizeImportedStore"), "La importación debe pasar por no
 assert(app.includes("recentAccuracy") && app.includes("retryQueue"), "Repaso debe usar evidencia reciente y reaparición espaciada");
 assert(app.includes("Radar de errores") && app.includes("Miralo en acción"), "Las lecciones deben incluir explicación visual y contraste de errores");
 assert(css.includes(".reason-compare") && css.includes(".math-scene") && css.includes(".math-result"), "Deben existir componentes visuales para contexto y razonamiento");
+assert(css.includes(".measured-square") && css.includes(".divisor-pairs"), "Raíz y divisores deben usar visuales estables y separadas");
 assert(/styles\.css\?v=\d+/.test(html) && /js\/app\.js\?v=\d+/.test(html), "Los recursos deben llevar versión para evitar mezclar cachés");
 for (const expression of [/\bdominio\b/i, /\bprecisión\b/i, /\badaptativo\b/i, /\bmini evaluación\b/i]) {
   assert(!expression.test(html + lessons), `El texto para estudiantes no debe usar la expresión ${expression}`);
