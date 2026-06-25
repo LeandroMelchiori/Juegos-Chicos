@@ -1124,30 +1124,39 @@
   }
   bindPowGrid("squaresGrid");bindPowGrid("cubesGrid");
 
-  // calculadora de MCD y MCM paso a paso
-  function expMap(factors){var m={};factors.forEach(function(f){m[f]=(m[f]||0)+1;});return m;}
-  function expText(map){
-    return Object.keys(map).map(Number).sort(function(a,b){return a-b;}).map(function(k){
-      return map[k]>1?k+sup(map[k]):String(k);
-    }).join(" × ")||"1";
+  // calculadora de MCD y MCM paso a paso (con divisores y múltiplos)
+  function divisorsOf(n){var out=[];for(var i=1;i<=n;i++)if(n%i===0)out.push(i);return out;}
+  function markList(arr,markFn){
+    return arr.map(function(x){return markFn(x)?"<span class='mark'>"+x+"</span>":String(x);}).join(", ");
   }
   function renderMcd(){
     var out=$("#mcdSteps");if(!out)return;
     var a=Math.floor(Number($("#mcdA").value)),b=Math.floor(Number($("#mcdB").value));
     if(!(a>=1)||!(b>=1)){out.textContent="Escribí dos números para ver el procedimiento.";return;}
-    var ma=expMap(primeFactors(a)),mb=expMap(primeFactors(b)),common={},all={};
-    Object.keys(ma).forEach(function(k){all[k]=ma[k];});
-    Object.keys(mb).forEach(function(k){all[k]=Math.max(all[k]||0,mb[k]);if(ma[k])common[k]=Math.min(ma[k],mb[k]);});
-    var mcd=gcd(a,b),mcm=a/mcd*b;
-    var faText=a>1?expText(ma):"1 (no se descompone)";
-    var fbText=b>1?expText(mb):"1 (no se descompone)";
-    var hasCommon=Object.keys(common).length>0;
+    var mcd=gcd(a,b),mcm=a/mcd*b,CAP=8;
+    var da=divisorsOf(a),db=divisorsOf(b);
+    var isCommonDiv=function(x){return a%x===0&&b%x===0;};
+    function firstMultiples(n){
+      var arr=[],k=1;
+      while(arr.length<CAP){arr.push(n*k);if(n*k===mcm)break;k++;}
+      return arr;
+    }
+    function multList(n){
+      var arr=firstMultiples(n);
+      if(arr[arr.length-1]===mcm){
+        return markList(arr,function(x){return x===mcm;});
+      }
+      return arr.slice(0,6).join(", ")+", …, <span class='mark'>"+mcm+"</span>";
+    }
     out.innerHTML=
-      "<div class='step'><b>"+a+"</b> = "+faText+"</div>"+
-      "<div class='step'><b>"+b+"</b> = "+fbText+"</div>"+
-      "<div class='step'><span class='tag cd'>MCD</span> factores comunes con el menor exponente → "+
-        (hasCommon?expText(common)+" = <b>"+mcd+"</b>":"no comparten factores primos, así que es <b>1</b>")+"</div>"+
-      "<div class='step'><span class='tag cm'>MCM</span> todos los factores con el mayor exponente → "+expText(all)+" = <b>"+mcm+"</b></div>";
+      "<div class='step'><span class='tag cd'>MCD</span> es el número más grande que divide justo a los dos.</div>"+
+      "<div class='step'>Divisores de "+a+": "+markList(da,isCommonDiv)+"</div>"+
+      "<div class='step'>Divisores de "+b+": "+markList(db,isCommonDiv)+"</div>"+
+      "<div class='step'>El más grande que comparten es el MCD: <b>"+mcd+"</b></div>"+
+      "<div class='step'><span class='tag cm'>MCM</span> es el número más chico que está en las dos tablas.</div>"+
+      "<div class='step'>Múltiplos de "+a+": "+multList(a)+"</div>"+
+      "<div class='step'>Múltiplos de "+b+": "+multList(b)+"</div>"+
+      "<div class='step'>El primero que comparten es el MCM: <b>"+mcm+"</b></div>";
   }
   $("#mcdA").addEventListener("input",renderMcd);
   $("#mcdB").addEventListener("input",renderMcd);

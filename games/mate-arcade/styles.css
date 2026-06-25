@@ -499,6 +499,7 @@
   .calc-steps .step{padding:6px 0;border-bottom:1px dashed var(--line)}
   .calc-steps .step:last-child{border-bottom:0}
   .calc-steps b{color:var(--cyan);font-family:'Orbitron',sans-serif}
+  .calc-steps .mark{color:var(--lime);font-weight:800}
   .calc-steps .tag{display:inline-block;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:900;
     padding:2px 7px;border-radius:6px;margin-right:6px}
   .calc-steps .tag.cd{background:rgba(255,60,172,.18);color:var(--magenta)}
