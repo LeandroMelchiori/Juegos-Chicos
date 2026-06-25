@@ -223,25 +223,26 @@
     </section>
     <section class="extra" id="toolDivis">
       <h3>REGLAS DE DIVISIBILIDAD</h3>
-      <p class="tool-note">Escribí un número y mirá por cuáles se puede dividir justo, sin que sobre nada.</p>
+      <p class="tool-note">Sirve para saber rápido, sin hacer la cuenta, si un número se puede dividir justo (sin que sobre nada) por 2, 3, 4, 5, 6, 9 o 10. Escribí un número y te explica el porqué de cada uno.</p>
       <div class="divis-check">
         <label class="sr-only" for="divisInput">Número para revisar</label>
-        <input id="divisInput" type="number" inputmode="numeric" min="0" max="999999999" placeholder="Escribí un número, por ejemplo 360">
-        <div class="divis-flags" id="divisFlags" aria-live="polite"></div>
+        <input id="divisInput" type="text" inputmode="numeric" autocomplete="off" value="360" placeholder="Escribí un número, por ejemplo 360">
       </div>
-      <div class="divis-rules">
-        <div><b>÷2</b>Termina en 0, 2, 4, 6 u 8.</div>
-        <div><b>÷3</b>La suma de sus cifras es múltiplo de 3.</div>
-        <div><b>÷4</b>Sus dos últimas cifras forman un múltiplo de 4.</div>
-        <div><b>÷5</b>Termina en 0 o en 5.</div>
-        <div><b>÷6</b>Se divide por 2 y por 3 a la vez.</div>
-        <div><b>÷9</b>La suma de sus cifras es múltiplo de 9.</div>
-        <div><b>÷10</b>Termina en 0.</div>
-      </div>
+      <div class="divis-flags" id="divisFlags" aria-live="polite"></div>
     </section>
     <section class="extra" id="toolSquares">
-      <h3>CUADRADOS Y CUBOS</h3>
-      <p class="tool-note">Resultados que conviene reconocer de memoria. Tocá cualquier número para ver su raíz: el camino inverso de la potencia.</p>
+      <h3>POTENCIAS, CUADRADOS Y CUBOS</h3>
+      <p class="tool-note">Una potencia es multiplicar un número (la base) por sí mismo varias veces. El exponente dice cuántas veces.</p>
+      <h4 class="tool-subhead">Calculá una potencia</h4>
+      <div class="pow-calc">
+        <label class="sr-only" for="powBase">Base</label>
+        <input id="powBase" type="number" inputmode="numeric" min="0" max="100" value="2" placeholder="Base">
+        <span class="pow-calc-x">elevado a</span>
+        <label class="sr-only" for="powExp">Exponente</label>
+        <input id="powExp" type="number" inputmode="numeric" min="0" max="10" value="3" placeholder="Exponente">
+      </div>
+      <div class="calc-steps" id="powCalcOut" aria-live="polite">Escribí una base y un exponente para calcular la potencia.</div>
+      <p class="tool-note">Estos son los resultados que conviene reconocer de memoria. Tocá cualquiera para ver su raíz: el camino de vuelta, de qué número salió.</p>
       <h4 class="tool-subhead">Cuadrados perfectos</h4>
       <div class="squares" id="squaresGrid">
         <button class="sq" type="button" data-pow="2" data-base="1" data-val="1"><b>1</b><span>1²</span></button><button class="sq" type="button" data-pow="2" data-base="2" data-val="4"><b>4</b><span>2²</span></button>
@@ -296,10 +297,10 @@
       <div class="frac-calc">
         <div class="frac-input">
           <label class="sr-only" for="fracNum">Numerador (arriba)</label>
-          <input id="fracNum" type="number" inputmode="numeric" min="0" max="9999" placeholder="Arriba, ej. 8">
+          <input id="fracNum" type="number" inputmode="numeric" min="0" max="9999" value="8" placeholder="Arriba, ej. 8">
           <span class="frac-line"></span>
           <label class="sr-only" for="fracDen">Denominador (abajo)</label>
-          <input id="fracDen" type="number" inputmode="numeric" min="1" max="9999" placeholder="Abajo, ej. 12">
+          <input id="fracDen" type="number" inputmode="numeric" min="1" max="9999" value="12" placeholder="Abajo, ej. 12">
         </div>
         <div class="calc-steps" id="fracSteps" aria-live="polite">Escribí una fracción para simplificarla.</div>
       </div>
@@ -321,7 +322,7 @@
       <p class="tool-note">Escribí un número y mirá cómo queda redondeado a la decena, la centena y el mil más cercanos.</p>
       <div class="calc-inputs">
         <label class="sr-only" for="roundInput">Número para redondear</label>
-        <input id="roundInput" type="number" inputmode="numeric" placeholder="Ej. 3847">
+        <input id="roundInput" type="number" inputmode="numeric" value="3847" placeholder="Ej. 3847">
       </div>
       <div class="round-out" id="roundOut" aria-live="polite">Escribí un número para redondearlo.</div>
     </section>
@@ -335,7 +336,7 @@
       </div>
       <div class="unit-input">
         <label class="sr-only" for="unitValue">Valor</label>
-        <input id="unitValue" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej. 2,5">
+        <input id="unitValue" type="text" inputmode="decimal" autocomplete="off" value="1" placeholder="Ej. 2,5">
         <label class="sr-only" for="unitFrom">Unidad de partida</label>
         <select id="unitFrom"></select>
       </div>
@@ -346,10 +347,10 @@
       <p class="tool-note">Escribí dos números y seguí el camino con sus divisores y múltiplos para encontrar el MCD (máximo común divisor) y el MCM (mínimo común múltiplo).</p>
       <div class="calc-inputs">
         <label class="sr-only" for="mcdA">Primer número</label>
-        <input id="mcdA" type="number" inputmode="numeric" min="1" max="999" placeholder="Nº 1, ej. 12">
+        <input id="mcdA" type="number" inputmode="numeric" min="1" max="999" value="12" placeholder="Nº 1, ej. 12">
         <span class="calc-x">y</span>
         <label class="sr-only" for="mcdB">Segundo número</label>
-        <input id="mcdB" type="number" inputmode="numeric" min="1" max="999" placeholder="Nº 2, ej. 18">
+        <input id="mcdB" type="number" inputmode="numeric" min="1" max="999" value="18" placeholder="Nº 2, ej. 18">
       </div>
       <div class="calc-steps" id="mcdSteps" aria-live="polite">Escribí dos números para ver el procedimiento.</div>
     </section>

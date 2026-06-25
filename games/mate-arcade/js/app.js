@@ -1079,25 +1079,31 @@
     var cell=e.target.closest(".prime-cell");if(cell)showFactor(cell.dataset.primeNum);
   });
 
-  // reglas de divisibilidad
-  var DIVIS_CHECKS=[
-    {by:2,test:function(n){return n%2===0;}},
-    {by:3,test:function(n){return n%3===0;}},
-    {by:4,test:function(n){return n%4===0;}},
-    {by:5,test:function(n){return n%5===0;}},
-    {by:6,test:function(n){return n%6===0;}},
-    {by:9,test:function(n){return n%9===0;}},
-    {by:10,test:function(n){return n%10===0;}}
-  ];
+  // reglas de divisibilidad: explican el porqué con el número escrito
+  function divisChecks(raw){
+    var n=Number(raw),last=raw.charAt(raw.length-1);
+    var sum=raw.split("").reduce(function(a,c){return a+Number(c);},0);
+    var last2=Number(raw.slice(-2)),d2=n%2===0,d3=n%3===0;
+    return [
+      {by:2,ok:d2,why:"Termina en "+last+", que es "+(d2?"par":"impar")+"."},
+      {by:3,ok:d3,why:"Sus cifras suman "+sum+", y "+sum+(d3?" es":" no es")+" múltiplo de 3."},
+      {by:4,ok:n%4===0,why:"Sus dos últimas cifras forman "+last2+", que "+(n%4===0?"sí es":"no es")+" múltiplo de 4."},
+      {by:5,ok:n%5===0,why:n%5===0?"Termina en "+last+".":"Termina en "+last+", no en 0 ni en 5."},
+      {by:6,ok:n%6===0,why:n%6===0?"Se divide por 2 y por 3 al mismo tiempo.":"Le falta dividirse por "+(!d2?"2 (no es par)":"3")+"."},
+      {by:9,ok:n%9===0,why:"Sus cifras suman "+sum+", y "+sum+(n%9===0?" es":" no es")+" múltiplo de 9."},
+      {by:10,ok:n%10===0,why:n%10===0?"Termina en 0.":"No termina en 0."}
+    ];
+  }
   function renderDivisFlags(){
-    var flags=$("#divisFlags"),input=$("#divisInput");if(!flags||!input)return;
+    var box=$("#divisFlags"),input=$("#divisInput");if(!box||!input)return;
     var raw=String(input.value).trim();
-    if(raw===""||!/^\d+$/.test(raw)){flags.innerHTML="";return;}
-    var n=Number(raw);
-    flags.innerHTML=DIVIS_CHECKS.map(function(c){
-      var ok=n>0&&c.test(n);
-      return "<span class='divis-flag "+(ok?"yes":"no")+"'>÷"+c.by+" "+(ok?"✓":"✗")+"</span>";
-    }).join("");
+    if(raw===""||!/^\d+$/.test(raw)||Number(raw)<1){box.innerHTML="<p class='divis-empty'>Escribí un número entero arriba para ver el detalle.</p>";return;}
+    box.innerHTML="<p class='divis-lead'>¿Por cuáles se puede dividir <b>"+Number(raw)+"</b>?</p><div class='divis-grid'>"+
+      divisChecks(raw).map(function(c){
+        return "<div class='divis-card "+(c.ok?"yes":"no")+"'>"+
+          "<div class='divis-card-head'><b>÷"+c.by+"</b><span class='badge'>"+(c.ok?"Sí ✓":"No ✗")+"</span></div>"+
+          "<p>"+c.why+"</p></div>";
+      }).join("")+"</div>";
   }
   $("#divisInput").addEventListener("input",renderDivisFlags);
 
@@ -1113,16 +1119,35 @@
 
   // cuadrados y cubos tocables: raíz inversa
   var ROOT_SYM={2:"√",3:"∛"};
+  function repeatedMul(base,pow){var a=[];for(var i=0;i<pow;i++)a.push(base);return a.join(" × ");}
   function showPow(btn){
     var out=$("#powReadout");if(!out)return;
-    var val=btn.dataset.val,base=btn.dataset.base,pow=Number(btn.dataset.pow);
-    out.innerHTML="<b>"+(ROOT_SYM[pow]||"")+val+" = "+base+"</b> · porque "+base+sup(pow)+" = "+val;
+    var val=btn.dataset.val,base=Number(btn.dataset.base),pow=Number(btn.dataset.pow);
+    out.innerHTML="<b>"+(ROOT_SYM[pow]||"")+val+" = "+base+"</b> porque "+repeatedMul(base,pow)+" = "+val;
   }
   function bindPowGrid(id){
     var grid=$("#"+id);if(!grid)return;
     grid.addEventListener("click",function(e){var b=e.target.closest(".sq");if(b)showPow(b);});
   }
   bindPowGrid("squaresGrid");bindPowGrid("cubesGrid");
+
+  // calculadora de potencias: base y exponente con explicación
+  function renderPowCalc(){
+    var out=$("#powCalcOut");if(!out)return;
+    var bRaw=$("#powBase").value,eRaw=$("#powExp").value;
+    if(bRaw===""||eRaw===""){out.textContent="Escribí una base y un exponente para calcular la potencia.";return;}
+    var base=Math.floor(Number(bRaw)),exp=Math.floor(Number(eRaw));
+    if(!Number.isFinite(base)||!Number.isFinite(exp)||exp<0){out.textContent="Probá con números enteros (el exponente, 0 o más).";return;}
+    if(exp===0){out.innerHTML="<div class='step'><b>"+base+sup(0)+" = 1</b></div><div class='step'>Cualquier número elevado a 0 da 1.</div>";return;}
+    if(exp===1){out.innerHTML="<div class='step'><b>"+base+sup(1)+" = "+base+"</b></div><div class='step'>Elevado a 1, el número queda igual.</div>";return;}
+    var result=Math.pow(base,exp);
+    if(!Number.isSafeInteger(result)){out.innerHTML="<div class='step'>Ese resultado es enorme. Probá con números más chicos para verlo entero.</div>";return;}
+    out.innerHTML=
+      "<div class='step'>Multiplicás la base ("+base+") por sí misma "+exp+" veces:</div>"+
+      "<div class='step'><b>"+base+sup(exp)+" = "+repeatedMul(base,exp)+" = "+result+"</b></div>";
+  }
+  $("#powBase").addEventListener("input",renderPowCalc);
+  $("#powExp").addEventListener("input",renderPowCalc);
 
   // calculadora de MCD y MCM paso a paso (con divisores y múltiplos)
   function divisorsOf(n){var out=[];for(var i=1;i<=n;i++)if(n%i===0)out.push(i);return out;}
@@ -1161,20 +1186,24 @@
   $("#mcdA").addEventListener("input",renderMcd);
   $("#mcdB").addEventListener("input",renderMcd);
 
-  // simplificar fracciones
+  // simplificar fracciones, explicado paso a paso
   function renderFrac(){
     var out=$("#fracSteps");if(!out)return;
     var nRaw=$("#fracNum").value,dRaw=$("#fracDen").value;
     if(nRaw===""||dRaw===""){out.textContent="Escribí una fracción para simplificarla.";return;}
     var n=Math.floor(Math.abs(Number(nRaw))),d=Math.floor(Math.abs(Number(dRaw)));
     if(!Number.isFinite(n)||!Number.isFinite(d)||d===0){out.textContent="El número de abajo (denominador) no puede ser 0.";return;}
-    if(n===0){out.innerHTML="<div class='step'><b>0/"+d+" = 0</b> · cero repartido en cualquier cantidad sigue siendo 0.</div>";return;}
+    if(n===0){out.innerHTML="<div class='step'><b>0/"+d+" = 0</b></div><div class='step'>Si arriba hay 0, no tenés nada para repartir: la fracción vale 0.</div>";return;}
     var g=gcd(n,d);
-    if(g===1){out.innerHTML="<div class='step'><b>"+n+"/"+d+"</b> ya está en su forma más simple: no tienen divisores comunes.</div>";return;}
+    if(g===1){out.innerHTML="<div class='step'><b>"+n+"/"+d+"</b> ya está lo más simple posible.</div>"+
+      "<div class='step'>No hay ningún número (mayor que 1) que divida justo a "+n+" y a "+d+" al mismo tiempo.</div>";return;}
+    var sn=n/g,sd=d/g;
+    var whole=sd===1?" Como abajo queda 1, es lo mismo que el entero <b>"+sn+"</b>.":"";
     out.innerHTML=
-      "<div class='step'>El MCD de "+n+" y "+d+" es <b>"+g+"</b>.</div>"+
-      "<div class='step'>Dividís arriba y abajo por "+g+": "+n+"÷"+g+" y "+d+"÷"+g+".</div>"+
-      "<div class='step'><b>"+n+"/"+d+" = "+(n/g)+"/"+(d/g)+"</b></div>";
+      "<div class='step'>Buscás el número más grande que divida justo a "+n+" y a "+d+" a la vez: es el <span class='mark'>"+g+"</span>.</div>"+
+      "<div class='step'>Dividís arriba y abajo por "+g+" (la fracción sigue valiendo lo mismo):</div>"+
+      "<div class='step'>Arriba: "+n+" ÷ "+g+" = "+sn+" · Abajo: "+d+" ÷ "+g+" = "+sd+"</div>"+
+      "<div class='step'><b>"+n+"/"+d+" = "+sn+"/"+sd+"</b>"+whole+"</div>";
   }
   $("#fracNum").addEventListener("input",renderFrac);
   $("#fracDen").addEventListener("input",renderFrac);
@@ -1231,6 +1260,8 @@
     fillUnitSelect();renderUnits();
   });
   fillUnitSelect();
+  // mostrar ejemplos al cargar para que se entienda qué hace cada herramienta
+  renderMcd();renderFrac();renderRound();renderPowCalc();renderDivisFlags();renderUnits();
 
   // ---- menú ----
   function renderLevelList(){

@@ -36,7 +36,7 @@ Juego de matemática con:
 - Arcade, Práctica y Repaso adaptativo.
 - Suma, resta, multiplicación, división, potencias, raíces, múltiplos, divisores, MCD y MCM.
 - Microlecciones, mini evaluaciones y acceso a la teoría desde cada error.
-- Caja de herramientas: tabla pitagórica, primos y factores, reglas de divisibilidad, cuadrados y cubos tocables, anatomía de las operaciones, simplificador de fracciones con equivalencias, redondeo, conversión de unidades, calculadora de MCD y MCM paso a paso y glosario.
+- Caja de herramientas: tabla pitagórica, primos y factores, reglas de divisibilidad explicadas, calculadora de potencias, cuadrados y cubos tocables, anatomía de las operaciones, simplificador de fracciones con equivalencias, redondeo, conversión de unidades, calculadora de MCD y MCM paso a paso y glosario.
 - Perfiles, progreso por tema, logros y exportación de datos.
 - Correcciones específicas y reaparición espaciada de errores.
 - Alternativa visual sin reloj, puntaje ni rachas.
