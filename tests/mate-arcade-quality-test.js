@@ -32,8 +32,9 @@ assert(app.includes("ArrowLeft") && app.includes("ArrowRight"), "Las pestañas d
 assert(app.includes('$("#studyTopicSelect").value=op'), "El selector directo debe mantenerse sincronizado");
 assert(app.includes("sanitizeImportedStore"), "La importación debe pasar por normalización");
 assert(app.includes("recentAccuracy") && app.includes("retryQueue"), "Repaso debe usar evidencia reciente y reaparición espaciada");
-assert(app.includes("Radar de errores") && app.includes("Ejemplo visual guiado"), "Las lecciones deben incluir explicación visual y contraste de errores");
-assert(css.includes(".reason-compare") && css.includes(".context-card"), "Deben existir componentes visuales para contexto y razonamiento");
+assert(app.includes("Radar de errores") && app.includes("Miralo en acción"), "Las lecciones deben incluir explicación visual y contraste de errores");
+assert(css.includes(".reason-compare") && css.includes(".math-scene") && css.includes(".math-result"), "Deben existir componentes visuales para contexto y razonamiento");
+assert(/styles\.css\?v=\d+/.test(html) && /js\/app\.js\?v=\d+/.test(html), "Los recursos deben llevar versión para evitar mezclar cachés");
 
 for (const op of ["add", "sub", "mul", "div", "pow", "root", "mlt", "dvs", "mcd", "mcm"]) {
   assert(lessons.includes(`${op}:`), `Debe existir contenido de estudio para ${op}`);
