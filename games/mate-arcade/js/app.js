@@ -1071,9 +1071,14 @@
   function showFactor(num){
     var out=$("#factorReadout");if(!out)return;
     var n=Number(num);
-    if(n===1){out.textContent="El 1 no es primo ni compuesto: no se descompone en factores.";return;}
-    if(isPrime(n)){out.innerHTML="<b>"+n+"</b> es un número primo: solo se divide por 1 y por "+n+".";return;}
-    out.innerHTML="<b>"+n+"</b> = "+formatFactors(primeFactors(n));
+    if(n===1){out.innerHTML="<span class='fr-main'>El 1 no es primo ni compuesto.</span>"+
+      "<span class='fr-why'>No se puede descomponer en factores.</span>";return;}
+    if(isPrime(n)){out.innerHTML="<span class='fr-main'><b>"+n+"</b> es un número primo.</span>"+
+      "<span class='fr-why'>Solo se divide por 1 y por "+n+", así que ya no se puede descomponer más.</span>";return;}
+    var fs=primeFactors(n),expanded=fs.join(" × "),short=formatFactors(fs);
+    var shortPart=short!==expanded?" &nbsp;=&nbsp; <b>"+short+"</b>":"";
+    out.innerHTML="<span class='fr-main'>"+n+" = <b>"+expanded+"</b>"+shortPart+"</span>"+
+      "<span class='fr-why'>Descomponer es partir "+n+" en números primos que, multiplicados, vuelven a darlo. Sirve para simplificar fracciones y para encontrar el MCD y el MCM.</span>";
   }
   $("#primesGrid").addEventListener("click",function(e){
     var cell=e.target.closest(".prime-cell");if(cell)showFactor(cell.dataset.primeNum);
@@ -1107,11 +1112,26 @@
   }
   $("#divisInput").addEventListener("input",renderDivisFlags);
 
-  // índice de salto rápido de herramientas
+  // pestañas de herramientas: se muestra una a la vez
+  var TOOL_PANELS={
+    times:["toolTimes"],primes:["toolPrimes"],divis:["toolDivis"],squares:["toolSquares"],
+    anatomy:["toolAnatomy"],fractions:["toolFractions"],round:["toolRound"],units:["toolUnits"],
+    mcdmcm:["toolMcdMcmCalc","toolMcdMcm"],glossary:["toolGlossary"]
+  };
+  var ALL_TOOL_IDS=["toolTimes","toolPrimes","toolDivis","toolSquares","toolAnatomy","toolFractions",
+    "toolRound","toolUnits","toolMcdMcmCalc","toolMcdMcm","toolGlossary"];
+  function showToolPanel(key){
+    var ids=TOOL_PANELS[key]||TOOL_PANELS.times;
+    ALL_TOOL_IDS.forEach(function(id){var el=$("#"+id);if(el)el.hidden=ids.indexOf(id)<0;});
+    var chips=document.querySelectorAll("#toolIndex .tool-jump");
+    [].forEach.call(chips,function(b){
+      var on=b.dataset.toolTarget===key;
+      b.classList.toggle("active",on);b.setAttribute("aria-pressed",on?"true":"false");
+    });
+    var t=$("#tools");if(t)t.scrollTop=0;
+  }
   $("#toolIndex").addEventListener("click",function(e){
-    var btn=e.target.closest(".tool-jump");if(!btn)return;
-    var target=$("#"+btn.dataset.toolTarget);
-    if(target&&target.scrollIntoView)target.scrollIntoView({behavior:"smooth",block:"start"});
+    var btn=e.target.closest(".tool-jump");if(btn)showToolPanel(btn.dataset.toolTarget);
   });
 
   // formato de números (coma decimal, sin ruido de coma flotante)
@@ -1187,6 +1207,16 @@
   $("#mcdB").addEventListener("input",renderMcd);
 
   // simplificar fracciones, explicado paso a paso
+  function fracDecimals(num,den){
+    var d=den;while(d%2===0)d=d/2;while(d%5===0)d=d/5;
+    var val=num/den;
+    if(d===1)return {dec:fmtNum(val),pct:fmtNum(val*100)+" %"};
+    return {dec:fmtNum(Math.floor(val*100)/100)+"…",pct:fmtNum(Math.floor(val*1000)/10)+" %"};
+  }
+  function fracEquivStep(num,den){
+    var eq=fracDecimals(num,den);
+    return "<div class='step'>La misma cantidad en decimal es <b>"+eq.dec+"</b> y en porcentaje, <b>"+eq.pct+"</b>.</div>";
+  }
   function renderFrac(){
     var out=$("#fracSteps");if(!out)return;
     var nRaw=$("#fracNum").value,dRaw=$("#fracDen").value;
@@ -1196,14 +1226,16 @@
     if(n===0){out.innerHTML="<div class='step'><b>0/"+d+" = 0</b></div><div class='step'>Si arriba hay 0, no tenés nada para repartir: la fracción vale 0.</div>";return;}
     var g=gcd(n,d);
     if(g===1){out.innerHTML="<div class='step'><b>"+n+"/"+d+"</b> ya está lo más simple posible.</div>"+
-      "<div class='step'>No hay ningún número (mayor que 1) que divida justo a "+n+" y a "+d+" al mismo tiempo.</div>";return;}
+      "<div class='step'>No hay ningún número (mayor que 1) que divida justo a "+n+" y a "+d+" al mismo tiempo.</div>"+
+      fracEquivStep(n,d);return;}
     var sn=n/g,sd=d/g;
     var whole=sd===1?" Como abajo queda 1, es lo mismo que el entero <b>"+sn+"</b>.":"";
     out.innerHTML=
       "<div class='step'>Buscás el número más grande que divida justo a "+n+" y a "+d+" a la vez: es el <span class='mark'>"+g+"</span>.</div>"+
       "<div class='step'>Dividís arriba y abajo por "+g+" (la fracción sigue valiendo lo mismo):</div>"+
       "<div class='step'>Arriba: "+n+" ÷ "+g+" = "+sn+" · Abajo: "+d+" ÷ "+g+" = "+sd+"</div>"+
-      "<div class='step'><b>"+n+"/"+d+" = "+sn+"/"+sd+"</b>"+whole+"</div>";
+      "<div class='step'><b>"+n+"/"+d+" = "+sn+"/"+sd+"</b>"+whole+"</div>"+
+      fracEquivStep(sn,sd);
   }
   $("#fracNum").addEventListener("input",renderFrac);
   $("#fracDen").addEventListener("input",renderFrac);
@@ -1261,7 +1293,8 @@
   });
   fillUnitSelect();
   // mostrar ejemplos al cargar para que se entienda qué hace cada herramienta
-  renderMcd();renderFrac();renderRound();renderPowCalc();renderDivisFlags();renderUnits();
+  renderMcd();renderFrac();renderRound();renderPowCalc();renderDivisFlags();renderUnits();showFactor(60);
+  showToolPanel("times");
 
   // ---- menú ----
   function renderLevelList(){

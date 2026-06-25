@@ -462,10 +462,12 @@
   .table-pick.active{background:var(--gold);color:#160b2e;border-color:var(--gold)}
   .tool-note{font-size:12px;color:var(--muted);line-height:1.45;margin:8px 0 12px}
   .tool-subhead{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:1px;color:var(--gold);margin:14px 0 8px}
-  .tool-index{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 16px}
+  .tool-index{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:7px;
+    padding:10px 0;margin:0 0 14px;background:var(--bg-0);border-bottom:1px solid var(--line)}
   .tool-jump{border:1px solid var(--line);border-radius:999px;padding:7px 13px;background:rgba(157,123,255,.08);
     color:var(--ink);font-size:12px;font-weight:700;cursor:pointer}
   .tool-jump:hover{border-color:var(--cyan);color:var(--cyan)}
+  .tool-jump.active{background:var(--cyan);border-color:var(--cyan);color:#0d0720}
   .primes-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
   .prime-cell{border:1px solid var(--line);border-radius:7px;padding:7px 2px;font-size:12px;font-weight:700;
     background:rgba(157,123,255,.06);color:var(--muted);cursor:pointer;min-height:34px}
@@ -476,6 +478,8 @@
   .factor-readout{margin-top:12px;border:1px solid var(--line);border-radius:11px;padding:12px;
     background:rgba(24,224,255,.06);font-size:14px;color:var(--ink);text-align:center;min-height:20px}
   .factor-readout b{color:var(--cyan);font-family:'Orbitron',sans-serif}
+  .factor-readout .fr-main{display:block;font-size:15px}
+  .factor-readout .fr-why{display:block;font-size:11px;color:var(--muted);margin-top:7px;line-height:1.45}
   .divis-check{margin-bottom:14px}
   #divisInput{width:100%;border:1px solid var(--line);background:rgba(13,7,32,.7);color:var(--ink);
     border-radius:10px;padding:11px;font:inherit}
