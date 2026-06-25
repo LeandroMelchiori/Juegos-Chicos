@@ -993,7 +993,7 @@
   $("#nextLessonBtn").onclick=function(){var i=OPORDER.indexOf(state.currentStudyOp);if(i<OPORDER.length-1){state.studyTab="understand";selectStudyTopic(OPORDER[i+1],true);}};
   $("#printStudyBtn").onclick=function(){renderTimesTable(0);window.print();};
   $("#studyBtn").onclick=function(){state.learnReturn="menu";state.studyFromError=false;updateStudyRecommendation();show("learn");$("#learn").scrollTop=0;beep(560,.06);};
-  $("#learnToolsBtn").onclick=function(){state.toolsReturn="learn";renderTimesTable(0);show("tools");};
+  $("#learnToolsBtn").onclick=function(){state.toolsReturn="learn";renderTimesTable(0);renderPrimes();show("tools");};
   $("#learnBack").onclick=function(){
     var destination=state.learnReturn||"menu";show(destination);
     if(destination==="game"&&state.studyFromError){state.studyFromError=false;showTeach("solve");}
@@ -1037,6 +1037,191 @@
   $("#timesTable").addEventListener("click",function(e){
     var row=e.target.closest("tr[data-row]");if(row)renderTimesTable(row.dataset.row);
   });
+
+  // primos y descomposición en factores
+  function primeFactors(n){
+    n=Math.floor(Math.abs(Number(n)||0));
+    var f=[],d=2;
+    if(n<2)return f;
+    while(d*d<=n){while(n%d===0){f.push(d);n=n/d;}d+=1;}
+    if(n>1)f.push(n);
+    return f;
+  }
+  function isPrime(n){return n>=2&&primeFactors(n).length===1;}
+  var SUP={"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+  function sup(n){return String(n).split("").map(function(d){return SUP[d];}).join("");}
+  function formatFactors(factors){
+    var out=[],i=0;
+    while(i<factors.length){
+      var base=factors[i],count=0;
+      while(i<factors.length&&factors[i]===base){count+=1;i+=1;}
+      out.push(count>1?base+sup(count):String(base));
+    }
+    return out.join(" × ");
+  }
+  function renderPrimes(){
+    var grid=$("#primesGrid");if(!grid)return;
+    var html="";
+    for(var n=1;n<=100;n+=1){
+      var cls=n===1?"one":isPrime(n)?"prime":"composite";
+      html+="<button type='button' class='prime-cell "+cls+"' data-prime-num='"+n+"' aria-label='"+n+"'>"+n+"</button>";
+    }
+    grid.innerHTML=html;
+  }
+  function showFactor(num){
+    var out=$("#factorReadout");if(!out)return;
+    var n=Number(num);
+    if(n===1){out.textContent="El 1 no es primo ni compuesto: no se descompone en factores.";return;}
+    if(isPrime(n)){out.innerHTML="<b>"+n+"</b> es un número primo: solo se divide por 1 y por "+n+".";return;}
+    out.innerHTML="<b>"+n+"</b> = "+formatFactors(primeFactors(n));
+  }
+  $("#primesGrid").addEventListener("click",function(e){
+    var cell=e.target.closest(".prime-cell");if(cell)showFactor(cell.dataset.primeNum);
+  });
+
+  // reglas de divisibilidad
+  var DIVIS_CHECKS=[
+    {by:2,test:function(n){return n%2===0;}},
+    {by:3,test:function(n){return n%3===0;}},
+    {by:4,test:function(n){return n%4===0;}},
+    {by:5,test:function(n){return n%5===0;}},
+    {by:6,test:function(n){return n%6===0;}},
+    {by:9,test:function(n){return n%9===0;}},
+    {by:10,test:function(n){return n%10===0;}}
+  ];
+  function renderDivisFlags(){
+    var flags=$("#divisFlags"),input=$("#divisInput");if(!flags||!input)return;
+    var raw=String(input.value).trim();
+    if(raw===""||!/^\d+$/.test(raw)){flags.innerHTML="";return;}
+    var n=Number(raw);
+    flags.innerHTML=DIVIS_CHECKS.map(function(c){
+      var ok=n>0&&c.test(n);
+      return "<span class='divis-flag "+(ok?"yes":"no")+"'>÷"+c.by+" "+(ok?"✓":"✗")+"</span>";
+    }).join("");
+  }
+  $("#divisInput").addEventListener("input",renderDivisFlags);
+
+  // índice de salto rápido de herramientas
+  $("#toolIndex").addEventListener("click",function(e){
+    var btn=e.target.closest(".tool-jump");if(!btn)return;
+    var target=$("#"+btn.dataset.toolTarget);
+    if(target&&target.scrollIntoView)target.scrollIntoView({behavior:"smooth",block:"start"});
+  });
+
+  // formato de números (coma decimal, sin ruido de coma flotante)
+  function fmtNum(n){return String(Number(Number(n).toFixed(6))).replace(".",",");}
+
+  // cuadrados y cubos tocables: raíz inversa
+  var ROOT_SYM={2:"√",3:"∛"};
+  function showPow(btn){
+    var out=$("#powReadout");if(!out)return;
+    var val=btn.dataset.val,base=btn.dataset.base,pow=Number(btn.dataset.pow);
+    out.innerHTML="<b>"+(ROOT_SYM[pow]||"")+val+" = "+base+"</b> · porque "+base+sup(pow)+" = "+val;
+  }
+  function bindPowGrid(id){
+    var grid=$("#"+id);if(!grid)return;
+    grid.addEventListener("click",function(e){var b=e.target.closest(".sq");if(b)showPow(b);});
+  }
+  bindPowGrid("squaresGrid");bindPowGrid("cubesGrid");
+
+  // calculadora de MCD y MCM paso a paso
+  function expMap(factors){var m={};factors.forEach(function(f){m[f]=(m[f]||0)+1;});return m;}
+  function expText(map){
+    return Object.keys(map).map(Number).sort(function(a,b){return a-b;}).map(function(k){
+      return map[k]>1?k+sup(map[k]):String(k);
+    }).join(" × ")||"1";
+  }
+  function renderMcd(){
+    var out=$("#mcdSteps");if(!out)return;
+    var a=Math.floor(Number($("#mcdA").value)),b=Math.floor(Number($("#mcdB").value));
+    if(!(a>=1)||!(b>=1)){out.textContent="Escribí dos números para ver el procedimiento.";return;}
+    var ma=expMap(primeFactors(a)),mb=expMap(primeFactors(b)),common={},all={};
+    Object.keys(ma).forEach(function(k){all[k]=ma[k];});
+    Object.keys(mb).forEach(function(k){all[k]=Math.max(all[k]||0,mb[k]);if(ma[k])common[k]=Math.min(ma[k],mb[k]);});
+    var mcd=gcd(a,b),mcm=a/mcd*b;
+    var faText=a>1?expText(ma):"1 (no se descompone)";
+    var fbText=b>1?expText(mb):"1 (no se descompone)";
+    var hasCommon=Object.keys(common).length>0;
+    out.innerHTML=
+      "<div class='step'><b>"+a+"</b> = "+faText+"</div>"+
+      "<div class='step'><b>"+b+"</b> = "+fbText+"</div>"+
+      "<div class='step'><span class='tag cd'>MCD</span> factores comunes con el menor exponente → "+
+        (hasCommon?expText(common)+" = <b>"+mcd+"</b>":"no comparten factores primos, así que es <b>1</b>")+"</div>"+
+      "<div class='step'><span class='tag cm'>MCM</span> todos los factores con el mayor exponente → "+expText(all)+" = <b>"+mcm+"</b></div>";
+  }
+  $("#mcdA").addEventListener("input",renderMcd);
+  $("#mcdB").addEventListener("input",renderMcd);
+
+  // simplificar fracciones
+  function renderFrac(){
+    var out=$("#fracSteps");if(!out)return;
+    var nRaw=$("#fracNum").value,dRaw=$("#fracDen").value;
+    if(nRaw===""||dRaw===""){out.textContent="Escribí una fracción para simplificarla.";return;}
+    var n=Math.floor(Math.abs(Number(nRaw))),d=Math.floor(Math.abs(Number(dRaw)));
+    if(!Number.isFinite(n)||!Number.isFinite(d)||d===0){out.textContent="El número de abajo (denominador) no puede ser 0.";return;}
+    if(n===0){out.innerHTML="<div class='step'><b>0/"+d+" = 0</b> · cero repartido en cualquier cantidad sigue siendo 0.</div>";return;}
+    var g=gcd(n,d);
+    if(g===1){out.innerHTML="<div class='step'><b>"+n+"/"+d+"</b> ya está en su forma más simple: no tienen divisores comunes.</div>";return;}
+    out.innerHTML=
+      "<div class='step'>El MCD de "+n+" y "+d+" es <b>"+g+"</b>.</div>"+
+      "<div class='step'>Dividís arriba y abajo por "+g+": "+n+"÷"+g+" y "+d+"÷"+g+".</div>"+
+      "<div class='step'><b>"+n+"/"+d+" = "+(n/g)+"/"+(d/g)+"</b></div>";
+  }
+  $("#fracNum").addEventListener("input",renderFrac);
+  $("#fracDen").addEventListener("input",renderFrac);
+
+  // redondeo y estimación
+  function renderRound(){
+    var out=$("#roundOut");if(!out)return;
+    var raw=$("#roundInput").value;
+    if(raw===""||isNaN(Number(raw))){out.textContent="Escribí un número para redondearlo.";return;}
+    var n=Number(raw),rows=[["A la decena",10],["A la centena",100],["Al mil",1000]];
+    out.innerHTML="<div class='round-grid'>"+rows.map(function(row){
+      return "<div class='round-cell'><span>"+row[0]+"</span><b>"+fmtNum(Math.round(n/row[1])*row[1])+"</b></div>";
+    }).join("")+"</div>";
+  }
+  $("#roundInput").addEventListener("input",renderRound);
+
+  // conversión de unidades
+  var UNIT_SETS={
+    length:{base:"m",units:[["km",1000],["hm",100],["dam",10],["m",1],["dm",.1],["cm",.01],["mm",.001]]},
+    mass:{base:"g",units:[["kg",1000],["hg",100],["dag",10],["g",1],["dg",.1],["cg",.01],["mg",.001]]},
+    capacity:{base:"l",units:[["kl",1000],["hl",100],["dal",10],["l",1],["dl",.1],["cl",.01],["ml",.001]]}
+  };
+  var unitKind="length";
+  function unitFactor(name){var u=UNIT_SETS[unitKind].units;for(var i=0;i<u.length;i++)if(u[i][0]===name)return u[i][1];return 1;}
+  function fillUnitSelect(){
+    var sel=$("#unitFrom");if(!sel)return;
+    sel.innerHTML="";
+    UNIT_SETS[unitKind].units.forEach(function(u){
+      var o=document.createElement("option");o.value=u[0];o.textContent=u[0];
+      if(u[0]===UNIT_SETS[unitKind].base)o.selected=true;
+      sel.appendChild(o);
+    });
+    sel.value=UNIT_SETS[unitKind].base;
+  }
+  function renderUnits(){
+    var out=$("#unitOut");if(!out)return;
+    var raw=String($("#unitValue").value).replace(",","."),sel=$("#unitFrom");
+    var from=sel&&sel.value?sel.value:UNIT_SETS[unitKind].base;
+    if(raw===""||isNaN(Number(raw))){out.textContent="Escribí un valor para convertirlo.";return;}
+    var base=Number(raw)*unitFactor(from);
+    out.innerHTML="<div class='unit-grid'>"+UNIT_SETS[unitKind].units.map(function(u){
+      return "<div class='unit-cell"+(u[0]===from?" active":"")+"'><b>"+fmtNum(base/u[1])+"</b><span>"+u[0]+"</span></div>";
+    }).join("")+"</div>";
+  }
+  var unitValueEl=$("#unitValue");if(unitValueEl)unitValueEl.addEventListener("input",renderUnits);
+  var unitFromEl=$("#unitFrom");if(unitFromEl)unitFromEl.addEventListener("change",renderUnits);
+  var unitTabsEl=$("#unitTabs");
+  if(unitTabsEl)unitTabsEl.addEventListener("click",function(e){
+    var btn=e.target.closest(".unit-tab");if(!btn)return;
+    unitKind=btn.dataset.unitKind;
+    [].forEach.call(unitTabsEl.querySelectorAll(".unit-tab"),function(t){
+      var on=t===btn;t.dataset.active=on?"1":"0";t.setAttribute("aria-pressed",on?"true":"false");
+    });
+    fillUnitSelect();renderUnits();
+  });
+  fillUnitSelect();
 
   // ---- menú ----
   function renderLevelList(){
@@ -1101,7 +1286,7 @@
   $("#customizeBtn").onclick=function(){show("customize");$("#customize").scrollTop=0;};
   $("#customizeBack").onclick=function(){show("menu");};
   $("#customizePlayBtn").onclick=startGame;
-  $("#toolsBtn").onclick=function(){state.toolsReturn="menu";renderTimesTable(0);show("tools");$("#tools").scrollTop=0;};
+  $("#toolsBtn").onclick=function(){state.toolsReturn="menu";renderTimesTable(0);renderPrimes();show("tools");$("#tools").scrollTop=0;};
   $("#toolsBack").onclick=function(){show(state.toolsReturn||"menu");};
   function renderProfiles(){
     var select=$("#profileSelect"); select.innerHTML="";

@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "juegos-chicos",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["tests/dev-server.js"],
+      "port": 8765
+    }
+  ]
+}

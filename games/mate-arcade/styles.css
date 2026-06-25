@@ -461,6 +461,87 @@
   .table-pick{border:1px solid var(--line);border-radius:9px;padding:8px;background:transparent;color:var(--muted);font-weight:800;cursor:pointer}
   .table-pick.active{background:var(--gold);color:#160b2e;border-color:var(--gold)}
   .tool-note{font-size:12px;color:var(--muted);line-height:1.45;margin:8px 0 12px}
+  .tool-subhead{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:1px;color:var(--gold);margin:14px 0 8px}
+  .tool-index{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 16px}
+  .tool-jump{border:1px solid var(--line);border-radius:999px;padding:7px 13px;background:rgba(157,123,255,.08);
+    color:var(--ink);font-size:12px;font-weight:700;cursor:pointer}
+  .tool-jump:hover{border-color:var(--cyan);color:var(--cyan)}
+  .primes-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+  .prime-cell{border:1px solid var(--line);border-radius:7px;padding:7px 2px;font-size:12px;font-weight:700;
+    background:rgba(157,123,255,.06);color:var(--muted);cursor:pointer;min-height:34px}
+  .prime-cell.prime{background:rgba(124,255,107,.16);border-color:rgba(124,255,107,.5);color:var(--lime)}
+  .prime-cell.composite{color:var(--ink)}
+  .prime-cell.one{opacity:.5}
+  .prime-cell:hover,.prime-cell:focus-visible{border-color:var(--cyan);color:var(--cyan)}
+  .factor-readout{margin-top:12px;border:1px solid var(--line);border-radius:11px;padding:12px;
+    background:rgba(24,224,255,.06);font-size:14px;color:var(--ink);text-align:center;min-height:20px}
+  .factor-readout b{color:var(--cyan);font-family:'Orbitron',sans-serif}
+  .divis-check{margin-bottom:14px}
+  #divisInput{width:100%;border:1px solid var(--line);background:rgba(13,7,32,.7);color:var(--ink);
+    border-radius:10px;padding:11px;font:inherit}
+  #divisInput:focus{outline:none;border-color:var(--cyan)}
+  .divis-flags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .divis-flag{border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:800;font-family:'Orbitron',sans-serif}
+  .divis-flag.yes{background:rgba(124,255,107,.16);border-color:rgba(124,255,107,.5);color:var(--lime)}
+  .divis-flag.no{background:rgba(157,123,255,.05);color:var(--muted)}
+  .divis-rules{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .divis-rules div{border:1px solid var(--line);border-radius:9px;padding:9px;font-size:11px;line-height:1.35;color:var(--ink)}
+  .divis-rules b{display:block;color:var(--gold);font-family:'Orbitron',sans-serif;margin-bottom:3px}
+  /* inputs de herramientas */
+  #mcdA,#mcdB,#roundInput,#fracNum,#fracDen,#unitValue,#unitFrom{border:1px solid var(--line);
+    background:rgba(13,7,32,.7);color:var(--ink);border-radius:10px;padding:11px;font:inherit}
+  #mcdA:focus,#mcdB:focus,#roundInput:focus,#fracNum:focus,#fracDen:focus,#unitValue:focus,#unitFrom:focus{outline:none;border-color:var(--cyan)}
+  .calc-inputs{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .calc-inputs input{flex:1;min-width:90px}
+  .calc-x{color:var(--muted);font-weight:700}
+  .calc-steps{border:1px solid var(--line);border-radius:11px;padding:12px;background:rgba(13,7,32,.45);
+    font-size:13px;line-height:1.5;color:var(--ink)}
+  .calc-steps .step{padding:6px 0;border-bottom:1px dashed var(--line)}
+  .calc-steps .step:last-child{border-bottom:0}
+  .calc-steps b{color:var(--cyan);font-family:'Orbitron',sans-serif}
+  .calc-steps .tag{display:inline-block;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:900;
+    padding:2px 7px;border-radius:6px;margin-right:6px}
+  .calc-steps .tag.cd{background:rgba(255,60,172,.18);color:var(--magenta)}
+  .calc-steps .tag.cm{background:rgba(157,123,255,.2);color:var(--violet)}
+  /* cuadrados y cubos tocables */
+  button.sq{cursor:pointer;font:inherit;color:inherit;width:100%}
+  button.sq:hover,button.sq:focus-visible{border-color:var(--cyan);outline:none}
+  /* anatomía de operaciones */
+  .anatomy{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .anat-card{border:1px solid var(--line);border-radius:11px;padding:12px;background:rgba(157,123,255,.06)}
+  .anat-expr{font-family:'Orbitron',sans-serif;font-size:18px;text-align:center;letter-spacing:1px}
+  .anat-expr small{font-family:inherit;font-size:11px;color:var(--muted);letter-spacing:0}
+  .anat-expr sup{font-size:.6em}
+  .anat-legend{margin-top:8px;text-align:center;font-size:11px;color:var(--muted);line-height:1.6}
+  .t-a{color:var(--cyan)} .t-b{color:var(--gold)} .t-c{color:var(--coral)} .t-r{color:var(--lime)}
+  /* fracciones */
+  .frac-input{display:inline-flex;flex-direction:column;align-items:center;gap:5px;margin-bottom:12px}
+  .frac-input input{width:140px;text-align:center}
+  .frac-line{display:block;width:140px;height:2px;background:var(--cyan);border-radius:2px}
+  .equiv-table{border:1px solid var(--line);border-radius:11px;overflow:hidden}
+  .equiv-row{display:grid;grid-template-columns:1fr 1fr 1fr}
+  .equiv-row span{padding:9px;font-size:12px;text-align:center;border-bottom:1px solid var(--line)}
+  .equiv-row:last-child span{border-bottom:0}
+  .equiv-row span:first-child{color:var(--cyan);font-weight:700}
+  .equiv-head span{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:.5px;color:var(--gold);background:rgba(13,7,32,.5)}
+  /* redondeo */
+  .round-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .round-cell{border:1px solid var(--line);border-radius:10px;padding:11px 6px;text-align:center;background:rgba(13,7,32,.45)}
+  .round-cell span{display:block;font-size:10px;color:var(--muted);margin-bottom:5px}
+  .round-cell b{font-family:'Orbitron',sans-serif;color:var(--cyan);font-size:15px}
+  /* conversión de unidades */
+  .unit-tabs{display:flex;gap:6px;margin-bottom:12px}
+  .unit-tab{flex:1;border:1px solid var(--line);background:rgba(157,123,255,.05);color:var(--muted);
+    border-radius:9px;padding:9px;font-weight:700;font-size:12px;cursor:pointer}
+  .unit-tab[data-active="1"]{border-color:var(--cyan);background:rgba(24,224,255,.14);color:var(--ink)}
+  .unit-input{display:flex;gap:8px;margin-bottom:12px}
+  .unit-input input{flex:2;min-width:0}
+  .unit-input select{flex:1;min-width:66px}
+  .unit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:6px}
+  .unit-cell{border:1px solid var(--line);border-radius:9px;padding:9px 4px;text-align:center;background:rgba(13,7,32,.45)}
+  .unit-cell.active{border-color:var(--gold);background:rgba(255,210,63,.12)}
+  .unit-cell b{display:block;font-family:'Orbitron',sans-serif;color:var(--cyan);font-size:13px;word-break:break-word}
+  .unit-cell span{font-size:10px;color:var(--muted)}
 
   /* progreso */
   #progress{overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -515,7 +596,7 @@
 
   @media print{
     html,body{height:auto!important;overflow:visible!important;position:static!important;background:#fff!important;color:#111!important}
-    .grid-bg,.sound-toggle,#menu,#customize,#game,#end,#progress,.overlay,.learn-head .back,.learn-actions,.learn-sub,.topic-jump,.topic-map-title,.study-index,.lesson-tabs,.lesson-nav,.table-picks,.tool-note{display:none!important}
+    .grid-bg,.sound-toggle,#menu,#customize,#game,#end,#progress,.overlay,.learn-head .back,.learn-actions,.learn-sub,.topic-jump,.topic-map-title,.study-index,.lesson-tabs,.lesson-nav,.table-picks,.tool-note,.tool-index,.divis-check,.calc-inputs,.frac-input,.unit-tabs,.unit-input{display:none!important}
     .app{display:block!important;width:100%!important;max-width:none!important;height:auto!important;max-height:none!important;padding:0!important}
     #learn,#tools{display:block!important;overflow:visible!important}
     .learn-head{display:block!important;margin-bottom:14px}
@@ -525,6 +606,7 @@
     .study-head .arrow{display:none}
     .study-body,.lesson-panel{display:block!important}
     .ssec p,.sex,.vs .col p{color:#111}
-    .sex,.extra,.vs .col,.sq{background:#fff!important;border-color:#bbb!important;color:#111!important}
+    .sex,.extra,.vs .col,.sq,.prime-cell,.divis-flag,.divis-rules div,.factor-readout,.calc-steps,.anat-card,.round-cell,.unit-cell,.equiv-head span{background:#fff!important;border-color:#bbb!important;color:#111!important}
+    .prime-cell.prime{font-weight:900!important;text-decoration:underline}
     #tools{page-break-before:always}.extra{break-inside:avoid}
   }

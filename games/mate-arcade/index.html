@@ -195,7 +195,19 @@
       <h2>HERRAMIENTAS</h2>
     </div>
     <p class="learn-sub">Tablas y referencias rápidas para consultar mientras estudiás.</p>
-    <section class="extra">
+    <nav class="tool-index" id="toolIndex" aria-label="Saltar a una herramienta">
+      <button class="tool-jump" type="button" data-tool-target="toolTimes">Tabla ×</button>
+      <button class="tool-jump" type="button" data-tool-target="toolPrimes">Primos y factores</button>
+      <button class="tool-jump" type="button" data-tool-target="toolDivis">Divisibilidad</button>
+      <button class="tool-jump" type="button" data-tool-target="toolSquares">Cuadrados y cubos</button>
+      <button class="tool-jump" type="button" data-tool-target="toolAnatomy">Anatomía</button>
+      <button class="tool-jump" type="button" data-tool-target="toolFractions">Fracciones</button>
+      <button class="tool-jump" type="button" data-tool-target="toolRound">Redondeo</button>
+      <button class="tool-jump" type="button" data-tool-target="toolUnits">Unidades</button>
+      <button class="tool-jump" type="button" data-tool-target="toolMcdMcmCalc">MCD y MCM</button>
+      <button class="tool-jump" type="button" data-tool-target="toolGlossary">Glosario</button>
+    </nav>
+    <section class="extra" id="toolTimes">
       <h3>TABLA PITAGÓRICA · DEL 1 AL 10</h3>
       <p class="tool-note">Tocá un número para resaltar su fila y su columna. Deslizá el cuadro hacia los costados si la pantalla es chica.</p>
       <div class="table-picks" id="tablePicks"></div>
@@ -203,25 +215,152 @@
         <table class="times-table" id="timesTable" aria-label="Tabla de multiplicar del 1 al 10"></table>
       </div>
     </section>
-    <section class="extra">
-      <h3>CUADRADOS PERFECTOS</h3>
-      <div class="squares">
-        <div class="sq"><b>1</b><span>1²</span></div><div class="sq"><b>4</b><span>2²</span></div>
-        <div class="sq"><b>9</b><span>3²</span></div><div class="sq"><b>16</b><span>4²</span></div>
-        <div class="sq"><b>25</b><span>5²</span></div><div class="sq"><b>36</b><span>6²</span></div>
-        <div class="sq"><b>49</b><span>7²</span></div><div class="sq"><b>64</b><span>8²</span></div>
-        <div class="sq"><b>81</b><span>9²</span></div><div class="sq"><b>100</b><span>10²</span></div>
-        <div class="sq"><b>121</b><span>11²</span></div><div class="sq"><b>144</b><span>12²</span></div>
+    <section class="extra" id="toolPrimes">
+      <h3>NÚMEROS PRIMOS Y FACTORES · HASTA 100</h3>
+      <p class="tool-note">Los <b>primos</b> están resaltados: solo se dividen por 1 y por sí mismos. Tocá cualquier número para descomponerlo en factores primos.</p>
+      <div class="primes-grid" id="primesGrid"></div>
+      <div class="factor-readout" id="factorReadout" aria-live="polite">Tocá un número para descomponerlo.</div>
+    </section>
+    <section class="extra" id="toolDivis">
+      <h3>REGLAS DE DIVISIBILIDAD</h3>
+      <p class="tool-note">Escribí un número y mirá por cuáles se puede dividir justo, sin que sobre nada.</p>
+      <div class="divis-check">
+        <label class="sr-only" for="divisInput">Número para revisar</label>
+        <input id="divisInput" type="number" inputmode="numeric" min="0" max="999999999" placeholder="Escribí un número, por ejemplo 360">
+        <div class="divis-flags" id="divisFlags" aria-live="polite"></div>
+      </div>
+      <div class="divis-rules">
+        <div><b>÷2</b>Termina en 0, 2, 4, 6 u 8.</div>
+        <div><b>÷3</b>La suma de sus cifras es múltiplo de 3.</div>
+        <div><b>÷4</b>Sus dos últimas cifras forman un múltiplo de 4.</div>
+        <div><b>÷5</b>Termina en 0 o en 5.</div>
+        <div><b>÷6</b>Se divide por 2 y por 3 a la vez.</div>
+        <div><b>÷9</b>La suma de sus cifras es múltiplo de 9.</div>
+        <div><b>÷10</b>Termina en 0.</div>
       </div>
     </section>
-    <section class="extra">
+    <section class="extra" id="toolSquares">
+      <h3>CUADRADOS Y CUBOS</h3>
+      <p class="tool-note">Resultados que conviene reconocer de memoria. Tocá cualquier número para ver su raíz: el camino inverso de la potencia.</p>
+      <h4 class="tool-subhead">Cuadrados perfectos</h4>
+      <div class="squares" id="squaresGrid">
+        <button class="sq" type="button" data-pow="2" data-base="1" data-val="1"><b>1</b><span>1²</span></button><button class="sq" type="button" data-pow="2" data-base="2" data-val="4"><b>4</b><span>2²</span></button>
+        <button class="sq" type="button" data-pow="2" data-base="3" data-val="9"><b>9</b><span>3²</span></button><button class="sq" type="button" data-pow="2" data-base="4" data-val="16"><b>16</b><span>4²</span></button>
+        <button class="sq" type="button" data-pow="2" data-base="5" data-val="25"><b>25</b><span>5²</span></button><button class="sq" type="button" data-pow="2" data-base="6" data-val="36"><b>36</b><span>6²</span></button>
+        <button class="sq" type="button" data-pow="2" data-base="7" data-val="49"><b>49</b><span>7²</span></button><button class="sq" type="button" data-pow="2" data-base="8" data-val="64"><b>64</b><span>8²</span></button>
+        <button class="sq" type="button" data-pow="2" data-base="9" data-val="81"><b>81</b><span>9²</span></button><button class="sq" type="button" data-pow="2" data-base="10" data-val="100"><b>100</b><span>10²</span></button>
+        <button class="sq" type="button" data-pow="2" data-base="11" data-val="121"><b>121</b><span>11²</span></button><button class="sq" type="button" data-pow="2" data-base="12" data-val="144"><b>144</b><span>12²</span></button>
+      </div>
+      <h4 class="tool-subhead">Cubos</h4>
+      <div class="squares" id="cubesGrid">
+        <button class="sq" type="button" data-pow="3" data-base="1" data-val="1"><b>1</b><span>1³</span></button><button class="sq" type="button" data-pow="3" data-base="2" data-val="8"><b>8</b><span>2³</span></button>
+        <button class="sq" type="button" data-pow="3" data-base="3" data-val="27"><b>27</b><span>3³</span></button><button class="sq" type="button" data-pow="3" data-base="4" data-val="64"><b>64</b><span>4³</span></button>
+        <button class="sq" type="button" data-pow="3" data-base="5" data-val="125"><b>125</b><span>5³</span></button><button class="sq" type="button" data-pow="3" data-base="6" data-val="216"><b>216</b><span>6³</span></button>
+      </div>
+      <div class="factor-readout" id="powReadout" aria-live="polite">Tocá un cuadrado o un cubo para ver su raíz.</div>
+    </section>
+    <section class="extra" id="toolAnatomy">
+      <h3>ANATOMÍA DE LAS OPERACIONES</h3>
+      <p class="tool-note">Cómo se llama cada parte y dónde va. Te ayuda a entender las consignas y las correcciones.</p>
+      <div class="anatomy">
+        <div class="anat-card">
+          <div class="anat-expr"><b class="t-a">7</b> + <b class="t-a">5</b> = <b class="t-r">12</b></div>
+          <div class="anat-legend"><span class="t-a">Sumandos</span> · <span class="t-r">Suma</span></div>
+        </div>
+        <div class="anat-card">
+          <div class="anat-expr"><b class="t-a">9</b> − <b class="t-b">4</b> = <b class="t-r">5</b></div>
+          <div class="anat-legend"><span class="t-a">Minuendo</span> · <span class="t-b">Sustraendo</span> · <span class="t-r">Diferencia</span></div>
+        </div>
+        <div class="anat-card">
+          <div class="anat-expr"><b class="t-a">6</b> × <b class="t-a">4</b> = <b class="t-r">24</b></div>
+          <div class="anat-legend"><span class="t-a">Factores</span> · <span class="t-r">Producto</span></div>
+        </div>
+        <div class="anat-card">
+          <div class="anat-expr"><b class="t-a">20</b> ÷ <b class="t-b">3</b> = <b class="t-r">6</b> <small>y sobran <b class="t-c">2</b></small></div>
+          <div class="anat-legend"><span class="t-a">Dividendo</span> · <span class="t-b">Divisor</span> · <span class="t-r">Cociente</span> · <span class="t-c">Resto</span></div>
+        </div>
+        <div class="anat-card">
+          <div class="anat-expr"><b class="t-a">2</b><sup class="t-b">3</sup> = <b class="t-r">8</b></div>
+          <div class="anat-legend"><span class="t-a">Base</span> · <span class="t-b">Exponente</span> · <span class="t-r">Potencia</span></div>
+        </div>
+        <div class="anat-card">
+          <div class="anat-expr">√<b class="t-r">49</b> = <b class="t-a">7</b></div>
+          <div class="anat-legend"><span class="t-r">Radicando</span> · <span class="t-a">Raíz</span></div>
+        </div>
+      </div>
+    </section>
+    <section class="extra" id="toolFractions">
+      <h3>FRACCIONES</h3>
+      <p class="tool-note">Simplificá una fracción paso a paso y mirá las equivalencias más comunes con decimales y porcentajes.</p>
+      <h4 class="tool-subhead">Simplificar</h4>
+      <div class="frac-calc">
+        <div class="frac-input">
+          <label class="sr-only" for="fracNum">Numerador (arriba)</label>
+          <input id="fracNum" type="number" inputmode="numeric" min="0" max="9999" placeholder="Arriba, ej. 8">
+          <span class="frac-line"></span>
+          <label class="sr-only" for="fracDen">Denominador (abajo)</label>
+          <input id="fracDen" type="number" inputmode="numeric" min="1" max="9999" placeholder="Abajo, ej. 12">
+        </div>
+        <div class="calc-steps" id="fracSteps" aria-live="polite">Escribí una fracción para simplificarla.</div>
+      </div>
+      <h4 class="tool-subhead">Equivalencias frecuentes</h4>
+      <div class="equiv-table">
+        <div class="equiv-row equiv-head"><span>Fracción</span><span>Decimal</span><span>Porcentaje</span></div>
+        <div class="equiv-row"><span>1/2</span><span>0,5</span><span>50 %</span></div>
+        <div class="equiv-row"><span>1/3</span><span>0,33…</span><span>33,3 %</span></div>
+        <div class="equiv-row"><span>2/3</span><span>0,66…</span><span>66,6 %</span></div>
+        <div class="equiv-row"><span>1/4</span><span>0,25</span><span>25 %</span></div>
+        <div class="equiv-row"><span>3/4</span><span>0,75</span><span>75 %</span></div>
+        <div class="equiv-row"><span>1/5</span><span>0,2</span><span>20 %</span></div>
+        <div class="equiv-row"><span>1/10</span><span>0,1</span><span>10 %</span></div>
+        <div class="equiv-row"><span>1/100</span><span>0,01</span><span>1 %</span></div>
+      </div>
+    </section>
+    <section class="extra" id="toolRound">
+      <h3>REDONDEO Y ESTIMACIÓN</h3>
+      <p class="tool-note">Escribí un número y mirá cómo queda redondeado a la decena, la centena y el mil más cercanos.</p>
+      <div class="calc-inputs">
+        <label class="sr-only" for="roundInput">Número para redondear</label>
+        <input id="roundInput" type="number" inputmode="numeric" placeholder="Ej. 3847">
+      </div>
+      <div class="round-out" id="roundOut" aria-live="polite">Escribí un número para redondearlo.</div>
+    </section>
+    <section class="extra" id="toolUnits">
+      <h3>CONVERSIÓN DE UNIDADES</h3>
+      <p class="tool-note">Elegí una medida, escribí un valor con su unidad y mirá el equivalente en las demás.</p>
+      <div class="unit-tabs" id="unitTabs" role="group" aria-label="Tipo de medida">
+        <button type="button" class="unit-tab" data-unit-kind="length" data-active="1" aria-pressed="true">Longitud</button>
+        <button type="button" class="unit-tab" data-unit-kind="mass" data-active="0" aria-pressed="false">Peso</button>
+        <button type="button" class="unit-tab" data-unit-kind="capacity" data-active="0" aria-pressed="false">Capacidad</button>
+      </div>
+      <div class="unit-input">
+        <label class="sr-only" for="unitValue">Valor</label>
+        <input id="unitValue" type="text" inputmode="decimal" autocomplete="off" placeholder="Ej. 2,5">
+        <label class="sr-only" for="unitFrom">Unidad de partida</label>
+        <select id="unitFrom"></select>
+      </div>
+      <div class="unit-out" id="unitOut" aria-live="polite">Escribí un valor para convertirlo.</div>
+    </section>
+    <section class="extra" id="toolMcdMcmCalc">
+      <h3>CALCULADORA DE MCD Y MCM · PASO A PASO</h3>
+      <p class="tool-note">Escribí dos números y mirá cómo se arman el MCD (máximo común divisor) y el MCM (mínimo común múltiplo) con sus factores.</p>
+      <div class="calc-inputs">
+        <label class="sr-only" for="mcdA">Primer número</label>
+        <input id="mcdA" type="number" inputmode="numeric" min="1" max="999" placeholder="Nº 1, ej. 12">
+        <span class="calc-x">y</span>
+        <label class="sr-only" for="mcdB">Segundo número</label>
+        <input id="mcdB" type="number" inputmode="numeric" min="1" max="999" placeholder="Nº 2, ej. 18">
+      </div>
+      <div class="calc-steps" id="mcdSteps" aria-live="polite">Escribí dos números para ver el procedimiento.</div>
+    </section>
+    <section class="extra" id="toolMcdMcm">
       <h3>MCD vs MCM · NO LOS CONFUNDAS</h3>
       <div class="vs">
         <div class="col cd"><h4>MCD</h4><p>Mirá los <b>divisores</b>.</p><p>Marcá los que se repiten.</p><p>Elegí el <b>mayor</b> de esos números.</p></div>
         <div class="col cm"><h4>MCM</h4><p>Mirá los <b>múltiplos</b>.</p><p>Marcá los que se repiten.</p><p>Elegí el <b>primero</b> que aparece.</p></div>
       </div>
     </section>
-    <section class="extra">
+    <section class="extra" id="toolGlossary">
       <h3>GLOSARIO MATEMÁTICO</h3>
       <div class="glossary">
         <div><b>Sumando</b>Cada número que se suma.</div>
@@ -236,6 +375,9 @@
         <div><b>Exponente</b>El número pequeño; dice cuántas veces se repite la base.</div>
         <div><b>Múltiplo</b>Un número que aparece en la tabla de otro.</div>
         <div><b>Divisor común</b>Un número que divide justo a dos números diferentes.</div>
+        <div><b>Número primo</b>Solo se divide por 1 y por sí mismo, como 2, 3, 5 o 7.</div>
+        <div><b>Número compuesto</b>Tiene más divisores además del 1 y sí mismo, como 6 o 12.</div>
+        <div><b>Cuadrado perfecto</b>El resultado de multiplicar un número por sí mismo, como 9 = 3 × 3.</div>
       </div>
     </section>
   </section>
