@@ -54,3 +54,10 @@ Juegos Chicos es una colección de experiencias educativas para aprender jugando
 - Probar que el botón de regreso de cada juego vuelva al portal.
 - En Mate Arcade: probar modos, perfiles, progreso, pausa, respuestas y material de estudio.
 
+## Control de versiones (Git)
+
+- Preguntar siempre antes de hacer `commit` y antes de hacer `push`. No commitear ni pushear sin confirmación explícita.
+- Los mensajes de commit deben ser breves y explicativos: una línea que describa el qué y el porqué del cambio.
+- No incluir referencias a que el cambio fue hecho con IA (sin firmas, sin "Co-Authored-By", sin menciones a asistentes).
+- Escribir los mensajes en español, en el mismo estilo del historial del repo.
+

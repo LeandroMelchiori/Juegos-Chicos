@@ -90,6 +90,13 @@ Cada test es ejecutable por separado con `node tests\<archivo>.js`:
 - Desde una corrección se puede abrir directamente la lección correspondiente.
 - `guia-original.html` es un respaldo histórico — no modificar ni eliminar.
 
+## Control de versiones (Git)
+
+- **Preguntar siempre antes de hacer `commit` y antes de hacer `push`.** No commitear ni pushear sin confirmación explícita.
+- Los mensajes de commit son **breves y explicativos**: una línea que describa el qué y el porqué del cambio.
+- **No incluir referencias a que el cambio fue hecho con IA** (sin firmas, sin "Co-Authored-By", sin menciones a asistentes).
+- Escribir los mensajes en español, en el mismo estilo del historial del repo.
+
 ## Checklist de validación antes de commitear
 
 - [ ] `node tests\run-all.js` pasa sin errores.
