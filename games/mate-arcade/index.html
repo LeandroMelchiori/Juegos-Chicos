@@ -36,6 +36,7 @@
       <button class="mode" data-mode="daily" data-active="0" aria-pressed="false"><b>Desafío Diario</b><span>10 problemas de hoy</span></button>
     </div>
     <button class="play" id="playBtn">JUGAR ▶</button>
+    <button class="play defense" id="defenseBtn" style="margin-top:8px; background:var(--magenta); font-size:16px;">🛸 DEFENSA ESPACIAL</button>
     <div class="home-actions">
       <button class="home-action" id="customizeBtn"><span>⚙️</span>Personalizar</button>
       <button class="home-action" id="studyBtn"><span>📖</span>Estudiar</button>
@@ -195,6 +196,24 @@
         <div class="store-grid" id="storeAvatarsList"></div>
       </div>
     </div>
+  </section>
+
+  <!-- DEFENSA ESPACIAL -->
+  <section class="screen" id="defenseScreen">
+    <div class="defense-header">
+      <div class="defense-stats">
+        <div>Puntos: <span id="defenseScore">0</span></div>
+        <div>Vidas: <span id="defenseLives">❤️❤️❤️</span></div>
+      </div>
+      <button class="back" id="defenseQuitBtn" style="position:static; margin-left:auto;">Abandonar</button>
+    </div>
+    <div class="defense-area" id="defenseArea">
+      <!-- Las naves se inyectan acá -->
+    </div>
+    <form class="defense-controls" id="defenseForm">
+      <input type="tel" id="defenseInput" autocomplete="off" placeholder="Dispara el resultado..." aria-label="Respuesta">
+      <button type="submit" class="fire-btn">💥</button>
+    </form>
   </section>
 
   <!-- FIN -->

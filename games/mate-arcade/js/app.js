@@ -1809,6 +1809,177 @@
     };
     reader.readAsText(file);this.value="";
   };
+
+  /* MINIJUEGO DEFENSA ESPACIAL */
+  var defState = { active: false, timer: null, score: 0, lives: 3, ships: [], lastSpawn: 0, spawnRate: 3000, lastTime: 0, speed: 30 };
+  
+  function startDefense() {
+    defState.active = true;
+    defState.score = 0;
+    defState.lives = 3;
+    defState.ships = [];
+    defState.spawnRate = 3000;
+    defState.speed = 30; // pixels per second
+    defState.lastSpawn = performance.now();
+    defState.lastTime = performance.now();
+    
+    $("#defenseScore").textContent = "0";
+    renderDefenseLives();
+    $("#defenseArea").innerHTML = "";
+    $("#defenseInput").value = "";
+    show("defenseScreen");
+    $("#defenseInput").focus();
+    
+    requestAnimationFrame(defenseLoop);
+  }
+
+  function renderDefenseLives(){
+    var h = "";
+    for(var i=0; i<3; i++) h += i < defState.lives ? "❤️" : "🖤";
+    $("#defenseLives").textContent = h;
+  }
+
+  function spawnShip(now){
+    var ops = activeProfile().ops;
+    if(ops.length===0) ops=["add","sub"];
+    var op = ops[Math.floor(rnd()*ops.length)];
+    var q = makeQuestion(op, "normal");
+    
+    var shipDiv = document.createElement("div");
+    shipDiv.className = "ship";
+    var avatars = ["🛸","🚀","🛰️","👾","☄️"];
+    var sprite = avatars[Math.floor(rnd()*avatars.length)];
+    shipDiv.innerHTML = "<div class='ship-sprite'>"+sprite+"</div><div class='ship-op'>"+q.text+"</div>";
+    
+    // random X between 10% and 90%
+    var x = 10 + rnd()*80;
+    shipDiv.style.left = x + "%";
+    shipDiv.style.top = "-50px";
+    
+    var ship = { el: shipDiv, y: -50, answer: q.answer, id: Math.random().toString() };
+    defState.ships.push(ship);
+    $("#defenseArea").appendChild(shipDiv);
+  }
+
+  function defenseLoop(now){
+    if(!defState.active) return;
+    var dt = (now - defState.lastTime) / 1000;
+    defState.lastTime = now;
+    
+    if(now - defState.lastSpawn > defState.spawnRate){
+      spawnShip(now);
+      defState.lastSpawn = now;
+      defState.spawnRate = Math.max(800, defState.spawnRate - 50); // gets faster
+      defState.speed = Math.min(150, defState.speed + 2); // gets faster
+    }
+    
+    var areaHeight = $("#defenseArea").offsetHeight;
+    
+    for(var i=defState.ships.length-1; i>=0; i--){
+      var s = defState.ships[i];
+      s.y += defState.speed * dt;
+      s.el.style.top = s.y + "px";
+      
+      if(s.y > areaHeight - 40){
+        s.el.remove();
+        defState.ships.splice(i, 1);
+        defState.lives--;
+        renderDefenseLives();
+        beep(150,.1,"sawtooth",.1); // error beep
+        if(defState.lives <= 0){
+          defenseGameOver();
+          return;
+        }
+      }
+    }
+    
+    requestAnimationFrame(defenseLoop);
+  }
+
+  function fireDefense(val){
+    if(!defState.active || !val) return;
+    
+    // Find lowest ship with matching answer
+    var targetIdx = -1;
+    var maxBottom = -9999;
+    
+    for(var i=0; i<defState.ships.length; i++){
+      if(String(defState.ships[i].answer) === val){
+        if(defState.ships[i].y > maxBottom){
+          maxBottom = defState.ships[i].y;
+          targetIdx = i;
+        }
+      }
+    }
+    
+    if(targetIdx !== -1){
+      var s = defState.ships[targetIdx];
+      var x = s.el.style.left;
+      var y = s.y;
+      
+      // Animate laser
+      var laser = document.createElement("div");
+      laser.className = "laser";
+      laser.style.left = x;
+      laser.style.top = $("#defenseArea").offsetHeight + "px";
+      laser.style.height = "20px";
+      $("#defenseArea").appendChild(laser);
+      
+      beep(880,.05,"square",.05); // fire beep
+      
+      setTimeout(function(){
+        laser.style.top = y + "px";
+        setTimeout(function(){
+          laser.remove();
+          // Explosion
+          s.el.remove();
+          var exp = document.createElement("div");
+          exp.className = "explosion";
+          exp.textContent = "💥";
+          exp.style.left = x;
+          exp.style.top = y + "px";
+          $("#defenseArea").appendChild(exp);
+          setTimeout(function(){exp.remove();}, 400);
+          beep(200,.1,"noise",.2); // explosion beep
+        }, 100);
+      }, 20);
+      
+      defState.ships.splice(targetIdx, 1);
+      defState.score += 10;
+      $("#defenseScore").textContent = defState.score;
+    } else {
+      beep(150,.1,"sawtooth",.1); // error beep
+    }
+    $("#defenseInput").value = "";
+  }
+
+  function defenseGameOver(){
+    defState.active = false;
+    // Earn coins
+    var coinsEarned = Math.floor(defState.score / 20);
+    var p = activeProfile();
+    if(coinsEarned > 0){
+      p.coins = (p.coins||0) + coinsEarned;
+      saveStore();
+    }
+    alert("¡Juego Terminado!\nPuntaje: " + defState.score + "\nMonedas ganadas: " + coinsEarned);
+    applyProfile(store.active);
+    show("menu");
+  }
+
+  $("#defenseBtn").onclick = function(){
+    startDefense();
+  };
+  $("#defenseQuitBtn").onclick = function(){
+    defState.active = false;
+    applyProfile(store.active);
+    show("menu");
+  };
+  $("#defenseForm").onsubmit = function(e){
+    e.preventDefault();
+    fireDefense($("#defenseInput").value);
+  };
+  /* FIN MINIJUEGO */
   $("#typeAnswer").onsubmit=function(e){
     e.preventDefault();answer($("#answerInput").value,null);
   };
