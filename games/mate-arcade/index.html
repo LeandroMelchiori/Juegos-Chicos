@@ -39,8 +39,9 @@
     <div class="home-actions">
       <button class="home-action" id="customizeBtn"><span>⚙️</span>Personalizar</button>
       <button class="home-action" id="studyBtn"><span>📖</span>Estudiar</button>
-      <button class="home-action" id="toolsBtn"><span>🧰</span>Herramientas</button>
-      <button class="home-action" id="progressBtn"><span>📊</span>Mi progreso</button>
+      <button class="home-action" id="toolsBtn"><span>🧮</span>Herramientas</button>
+      <button class="home-action" id="progressBtn"><span>📈</span>Mi progreso</button>
+      <button class="home-action" id="storeBtn"><span>🛒</span>Tienda</button>
     </div>
     <p class="credit">Hecho por Sacha · <a href="https://sachadev.me" target="_blank" rel="noopener">sachadev.me</a></p>
   </section>
@@ -169,6 +170,30 @@
       <button id="exportBtn">Exportar progreso</button>
       <label for="importInput">Importar progreso</label>
       <input class="sr-only" id="importInput" type="file" accept="application/json">
+    </div>
+  </section>
+
+  <!-- TIENDA -->
+  <section class="screen" id="store">
+    <div class="learn-head">
+      <button class="back" id="storeBack">‹ Volver</button>
+      <h2>TIENDA DE MATE ARCADE</h2>
+    </div>
+    <div style="text-align:center;font-size:24px;color:var(--gold);margin:16px 0;font-weight:bold;">
+      Tienes <span id="storeCoinCount">0</span> 🪙 Monedas
+    </div>
+    
+    <div class="tabs" id="storeTabs">
+      <button class="tab-btn active" data-tab="themes">Temas de Color</button>
+      <button class="tab-btn" data-tab="avatars">Avatares</button>
+    </div>
+    <div class="tab-content">
+      <div class="tab-pane active" id="tab-themes">
+        <div class="store-grid" id="storeThemesList"></div>
+      </div>
+      <div class="tab-pane" id="tab-avatars">
+        <div class="store-grid" id="storeAvatarsList"></div>
+      </div>
     </div>
   </section>
 

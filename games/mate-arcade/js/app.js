@@ -11,8 +11,10 @@
   var DEFAULT_OPS=["add","sub","mul","div","pow","root","mlt","dvs","mcd","mcm","frac","dec","simp"];
   function blankProgress(){
     return {best:0,total:0,correct:0,sessions:0,practiceSessions:0,reviewSessions:0,bestCombo:0,byOp:{},studyByOp:{},unlocked:[],stickers:[],lastDaily:null,
-      preferences:{mode:"arcade",answerMode:"mixed",rounds:10,sound:true,vibration:true,contrast:false,motion:false,largeText:false,calm:false},
+      coins:0,inventory:[],avatar:"👤",
+      preferences:{mode:"arcade",answerMode:"mixed",rounds:10,sound:true,vibration:true,contrast:false,motion:false,largeText:false,calm:false,theme:"default"},
       ops:DEFAULT_OPS.slice(),
+      stats:{},
       diffByOp:{add:"normal",sub:"normal",mul:"normal",div:"normal",pow:"normal",root:"normal",mlt:"normal",dvs:"normal",mcd:"normal",mcm:"normal",frac:"normal",dec:"normal",simp:"normal"}};
   }
   function loadStore(){
@@ -89,6 +91,27 @@
     {id:"practice5",icon:"📚",name:"Sin apuro",desc:"Completar 5 prácticas"},
     {id:"review5",icon:"🧠",name:"A reforzar",desc:"Completar 5 repasos"}
   ];
+
+  var STORE_ITEMS = {
+    themes: [
+      {id:"default", icon:"🌌", name:"Galaxia (Por defecto)", price:0},
+      {id:"ocean", icon:"🌊", name:"Océano Profundo", price:100},
+      {id:"forest", icon:"🌲", name:"Bosque Místico", price:150},
+      {id:"sunset", icon:"🌇", name:"Atardecer", price:200},
+      {id:"neon", icon:"🕹️", name:"Arcade Neón", price:300}
+    ],
+    avatars: [
+      {id:"👤", icon:"👤", name:"Invitado", price:0},
+      {id:"🐱", icon:"🐱", name:"Gatito", price:50},
+      {id:"🐶", icon:"🐶", name:"Perrito", price:50},
+      {id:"🦊", icon:"🦊", name:"Zorro", price:80},
+      {id:"🦄", icon:"🦄", name:"Unicornio", price:150},
+      {id:"🤖", icon:"🤖", name:"Robot", price:150},
+      {id:"👽", icon:"👽", name:"Alien", price:200},
+      {id:"👻", icon:"👻", name:"Fantasmita", price:250},
+      {id:"👾", icon:"👾", name:"Monstruito", price:300}
+    ]
+  };
   var STICKERS=["🚀","🌟","🏆","🎯","🔥","💎","📚","🧠","⚡","🍕","🎉","💡","💯","✨","🎈","🕹️","🎨","🧩","🌈","🥇"];
 
   var DIFF={
@@ -888,12 +911,26 @@
       p.stickers.push(gainedSticker);
     }
     
-    var container=$("#endStickerContainer");
-    if(gainedSticker){
-      container.innerHTML="<div class='end-sticker sticker-anim'>"+gainedSticker+"</div><div style='text-align:center;font-size:14px;color:var(--muted);margin-bottom:12px;'>¡Ganaste un sticker por tu sesión perfecta!</div>";
-    }else{
-      container.innerHTML="";
+    var coinsEarned = 0;
+    if(state.mode==="arcade"){
+      coinsEarned = Math.floor(state.score/10);
+    } else {
+      coinsEarned = state.correct * 2;
     }
+    if(coinsEarned > 0){
+      p.coins = (p.coins||0) + coinsEarned;
+      saveStore();
+    }
+    
+    var container=$("#endStickerContainer");
+    var rewardsHTML = "";
+    if(gainedSticker){
+      rewardsHTML += "<div class='end-sticker sticker-anim'>"+gainedSticker+"</div><div style='text-align:center;font-size:14px;color:var(--muted);margin-bottom:12px;'>¡Ganaste un sticker por tu sesión perfecta!</div>";
+    }
+    if(coinsEarned > 0){
+      rewardsHTML += "<div style='text-align:center;font-size:16px;color:var(--gold);margin-bottom:12px;font-weight:bold;'>+"+coinsEarned+" 🪙 Monedas</div>";
+    }
+    container.innerHTML = rewardsHTML;
 
     if(isRecord){rl.textContent="🏆 ¡NUEVO RÉCORD!";rl.classList.add("new-record");}
     else if(state.mode==="arcade"){rl.textContent="Récord de "+store.active+": "+Math.max(best,state.score);rl.classList.remove("new-record");}
@@ -931,6 +968,51 @@
         "<div class='pct'>"+s.ok+"/"+tot+"</div>";
       box.appendChild(row);
     });
+  }
+
+  function buyItem(type, item){
+    var p=activeProfile();
+    var inv = p.inventory || [];
+    if(item.price === 0 || inv.indexOf(item.id)!==-1) {
+      if(type==="themes"){ p.preferences.theme=item.id; applyProfile(store.active); }
+      if(type==="avatars"){ p.avatar=item.id; applyProfile(store.active); }
+      saveStore(); renderStore(); return;
+    }
+    if((p.coins||0) >= item.price) {
+      p.coins -= item.price;
+      inv.push(item.id);
+      p.inventory = inv;
+      if(type==="themes") { p.preferences.theme=item.id; applyProfile(store.active); }
+      if(type==="avatars") { p.avatar=item.id; applyProfile(store.active); }
+      saveStore(); renderStore();
+    } else {
+      var btn = document.activeElement;
+      if(btn) { var old = btn.innerHTML; btn.innerHTML="¡Faltan monedas!"; setTimeout(function(){btn.innerHTML=old;}, 1000); }
+    }
+  }
+
+  function renderStore(){
+    var p=activeProfile();
+    var inv = p.inventory || [];
+    $("#storeCoinCount").textContent = p.coins || 0;
+    
+    function renderList(list, type, currentId, containerId){
+      var container = $(containerId);
+      container.innerHTML = "";
+      list.forEach(function(item){
+        var isOwned = item.price === 0 || inv.indexOf(item.id) !== -1;
+        var isActive = currentId === item.id;
+        var div = document.createElement("button");
+        div.className = "store-item" + (isOwned ? " owned" : "") + (isActive ? " active-item" : "");
+        div.innerHTML = "<div class='icon'>"+item.icon+"</div><div class='name'>"+item.name+"</div>" +
+          (isOwned ? "<div class='status'>"+(isActive?"ACTIVO":"USAR")+"</div>" : "<div class='price'>"+item.price+" 🪙</div>");
+        div.onclick = function(){ buyItem(type, item); };
+        container.appendChild(div);
+      });
+    }
+    
+    renderList(STORE_ITEMS.themes, "themes", p.preferences.theme||"default", "#storeThemesList");
+    renderList(STORE_ITEMS.avatars, "avatars", p.avatar||"👤", "#storeAvatarsList");
   }
 
   function renderProgress(){
@@ -1567,9 +1649,16 @@
       o.dataset.active=profile.ops.indexOf(o.dataset.op)!==-1?"1":"0";
     });
     applyPreferences();renderProfiles();syncOps();renderStudy();saveStore();
+    
+    document.body.className = document.body.className.replace(/\btheme-[^\s]+\b/g, '');
+    if(profile.preferences.theme && profile.preferences.theme !== "default"){
+      document.body.classList.add("theme-" + profile.preferences.theme);
+    }
+    
+    var avatar = profile.avatar || "👤";
     $("#profileProgress").textContent=profile.total?
-      name+" · "+profile.correct+" respuestas bien de "+profile.total+" · "+Math.round(profile.correct/profile.total*100)+"%":
-      name+" · todavía no hay partidas guardadas";
+      avatar + " " + name+" · "+profile.correct+" respuestas bien de "+profile.total+" · "+Math.round(profile.correct/profile.total*100)+"%":
+      avatar + " " + name+" · todavía no hay partidas guardadas";
   }
   $("#profileSelect").onchange=function(){applyProfile(this.value);};
   function cleanProfileName(value){
@@ -1627,6 +1716,19 @@
     activeProfile().preferences.calm=this.checked;document.body.classList.toggle("calm-mode",this.checked);saveStore();
   };
   $("#progressBtn").onclick=function(){renderProgress();show("progress");$("#progress").scrollTop=0;};
+  $("#storeBtn").onclick=function(){renderStore();show("store");$("#store").scrollTop=0;};
+  $("#storeBack").onclick=function(){show("menu");};
+  $("#storeTabs").addEventListener("click", function(e){
+    if(e.target.classList.contains("tab-btn")){
+      var tabs = $("#storeTabs").querySelectorAll(".tab-btn");
+      var panes = document.querySelectorAll("#store .tab-pane");
+      for(var i=0; i<tabs.length; i++) tabs[i].classList.remove("active");
+      for(var i=0; i<panes.length; i++) panes[i].classList.remove("active");
+      e.target.classList.add("active");
+      var pane = document.getElementById("tab-"+e.target.dataset.tab);
+      if(pane) pane.classList.add("active");
+    }
+  });
   $("#profileProgress").onclick=function(){renderProgress();show("progress");$("#progress").scrollTop=0;};
   $("#progressBack").onclick=function(){show("menu");};
   $("#progressTabs").addEventListener("click", function(e){

@@ -23,6 +23,7 @@ class Element {
     this.classList = new ClassList();
     this.attributes = {};
     this.value = "";
+    this.className = "";
     this.textContent = "";
     this._innerHTML = "";
     this.checked = false;
