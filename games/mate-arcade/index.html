@@ -27,7 +27,7 @@
       <select id="profileSelect" aria-label="Perfil activo"></select>
       <button class="profile-add" id="manageProfileBtn" aria-label="Administrar perfiles">⚙</button>
     </div>
-    <div class="profile-progress" id="profileProgress"></div>
+    <button class="profile-progress" id="profileProgress" aria-label="Ver mi perfil completo"></button>
     <div class="label">Elegí cómo jugar</div>
     <div class="modes" id="modes">
       <button class="mode" data-mode="arcade" data-active="1" aria-pressed="true"><b>Arcade</b><span>Tiempo y vidas</span></button>
@@ -138,17 +138,33 @@
       <div class="big" id="progressName">Jugador</div>
       <p id="progressMessage">Tus respuestas ayudan a elegir qué conviene practicar después.</p>
     </div>
-    <div class="progress-grid">
-      <div class="progress-stat"><b id="progressAccuracy">0%</b><span>RESPUESTAS BIEN</span></div>
-      <div class="progress-stat"><b id="progressTotal">0</b><span>RESPUESTAS</span></div>
-      <div class="progress-stat"><b id="progressBest">0</b><span>RÉCORD</span></div>
+    
+    <div class="tabs" id="progressTabs">
+      <button class="tab-btn active" data-tab="stats">Estadísticas</button>
+      <button class="tab-btn" data-tab="achievements">Logros</button>
+      <button class="tab-btn" data-tab="stickers">Stickers</button>
     </div>
-    <div class="label">Cómo venís en cada tema</div>
-    <div class="mastery-list" id="masteryList"></div>
-    <div class="label">Logros</div>
-    <div class="achievement-grid" id="achievementList"></div>
-    <div class="label">Colección de Stickers</div>
-    <div class="stickers-list" id="stickersList"></div>
+
+    <div class="tab-content">
+      <div class="tab-pane active" id="tab-stats">
+        <div class="progress-grid">
+          <div class="progress-stat"><b id="progressAccuracy">0%</b><span>RESPUESTAS BIEN</span></div>
+          <div class="progress-stat"><b id="progressTotal">0</b><span>RESPUESTAS</span></div>
+          <div class="progress-stat"><b id="progressBest">0</b><span>RÉCORD</span></div>
+        </div>
+        <div class="label">Cómo venís en cada tema</div>
+        <div class="mastery-list" id="masteryList"></div>
+      </div>
+      
+      <div class="tab-pane" id="tab-achievements">
+        <div class="achievement-grid" id="achievementList"></div>
+      </div>
+      
+      <div class="tab-pane" id="tab-stickers">
+        <div class="stickers-list" id="stickersList"></div>
+      </div>
+    </div>
+
     <div class="data-actions">
       <button id="exportBtn">Exportar progreso</button>
       <label for="importInput">Importar progreso</label>

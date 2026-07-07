@@ -1627,7 +1627,19 @@
     activeProfile().preferences.calm=this.checked;document.body.classList.toggle("calm-mode",this.checked);saveStore();
   };
   $("#progressBtn").onclick=function(){renderProgress();show("progress");$("#progress").scrollTop=0;};
+  $("#profileProgress").onclick=function(){renderProgress();show("progress");$("#progress").scrollTop=0;};
   $("#progressBack").onclick=function(){show("menu");};
+  $("#progressTabs").addEventListener("click", function(e){
+    if(e.target.classList.contains("tab-btn")){
+      var tabs = $("#progressTabs").querySelectorAll(".tab-btn");
+      var panes = document.querySelectorAll("#progress .tab-pane");
+      for(var i=0; i<tabs.length; i++) tabs[i].classList.remove("active");
+      for(var i=0; i<panes.length; i++) panes[i].classList.remove("active");
+      e.target.classList.add("active");
+      var pane = document.getElementById("tab-"+e.target.dataset.tab);
+      if(pane) pane.classList.add("active");
+    }
+  });
   $("#exportBtn").onclick=function(){
     var blob=new Blob([JSON.stringify(store,null,2)],{type:"application/json"});
     var url=URL.createObjectURL(blob),a=document.createElement("a");

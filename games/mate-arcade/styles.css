@@ -50,7 +50,8 @@
   .profile-box select{flex:1}
   .profile-add{border:1px solid var(--cyan);background:rgba(24,224,255,.1);color:var(--cyan);
     border-radius:9px;padding:9px 11px;font-weight:900;cursor:pointer}
-  .profile-progress{text-align:center;color:var(--muted);font-size:11px;margin-top:7px}
+  .profile-progress{text-align:center;font-size:12px;color:var(--muted);background:rgba(255,255,255,.05);padding:8px;border-radius:12px;cursor:pointer;border:none;width:100%;margin-bottom:15px;display:block}
+  .profile-progress:hover{background:rgba(255,255,255,.1);color:#fff}
   .label{font-family:'Arial Black',system-ui,sans-serif;font-size:11px;letter-spacing:2px;
     color:var(--muted);text-transform:uppercase;margin:20px 4px 10px}
   .modes{display:grid;min-width:0;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
@@ -563,6 +564,11 @@
     background:linear-gradient(135deg,rgba(24,224,255,.1),rgba(157,123,255,.12));margin:12px 0}
   .progress-hero .big{font-family:'Arial Black',system-ui,sans-serif;font-size:28px;color:var(--gold)}
   .progress-hero p{color:var(--muted);font-size:12px;margin-top:4px}
+  .tabs{display:flex;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+  .tab-btn{flex:1;background:0 0;border:0;color:var(--muted);font-weight:700;padding:8px 0;font-size:12px;border-bottom:2px solid transparent;border-radius:0}
+  .tab-btn.active{color:var(--cyan);border-color:var(--cyan)}
+  .tab-pane{display:none}
+  .tab-pane.active{display:block}
   .progress-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
   .progress-stat{border:1px solid var(--line);border-radius:12px;padding:12px 6px;text-align:center;background:rgba(157,123,255,.05)}
   .progress-stat b{display:block;color:var(--cyan);font-size:18px}.progress-stat span{font-size:9px;color:var(--muted)}
@@ -574,8 +580,8 @@
   .mastery-track{height:7px;border-radius:99px;background:rgba(157,123,255,.18);overflow:hidden;margin-top:7px}
   .mastery-fill{height:100%;background:linear-gradient(90deg,var(--coral),var(--gold),var(--lime));border-radius:99px}
   .achievement-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .achievement{border:1px solid var(--line);border-radius:12px;padding:11px;background:rgba(157,123,255,.05);opacity:.45}
-  .achievement.got{opacity:1;border-color:rgba(255,210,63,.55);background:rgba(255,210,63,.08)}
+  .achievement{border:1px solid var(--line);border-radius:12px;padding:11px;background:rgba(157,123,255,.05);opacity:.45;filter:grayscale(1)}
+  .achievement.got{opacity:1;border-color:rgba(255,210,63,.55);background:rgba(255,210,63,.08);filter:none}
   .achievement b{display:block;font-size:12px}.achievement span{display:block;color:var(--muted);font-size:10px;margin-top:3px}
   .data-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
   .data-actions button,.data-actions label{border:1px solid var(--line);background:transparent;color:var(--ink);
