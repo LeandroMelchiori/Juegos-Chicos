@@ -110,7 +110,10 @@
     <div class="question">
       <div class="level-tag" id="levelTag">NIVEL 1</div>
       <div class="equation" id="equation" aria-live="polite">7 × 8 = <span class="q">?</span></div>
-      <button class="hint-btn" id="hintBtn">💡 Pista</button>
+      <div class="q-actions">
+        <button class="hint-btn" id="hintBtn">💡 Pista</button>
+        <button class="hint-btn tts-btn" id="readAloudBtn" aria-label="Leer en voz alta" style="display:none">📢</button>
+      </div>
     </div>
     <div class="options" id="options"></div>
     <form class="type-answer" id="typeAnswer">

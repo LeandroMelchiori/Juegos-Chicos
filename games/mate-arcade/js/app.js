@@ -458,6 +458,7 @@
     state.locked=false; state.usedHint=false;
     hideTeach();
     $("#hintBtn").disabled=false;
+    $("#readAloudBtn").disabled=false;
     state.lastValue=null;
     var p=prepareProblem(makeProblem()); state.cur=p; state.answer=p.ans;
     var eq=$("#equation");
@@ -692,6 +693,45 @@
     state.usedHint=true;
     $("#hintBtn").disabled=true;
     showTeach("hint");
+  };
+
+  if("speechSynthesis" in window) {
+    $("#readAloudBtn").style.display="inline-flex";
+  }
+
+  var currentUtterance=null;
+  function speakText(txt){
+    if(!("speechSynthesis" in window))return;
+    if(currentUtterance) window.speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(txt);
+    u.lang="es-AR";
+    u.rate=0.9;
+    var voices=window.speechSynthesis.getVoices();
+    var esVoice=voices.find(function(v){return v.lang==="es-AR"||v.lang.startsWith("es");});
+    if(esVoice) u.voice=esVoice;
+    currentUtterance=u;
+    window.speechSynthesis.speak(u);
+  }
+
+  function sanitizeForSpeech(html) {
+    var div = document.createElement("div");
+    div.innerHTML = String(html)
+      .replace(/<sup[^>]*>([^<]+)<\/sup>/gi, " elevado a $1")
+      .replace(/<sub[^>]*>([^<]+)<\/sub>/gi, " sub $1");
+    var text = div.textContent || div.innerText || "";
+    return text.replace(/×/g, "por")
+               .replace(/÷/g, "dividido por")
+               .replace(/−/g, "menos")
+               .replace(/\+/g, "más")
+               .replace(/=/g, "igual a")
+               .replace(/√/g, "raíz cuadrada de");
+  }
+
+  $("#readAloudBtn").onclick=function(){
+    if(!state.cur)return;
+    var q = sanitizeForSpeech(state.cur.text);
+    if(state.cur.equals !== false) q += " Cuánto es?";
+    speakText(q);
   };
 
   function showFlash(txt){

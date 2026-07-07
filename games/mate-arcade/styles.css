@@ -624,3 +624,6 @@
     .prime-cell.prime{font-weight:900!important;text-decoration:underline}
     #tools{page-break-before:always}.extra{break-inside:avoid}
   }
+
+.q-actions{display:flex;gap:8px;justify-content:center}
+.tts-btn{padding:7px 12px;background:rgba(54,228,255,.1);color:var(--cyan)}
