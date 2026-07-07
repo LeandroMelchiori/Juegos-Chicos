@@ -104,4 +104,4 @@ Cada test es ejecutable por separado con `node tests\<archivo>.js`:
 - [ ] El juego modificado funciona de forma independiente.
 - [ ] Funciona con teclado, en vista móvil y sin conexión.
 - [ ] El botón de regreso vuelve al portal.
-- [ ] En Mate Arcade: modos, perfiles, progreso, pausa, respuestas y material de estudio.
+- [ ] En Mate Arcade: modos, perfiles, progreso, pausa, respuestas, material de estudio y herramientas.

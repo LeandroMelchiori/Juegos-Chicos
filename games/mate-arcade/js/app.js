@@ -1577,4 +1577,7 @@
   if(legacyBest>activeProfile().best){activeProfile().best=legacyBest;saveStore();}
   renderProfiles();
   applyProfile(store.active);
+  if(typeof navigator !== 'undefined' && 'serviceWorker' in navigator && typeof window !== 'undefined' && window.location.protocol !== 'file:') {
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  }
 })();

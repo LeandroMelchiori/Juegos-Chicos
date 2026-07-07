@@ -52,7 +52,7 @@ Juegos Chicos es una colección de experiencias educativas para aprender jugando
 - Probar cada juego de forma independiente.
 - Probar teclado, vista móvil y funcionamiento offline.
 - Probar que el botón de regreso de cada juego vuelva al portal.
-- En Mate Arcade: probar modos, perfiles, progreso, pausa, respuestas y material de estudio.
+- En Mate Arcade: probar modos, perfiles, progreso, pausa, respuestas, material de estudio y herramientas.
 
 ## Control de versiones (Git)
 
