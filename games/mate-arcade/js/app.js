@@ -10,7 +10,7 @@
   var STORAGE_KEY="mateArcadeDataV2";
   var DEFAULT_OPS=["add","sub","mul","div","pow","root","mlt","dvs","mcd","mcm","frac"];
   function blankProgress(){
-    return {best:0,total:0,correct:0,sessions:0,practiceSessions:0,reviewSessions:0,bestCombo:0,byOp:{},studyByOp:{},unlocked:[],
+    return {best:0,total:0,correct:0,sessions:0,practiceSessions:0,reviewSessions:0,bestCombo:0,byOp:{},studyByOp:{},unlocked:[],stickers:[],
       preferences:{mode:"arcade",answerMode:"mixed",rounds:10,sound:true,vibration:true,contrast:false,motion:false,largeText:false,calm:false},
       ops:DEFAULT_OPS.slice(),
       diffByOp:{add:"normal",sub:"normal",mul:"normal",div:"normal",pow:"normal",root:"normal",mlt:"normal",dvs:"normal",mcd:"normal",mcm:"normal",frac:"normal"}};
@@ -89,6 +89,7 @@
     {id:"practice5",icon:"📚",name:"Sin apuro",desc:"Completar 5 prácticas"},
     {id:"review5",icon:"🧠",name:"A reforzar",desc:"Completar 5 repasos"}
   ];
+  var STICKERS=["🚀","🌟","🏆","🎯","🔥","💎","📚","🧠","⚡","🍕","🎉","💡","💯","✨","🎈","🕹️","🎨","🧩","🌈","🥇"];
 
   var DIFF={
     easy:  {time:14,addMax:20, subMax:25, mulMax:10, powBase:9, powExps:[2],rootMax:100,factorMax:6,commonMax:4},
@@ -806,9 +807,27 @@
     $("#finalBest").textContent="x"+state.bestCombo;
     $("#finalLevel").textContent=state.level;
     var rl=$("#recordLine");
+    var gainedSticker = null;
+    if(state.mode!=="arcade" && state.answered>0 && state.correct===state.answered){
+      gainedSticker = STICKERS[Math.floor(Math.random()*STICKERS.length)];
+      if(!p.stickers) p.stickers=[];
+      p.stickers.push(gainedSticker);
+    }
+    
+    var container=$("#endStickerContainer");
+    if(gainedSticker){
+      container.innerHTML="<div class='end-sticker sticker-anim'>"+gainedSticker+"</div><div style='text-align:center;font-size:14px;color:var(--muted);margin-bottom:12px;'>¡Ganaste un sticker por tu sesión perfecta!</div>";
+    }else{
+      container.innerHTML="";
+    }
+
     if(isRecord){rl.textContent="🏆 ¡NUEVO RÉCORD!";rl.classList.add("new-record");}
     else if(state.mode==="arcade"){rl.textContent="Récord de "+store.active+": "+Math.max(best,state.score);rl.classList.remove("new-record");}
-    else{rl.textContent="Respuestas bien: "+Math.round(state.correct/Math.max(1,state.answered)*100)+"%";rl.classList.remove("new-record");}
+    else{
+      var txt="Respuestas bien: "+Math.round(state.correct/Math.max(1,state.answered)*100)+"%";
+      rl.textContent=txt;
+      rl.classList.remove("new-record");
+    }
     renderSummary();
     show("end");
   }
@@ -871,6 +890,18 @@
       card.innerHTML="<b>"+a.icon+" "+a.name+"</b><span>"+a.desc+(got?" · conseguido":"")+"</span>";
       achievements.appendChild(card);
     });
+
+    var stickersBox=$("#stickersList");stickersBox.innerHTML="";
+    if(!p.stickers || p.stickers.length===0){
+      stickersBox.innerHTML="<div class='empty'>Aún no ganaste ningún sticker. ¡Completá sesiones perfectas!</div>";
+    }else{
+      p.stickers.forEach(function(s){
+        var el=document.createElement("span");
+        el.className="sticker-anim";
+        el.textContent=s;
+        stickersBox.appendChild(el);
+      });
+    }
   }
 
   // ---- guía de estudio ----

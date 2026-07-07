@@ -631,3 +631,9 @@
 .frac-inline{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:0.7em;line-height:1}
 .frac-inline span:first-child{border-bottom:2px solid currentColor;padding:0 2px}
 .frac-inline span:last-child{padding:0 2px}
+
+.stickers-list{display:flex;flex-wrap:wrap;gap:8px;font-size:24px;padding:12px;background:var(--bg);border-radius:12px;min-height:48px;align-items:center}
+.stickers-list .empty{font-size:14px;color:var(--muted);width:100%;text-align:center}
+.sticker-anim{animation:popIn .5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both}
+@keyframes popIn{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+.end-sticker{text-align:center;font-size:48px;margin-bottom:12px}
