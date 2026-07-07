@@ -66,7 +66,7 @@ for (const id of [...html.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1])) {
   elements.set(id, new Element(id));
 }
 
-const ops = ["add", "sub", "mul", "div", "pow", "root", "mlt", "dvs", "mcd", "mcm", "frac"].map((op) => {
+const ops = ["add", "sub", "mul", "div", "pow", "root", "mlt", "dvs", "mcd", "mcm", "frac", "dec", "simp"].map((op) => {
   const el = new Element();
   el.dataset.op = op;
   el.dataset.active = "1";
@@ -146,27 +146,27 @@ const instrumentedScript = appScript.replace(
 vm.runInNewContext(instrumentedScript, context);
 
 assert.strictEqual(elements.get("profileSelect").children.length, 1, "Debe crear el perfil inicial");
-assert.strictEqual(elements.get("studyList").children.length, 11, "Debe renderizar las once fichas");
-assert.strictEqual(elements.get("studyIndex").children.length, 11, "Debe renderizar un índice compacto");
-assert.strictEqual(elements.get("studyTopicSelect").children.length, 11, "Debe permitir saltar directamente a cualquiera de las once lecciones");
+assert.strictEqual(elements.get("studyList").children.length, 13, "Debe renderizar las trece fichas");
+assert.strictEqual(elements.get("studyIndex").children.length, 13, "Debe renderizar un índice compacto");
+assert.strictEqual(elements.get("studyTopicSelect").children.length, 13, "Debe permitir saltar directamente a cualquiera de las trece lecciones");
 assert.match(elements.get("studyList").children[0].innerHTML, /QUÉ VAS A APRENDER/, "Cada ficha debe incluir un objetivo");
 assert.match(elements.get("studyList").children[0].innerHTML, /Miralo en acción/, "Cada ficha debe incluir una representación matemática visual");
 assert.match(elements.get("studyList").children[0].innerHTML, /Radar de errores/, "Cada ficha debe contrastar errores plausibles");
 assert.match(elements.get("studyList").children[0].innerHTML, /lesson-quiz/, "Cada ficha debe incluir un desafío corto");
 assert.match(elements.get("studyList").children[0].innerHTML, /lesson-tabs/, "Cada lección debe dividirse en pestañas");
-assert.strictEqual(Object.keys(window.__test.LESSONS).length, 11, "Deben existir once microlecciones");
+assert.strictEqual(Object.keys(window.__test.LESSONS).length, 13, "Deben existir trece microlecciones");
 for (const [op, lesson] of Object.entries(window.__test.LESSONS)) {
   assert(lesson.goal && lesson.visual && lesson.steps.length >= 3, `${op} debe tener objetivo, visual y pasos`);
-  assert(["4.º–6.º", "6.º", "6.º–7.º"].includes(lesson.grade), `${op} debe indicar el grado sugerido`);
+  assert(["4.º–6.º", "5.º–6.º", "6.º", "6.º–7.º"].includes(lesson.grade), `${op} debe indicar el grado sugerido`);
   assert(lesson.context && lesson.context.icon && lesson.context.math, `${op} debe conectar la idea con una situación visual`);
   assert(lesson.compare && lesson.compare.bad && lesson.compare.good, `${op} debe comparar un error plausible con el razonamiento correcto`);
   assert.strictEqual(lesson.quiz.length, 2, `${op} debe tener dos preguntas guiadas`);
   assert.match(window.__test.quizMarkup(op, 0), /quiz-option/, `${op} debe renderizar opciones de práctica`);
 }
-assert.strictEqual(elements.get("levelList").children.length, 11, "Debe renderizar niveles por operación");
-elements.get("studyTopicSelect").value = "frac";
+assert.strictEqual(elements.get("levelList").children.length, 13, "Debe renderizar niveles por operación");
+elements.get("studyTopicSelect").value = "simp";
 elements.get("studyTopicSelect").onchange();
-assert.strictEqual(elements.get("lessonPosition").textContent, "11 de 11", "El selector debe saltar directamente a la última lección");
+assert.strictEqual(elements.get("lessonPosition").textContent, "13 de 13", "El selector debe saltar directamente a la última lección");
 
 elements.get("customizeBtn").onclick();
 assert.strictEqual(elements.get("customize").classList.contains("active"), true, "Debe mover la configuración a su propia pantalla");
@@ -223,7 +223,7 @@ assert.match(elements.get("profileProgress").textContent, /Anita/, "Debe renombr
 
 elements.get("progressBtn").onclick();
 assert.strictEqual(elements.get("progress").classList.contains("active"), true, "Debe abrir el panel de progreso");
-assert.strictEqual(elements.get("masteryList").children.length, 11, "Debe mostrar dominio de los once temas");
+assert.strictEqual(elements.get("masteryList").children.length, 13, "Debe mostrar dominio de los trece temas");
 assert.strictEqual(elements.get("achievementList").children.length, 10, "Debe mostrar todos los logros");
 elements.get("exportBtn").onclick();
 

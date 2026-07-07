@@ -65,7 +65,19 @@ var STUDY=[
    h:"Si el denominador es igual, sumá los de arriba (numeradores) y dejá el mismo abajo.",
    e:"<b>1/5 + 2/5</b> = <span class='r'>3/5</span>.",
    t:"Si los de abajo son distintos, primero hay que igualarlos buscando un denominador común (como el MCM).",
-   w:"¡Ojo! El número de abajo (denominador) NUNCA se suma."}
+   w:"¡Ojo! El número de abajo (denominador) NUNCA se suma."},
+  {s:",",c:"#00C9A7",name:"Decimales",
+   q:"Los decimales indican partes de un entero, como los centavos en el dinero.",
+   h:"Para sumar o restar decimales, lo más importante es alinear la coma para que coincidan enteros con enteros, décimos con décimos.",
+   e:"<b>1,5 + 0,3</b> = <span class='r'>1,8</span>.",
+   t:"Si a un número le faltan cifras, podés completarlas con ceros a la derecha de la coma (ej: 1,5 es 1,50).",
+   w:"No alinees los números empujándolos a la derecha, siempre alineá las comas."},
+  {s:"÷/÷",c:"#FF7A59",name:"Simplificar",
+   q:"Simplificar es encontrar una fracción equivalente con números más chicos.",
+   h:"Tenés que dividir el número de arriba (numerador) y el de abajo (denominador) por un mismo divisor común.",
+   e:"<b>4/8</b> dividiendo ambos por 4 queda <span class='r'>1/2</span>.",
+   t:"Ayuda mucho buscar el Máximo Común Divisor (MCD) de los dos números.",
+   w:"Si dividís arriba por 2, abajo también tenés que dividir por 2."}
 ];
 var LESSONS={
   add:{
@@ -231,6 +243,36 @@ var LESSONS={
     quiz:[
       {q:"¿Cómo resolvés 2/7 + 3/7?",o:["Sumo 2+3, y el 7 queda igual.","Sumo 2+3 y también 7+7."],a:0,e:"Si el tamaño (7) es igual, solo sumás las partes (2+3)."},
       {q:"Si tenés denominadores 2 y 4, ¿qué hacés?",o:["Multiplico el 2 para llegar a 4.","Sumo los denominadores 2+4."],a:0,e:"Hay que igualarlos. Multiplicar arriba y abajo por 2 transforma el medio en cuartos."}
+    ]
+  },
+  dec:{
+    grade:"5.º–6.º",
+    goal:"Sumar y restar con números decimales respetando el valor posicional de las comas.",
+    prior:["Suma y resta","Valor posicional","Concepto de coma"],
+    context:{icon:"💰",title:"Contar monedas",text:"Si tenés $1,50 y te encontrás $0,30, ¿cuánto tenés en total?",math:"1,5 + 0,3 = 1,8"},
+    visual:"<div class='math-scene compare-rows'><div><small>Alineando la coma</small><span>1 , 5</span><span>0 , 3</span><b>1 , 8</b></div></div><div class='math-result'><span>La coma actúa de guía central.</span><strong>1,5 + 0,3 = 1,8</strong></div>",
+    compare:{bad:"1,5 + 0,03 = 0,18",badNote:"El 5 está en los décimos, el 3 en los centésimos. No se pueden sumar directamente.",good:"1,50 + 0,03 = 1,53",goodNote:"Completando con ceros es más fácil alinear correctamente."},
+    steps:["Escribí un número debajo del otro, asegurándote de que las comas queden exactamente en la misma columna.","Si un número tiene menos decimales, completá con ceros a la derecha.","Sumá o restá como si la coma no estuviera.","Al final, bajá la coma directo a la misma columna en el resultado."],
+    mental:"Para 2,4 + 1,2, pensalo como 24 + 12 = 36, y luego poné la coma en el medio: 3,6.",
+    remember:["La regla de oro: LA COMA MANDA.","Enteros con enteros, décimos con décimos.","Los ceros a la derecha de la parte decimal no cambian el valor del número (ej: 2,5 es lo mismo que 2,50)."],
+    quiz:[
+      {q:"Si vas a sumar 3,5 + 1,42, ¿cómo alineás los números?",o:["Para que las comas queden una debajo de la otra.","Para que el 5 y el 2 queden alineados a la derecha."],a:0,e:"Alinear a la derecha es un error de números enteros. En decimales manda la coma."},
+      {q:"¿Qué podés hacer para que 3,5 sea más fácil de sumar con 1,42?",o:["Escribirlo como 3,50.","Escribirlo como 0,35."],a:0,e:"Los ceros al final de los decimales no cambian el valor (3,5 = 3,50)."}
+    ]
+  },
+  simp:{
+    grade:"6.º–7.º",
+    goal:"Encontrar la fracción irreducible dividiendo el numerador y denominador por divisores comunes.",
+    prior:["Divisores","Fracciones","MCD"],
+    context:{icon:"🍰",title:"Porciones más grandes",text:"Tener 4 de 8 porciones es exactamente lo mismo que tener la mitad (1 de 2) de la torta.",math:"4/8 = 1/2"},
+    visual:"<div class='math-scene compare-rows'><div><small>Simplificando 4/8</small><div class='frac-inline'><span>4 ÷ 4</span><span>8 ÷ 4</span></div> = <div class='frac-inline'><span>1</span><span>2</span></div></div></div><div class='math-result'><span>El mismo divisor arriba y abajo.</span><strong>4/8 es equivalente a 1/2</strong></div>",
+    compare:{bad:"4/8 = 2/8",badNote:"Dividió el de arriba por 2, pero no tocó el de abajo. ¡La torta no se transformó mágicamente!",good:"4/8 = 2/4 = 1/2",goodNote:"Dividió por 2 arriba y abajo, y luego lo volvió a hacer. Ambas son equivalentes."},
+    steps:["Encontrá un número que divida de manera exacta tanto al numerador (el de arriba) como al denominador (el de abajo).","Hacé la división en los dos números.","Si la nueva fracción se puede volver a dividir, repetí el proceso.","Si buscás el Máximo Común Divisor (MCD) primero, la simplificás de un solo paso."],
+    mental:"Si los dos son pares, dividí por 2 (sacá la mitad). Si terminan en 0 o 5, dividí por 5.",
+    remember:["¡Lo que hacés arriba, lo hacés abajo!","La fracción se ve diferente, pero representa la misma cantidad.","Una fracción 'irreducible' es la que ya no se puede achicar más."],
+    quiz:[
+      {q:"Para simplificar 6/9, ¿por qué número dividís?",o:["Por 3 arriba y por 3 abajo.","Por 2 arriba y por 3 abajo."],a:0,e:"El divisor TIENE que ser el mismo para ambos números (en este caso, 3)."},
+      {q:"¿Qué fracción es irreducible?",o:["1/3","2/6"],a:0,e:"1/3 ya no se puede dividir más por un mismo número."}
     ]
   }
 };

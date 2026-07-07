@@ -8,12 +8,12 @@
   function safeSet(k,v){try{localStorage.setItem(k,v);}catch(e){mem[k]=String(v);}}
 
   var STORAGE_KEY="mateArcadeDataV2";
-  var DEFAULT_OPS=["add","sub","mul","div","pow","root","mlt","dvs","mcd","mcm","frac"];
+  var DEFAULT_OPS=["add","sub","mul","div","pow","root","mlt","dvs","mcd","mcm","frac","dec","simp"];
   function blankProgress(){
-    return {best:0,total:0,correct:0,sessions:0,practiceSessions:0,reviewSessions:0,bestCombo:0,byOp:{},studyByOp:{},unlocked:[],stickers:[],
+    return {best:0,total:0,correct:0,sessions:0,practiceSessions:0,reviewSessions:0,bestCombo:0,byOp:{},studyByOp:{},unlocked:[],stickers:[],lastDaily:null,
       preferences:{mode:"arcade",answerMode:"mixed",rounds:10,sound:true,vibration:true,contrast:false,motion:false,largeText:false,calm:false},
       ops:DEFAULT_OPS.slice(),
-      diffByOp:{add:"normal",sub:"normal",mul:"normal",div:"normal",pow:"normal",root:"normal",mlt:"normal",dvs:"normal",mcd:"normal",mcm:"normal",frac:"normal"}};
+      diffByOp:{add:"normal",sub:"normal",mul:"normal",div:"normal",pow:"normal",root:"normal",mlt:"normal",dvs:"normal",mcd:"normal",mcm:"normal",frac:"normal",dec:"normal",simp:"normal"}};
   }
   function loadStore(){
     var raw=safeGet(STORAGE_KEY),data;
@@ -74,9 +74,9 @@
     learnReturn:"menu",toolsReturn:"menu",studyFromError:false,currentStudyOp:"add",studyTab:"understand",retryQueue:[],retryContext:null,
     lastFocus:null};
 
-  var OPNAME={add:"Suma",sub:"Resta",mul:"Multiplicación",div:"División",pow:"Potencia",root:"Raíz",mlt:"Múltiplos",dvs:"Divisores",mcd:"Máx. común divisor",mcm:"Mín. común múltiplo",frac:"Fracciones"};
-  var OPSYM ={add:"+",sub:"−",mul:"×",div:"÷",pow:"xⁿ",root:"√",mlt:"M",dvs:"D",mcd:"MCD",mcm:"MCM",frac:"½"};
-  var OPORDER=["add","sub","mul","div","pow","root","mlt","dvs","mcd","mcm","frac"];
+  var OPNAME={add:"Suma",sub:"Resta",mul:"Multiplicación",div:"División",pow:"Potencia",root:"Raíz",mlt:"Múltiplos",dvs:"Divisores",mcd:"Máx. común divisor",mcm:"Mín. común múltiplo",frac:"Fracciones",dec:"Decimales",simp:"Simplificar"};
+  var OPSYM ={add:"+",sub:"−",mul:"×",div:"÷",pow:"xⁿ",root:"√",mlt:"M",dvs:"D",mcd:"MCD",mcm:"MCM",frac:"½",dec:",",simp:"÷/÷"};
+  var OPORDER=["add","sub","mul","div","pow","root","mlt","dvs","mcd","mcm","frac","dec","simp"];
   var ACHIEVEMENTS=[
     {id:"first",icon:"🌟",name:"Primer paso",desc:"Resolver una cuenta"},
     {id:"first10",icon:"🎯",name:"En carrera",desc:"Alcanzar 10 aciertos"},
@@ -332,6 +332,61 @@
         solve="Multiplicá por "+m+" arriba y abajo en la primera: <div class='frac-inline'><span>"+(n1*m)+"</span><span>"+den2+"</span></div>. Ahora sumá los de arriba: "+(n1*m)+" + "+n2+" = <span class='res'><div class='frac-inline'><span>"+ans+"</span><span>"+den2+"</span></div></span>.";
         return {text:text, ans:ans, op:op, equals:false, options:shuffle([ans].concat(distractors)).map(function(n){return {value:n,html:"<div class='frac-inline'><span>"+n+"</span><span>"+den2+"</span></div>"};}), meta:{}, hint:hint, solve:solve};
       }
+    }else if(op==="dec"){
+      var tipoDec = ri(1, 2); // 1 = suma, 2 = resta
+      var int1 = ri(0, 10), dec1 = ri(1, 9);
+      var int2 = ri(0, 10), dec2 = ri(1, 9);
+      var v1 = int1 + dec1 / 10;
+      var v2 = int2 + dec2 / 10;
+      var str1 = v1.toFixed(1).replace(".", ",");
+      var str2 = v2.toFixed(1).replace(".", ",");
+      if (tipoDec === 1) {
+        ans = Math.round((v1 + v2) * 10) / 10;
+        var strAns = ans.toFixed(1).replace(".", ",");
+        text = str1 + " + " + str2;
+        distractors = [
+          Math.round((ans + 1) * 10) / 10,
+          Math.round((ans - 0.1) * 10) / 10,
+          Math.round((ans + 0.1) * 10) / 10
+        ];
+        hint = "Alineá las comas. Sumá los décimos con los décimos y los enteros con enteros.";
+        solve = "Alineando la coma: <br> " + str1 + " <br>+ " + str2 + " <br>= <span class='res'>" + strAns + "</span>";
+      } else {
+        if (v1 < v2) { var temp = v1; v1 = v2; v2 = temp; var tempStr = str1; str1 = str2; str2 = tempStr; }
+        if (v1 === v2) { v1 += 1.5; str1 = v1.toFixed(1).replace(".", ","); }
+        ans = Math.round((v1 - v2) * 10) / 10;
+        var strAns = ans.toFixed(1).replace(".", ",");
+        text = str1 + " − " + str2;
+        distractors = [
+          Math.round((ans + 1) * 10) / 10,
+          Math.round((ans - 0.1) * 10) / 10,
+          Math.round((ans + 0.1) * 10) / 10
+        ];
+        hint = "Alineá las comas y restá columna por columna.";
+        solve = "Alineando la coma: <br> " + str1 + " <br>− " + str2 + " <br>= <span class='res'>" + strAns + "</span>";
+      }
+      var optsDec = shuffle([ans].concat(distractors)).map(function(n) { return { value: n, html: n.toFixed(1).replace(".", ",") }; });
+      return { text: text, ans: ans, op: op, equals: false, options: optsDec, meta: {}, hint: hint, solve: solve };
+    }else if(op==="simp"){
+      var factor = ri(2, 5);
+      var n = ri(1, 5), d = ri(2, 7);
+      while(n>=d || gcd(n,d)!==1) {
+        n = ri(1, 5); d = ri(2, 7);
+      }
+      var numOrig = n * factor, denOrig = d * factor;
+      ans = n + "/" + d;
+      text = "¿Cuál es la fracción simplificada de <div class='frac-inline'><span>" + numOrig + "</span><span>" + denOrig + "</span></div>?";
+      var dist1 = (n+1) + "/" + d;
+      var dist2 = n + "/" + (d+1);
+      var dist3 = (n*2) + "/" + (d*2);
+      distractors = [dist1, dist2, dist3];
+      hint = "Buscá un divisor común (como " + factor + ") para dividir arriba y abajo.";
+      solve = "Dividimos por " + factor + " arriba y abajo:<br><div class='frac-inline'><span>" + numOrig + "÷" + factor + "</span><span>" + denOrig + "÷" + factor + "</span></div> = <span class='res'><div class='frac-inline'><span>" + n + "</span><span>" + d + "</span></div></span>";
+      var optsSimp = shuffle([ans].concat(distractors)).map(function(val) {
+        var parts = val.split("/");
+        return { value: val, html: "<div class='frac-inline'><span>" + parts[0] + "</span><span>" + parts[1] + "</span></div>" };
+      });
+      return { text: text, ans: ans, op: op, equals: false, options: optsSimp, meta: {}, hint: hint, solve: solve };
     }else{ // mcm
       var gloM=d.commonMax;
       var A2,B2,L,t4=0;
@@ -607,7 +662,7 @@
   function answerLabel(){
     var opts=state.cur&&state.cur.options;
     if(opts){
-      for(var i=0;i<opts.length;i++)if(typeof opts[i]==="object"&&Number(opts[i].value)===state.answer)return opts[i].label;
+      for(var i=0;i<opts.length;i++)if(typeof opts[i]==="object"&&String(opts[i].value)===String(state.answer))return opts[i].label;
     }
     return state.answer;
   }
@@ -626,7 +681,7 @@
     $("#answerInput").disabled=true;
     var all=document.querySelectorAll(".opt");
     all.forEach(function(o){o.classList.add("disabled");});
-    if(val===state.answer){
+    if(String(val)===String(state.answer)){
       if(btn)btn.classList.add("correct");
       var gained;
       if(state.usedHint){ gained=8; } // con pista: puntos base, sin bonus ni combo
@@ -645,7 +700,7 @@
       setTimeout(finishOrNext,650);
     }else{
       if(btn)btn.classList.add("wrong");
-      all.forEach(function(o){if(Number(o.dataset.value)===state.answer)o.classList.add("correct");});
+      all.forEach(function(o){if(String(o.dataset.value)===String(state.answer))o.classList.add("correct");});
       bump(state.cur.op,"fail");
       var diagnosis=diagnoseMistake(state.cur,val);
       state.cur.diagnosis=diagnosis;
@@ -664,7 +719,7 @@
     state.locked=true; state.answered++; state.lastValue=null; $("#hintBtn").disabled=true;
     document.querySelectorAll(".opt").forEach(function(o){
       o.classList.add("disabled");
-      if(Number(o.dataset.value)===state.answer)o.classList.add("correct");
+      if(String(o.dataset.value)===String(state.answer))o.classList.add("correct");
     });
     sndBad(); vibrate([0,40,30,60]);
     bump(state.cur.op,"fail");
