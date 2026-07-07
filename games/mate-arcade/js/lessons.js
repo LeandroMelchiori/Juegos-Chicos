@@ -59,7 +59,13 @@ var STUDY=[
    h:"Escribí los múltiplos de cada número y buscá el primero que aparece en las dos listas.",
    e:"<b>MCM(4, 6)</b><br>Múltiplos de 4: 4, 8, 12, 16…<br>Múltiplos de 6: 6, 12, 18…<br>Primero común: <span class='r'>12</span>.",
    t:"Sirve para saber cuándo coinciden dos ciclos. En 7.º también ayuda a trabajar con fracciones de distinto denominador.",
-   w:"MCM empieza con M de múltiplos: buscá el primer múltiplo común."}
+   w:"MCM empieza con M de múltiplos: buscá el primer múltiplo común."},
+  {s:"½",c:"#FFAA00",name:"Fracciones",
+   q:"Las fracciones representan partes de un entero. Se suman si son del mismo tamaño (denominador).",
+   h:"Si el denominador es igual, sumá los de arriba (numeradores) y dejá el mismo abajo.",
+   e:"<b>1/5 + 2/5</b> = <span class='r'>3/5</span>.",
+   t:"Si los de abajo son distintos, primero hay que igualarlos buscando un denominador común (como el MCM).",
+   w:"¡Ojo! El número de abajo (denominador) NUNCA se suma."}
 ];
 var LESSONS={
   add:{
@@ -210,6 +216,21 @@ var LESSONS={
     quiz:[
       {q:"Múltiplos de 3: 3, 6, 9, 12…; de 4: 4, 8, 12… ¿Cuál es el MCM?",o:["12","4","24"],a:0,e:"12 es el primer número que aparece en las dos listas."},
       {q:"¿Qué lista necesitás para calcular un MCM?",o:["Múltiplos","Divisores","Raíces"],a:0,e:"La primera M de MCM recuerda que se buscan múltiplos."}
+    ]
+  },
+  frac:{
+    grade:"4.º–6.º",
+    goal:"Sumar fracciones reconociendo que los denominadores deben ser iguales.",
+    prior:["Partes de un entero","Múltiplos","Sumas simples"],
+    context:{icon:"🍕",title:"Juntar porciones",text:"Si tenés 1/4 de pizza y te dan 2/4 más, ¿cuánto tenés?",math:"1/4 + 2/4 = 3/4"},
+    visual:"<div class='math-scene compare-rows'><div><small>Sumando partes iguales</small><div class='frac-inline'><span>1</span><span>5</span></div> + <div class='frac-inline'><span>2</span><span>5</span></div> = <div class='frac-inline'><span>3</span><span>5</span></div></div></div><div class='math-result'><span>Se suman los de arriba.</span><strong>El de abajo no cambia.</strong></div>",
+    compare:{bad:"1/3 + 1/3 = 2/6",badNote:"El denominador no se suma. Estás juntando tercios.",good:"1/3 + 1/3 = 2/3",goodNote:"El denominador indica de qué tamaño son las partes."},
+    steps:["Observá si los denominadores (los números de abajo) son iguales.","Si son iguales, sumá solo los numeradores (los de arriba).","El denominador queda igual en el resultado.","Si son diferentes, tenés que buscar un denominador común (MCM)."],
+    mental:"Recordá: el de abajo da el nombre (quintos, tercios), el de arriba dice cuántos hay.",
+    remember:["El número de abajo nunca se suma con otro de abajo.","Si abajo son distintos, hay que igualarlos multiplicando arriba y abajo.","Una vez igualados, solo sumás los de arriba."],
+    quiz:[
+      {q:"¿Cómo resolvés 2/7 + 3/7?",o:["Sumo 2+3, y el 7 queda igual.","Sumo 2+3 y también 7+7."],a:0,e:"Si el tamaño (7) es igual, solo sumás las partes (2+3)."},
+      {q:"Si tenés denominadores 2 y 4, ¿qué hacés?",o:["Multiplico el 2 para llegar a 4.","Sumo los denominadores 2+4."],a:0,e:"Hay que igualarlos. Multiplicar arriba y abajo por 2 transforma el medio en cuartos."}
     ]
   }
 };

@@ -8,12 +8,12 @@
   function safeSet(k,v){try{localStorage.setItem(k,v);}catch(e){mem[k]=String(v);}}
 
   var STORAGE_KEY="mateArcadeDataV2";
-  var DEFAULT_OPS=["add","sub","mul","div","pow","root","mlt","dvs","mcd","mcm"];
+  var DEFAULT_OPS=["add","sub","mul","div","pow","root","mlt","dvs","mcd","mcm","frac"];
   function blankProgress(){
     return {best:0,total:0,correct:0,sessions:0,practiceSessions:0,reviewSessions:0,bestCombo:0,byOp:{},studyByOp:{},unlocked:[],
       preferences:{mode:"arcade",answerMode:"mixed",rounds:10,sound:true,vibration:true,contrast:false,motion:false,largeText:false,calm:false},
       ops:DEFAULT_OPS.slice(),
-      diffByOp:{add:"normal",sub:"normal",mul:"normal",div:"normal",pow:"normal",root:"normal",mlt:"normal",dvs:"normal",mcd:"normal",mcm:"normal"}};
+      diffByOp:{add:"normal",sub:"normal",mul:"normal",div:"normal",pow:"normal",root:"normal",mlt:"normal",dvs:"normal",mcd:"normal",mcm:"normal",frac:"normal"}};
   }
   function loadStore(){
     var raw=safeGet(STORAGE_KEY),data;
@@ -74,9 +74,9 @@
     learnReturn:"menu",toolsReturn:"menu",studyFromError:false,currentStudyOp:"add",studyTab:"understand",retryQueue:[],retryContext:null,
     lastFocus:null};
 
-  var OPNAME={add:"Suma",sub:"Resta",mul:"Multiplicación",div:"División",pow:"Potencia",root:"Raíz",mlt:"Múltiplos",dvs:"Divisores",mcd:"Máx. común divisor",mcm:"Mín. común múltiplo"};
-  var OPSYM ={add:"+",sub:"−",mul:"×",div:"÷",pow:"xⁿ",root:"√",mlt:"M",dvs:"D",mcd:"MCD",mcm:"MCM"};
-  var OPORDER=["add","sub","mul","div","pow","root","mlt","dvs","mcd","mcm"];
+  var OPNAME={add:"Suma",sub:"Resta",mul:"Multiplicación",div:"División",pow:"Potencia",root:"Raíz",mlt:"Múltiplos",dvs:"Divisores",mcd:"Máx. común divisor",mcm:"Mín. común múltiplo",frac:"Fracciones"};
+  var OPSYM ={add:"+",sub:"−",mul:"×",div:"÷",pow:"xⁿ",root:"√",mlt:"M",dvs:"D",mcd:"MCD",mcm:"MCM",frac:"½"};
+  var OPORDER=["add","sub","mul","div","pow","root","mlt","dvs","mcd","mcm","frac"];
   var ACHIEVEMENTS=[
     {id:"first",icon:"🌟",name:"Primer paso",desc:"Resolver una cuenta"},
     {id:"first10",icon:"🎯",name:"En carrera",desc:"Alcanzar 10 aciertos"},
@@ -311,6 +311,26 @@
         meta:{a:A,b:B},
         hint:"Anotá los divisores de "+A+" y de "+B+", y buscá el mayor que esté en las dos listas.",
         solve:"El MCD es el mayor divisor que comparten.<br>Divisores de "+A+": "+fmtList(divisors(A),8)+"<br>Divisores de "+B+": "+fmtList(divisors(B),8)+"<br>El mayor en común es <span class='res'>"+ans+"</span>."};
+    }else if(op==="frac"){
+      var tipo=ri(1,3);
+      if(tipo===1){
+        var den=ri(3,10); var num1=ri(1,den-1); var num2=ri(1,den-1);
+        ans = num1+num2; 
+        text="<div class='frac-inline'><span>"+num1+"</span><span>"+den+"</span></div> + <div class='frac-inline'><span>"+num2+"</span><span>"+den+"</span></div> = <div class='frac-inline'><span><span class='q'>?</span></span><span>"+den+"</span></div>";
+        distractors=[ans-1,ans+1,num1*num2]; if(ans-1<=0) distractors[0]=ans+2;
+        hint="Como los de abajo (denominadores) son iguales, solo sumá los de arriba (numeradores).";
+        solve="<div class='frac-inline'><span>"+num1+"+"+num2+"</span><span>"+den+"</span></div> = <span class='res'><div class='frac-inline'><span>"+ans+"</span><span>"+den+"</span></div></span>";
+        return {text:text, ans:ans, op:op, equals:false, options:shuffle([ans].concat(distractors)).map(function(n){return {value:n,html:"<div class='frac-inline'><span>"+n+"</span><span>"+den+"</span></div>"};}), meta:{}, hint:hint, solve:solve};
+      } else {
+        var den1=ri(2,5), m=ri(2,3), den2=den1*m; 
+        var n1=ri(1,den1-1), n2=ri(1,den2-1);
+        ans = n1*m + n2;
+        text="<div class='frac-inline'><span>"+n1+"</span><span>"+den1+"</span></div> + <div class='frac-inline'><span>"+n2+"</span><span>"+den2+"</span></div> = <div class='frac-inline'><span><span class='q'>?</span></span><span>"+den2+"</span></div>";
+        distractors=[ans-1,ans+1,ans+2]; if(ans-1<=0) distractors[0]=ans+3;
+        hint="Transformá la primera fracción para que tenga el mismo denominador que la segunda ("+den2+").";
+        solve="Multiplicá por "+m+" arriba y abajo en la primera: <div class='frac-inline'><span>"+(n1*m)+"</span><span>"+den2+"</span></div>. Ahora sumá los de arriba: "+(n1*m)+" + "+n2+" = <span class='res'><div class='frac-inline'><span>"+ans+"</span><span>"+den2+"</span></div></span>.";
+        return {text:text, ans:ans, op:op, equals:false, options:shuffle([ans].concat(distractors)).map(function(n){return {value:n,html:"<div class='frac-inline'><span>"+n+"</span><span>"+den2+"</span></div>"};}), meta:{}, hint:hint, solve:solve};
+      }
     }else{ // mcm
       var gloM=d.commonMax;
       var A2,B2,L,t4=0;
@@ -479,7 +499,8 @@
       opts.forEach(function(v){
         var b=document.createElement("button");
         var value=typeof v==="object"?v.value:v;
-        b.className="opt"; b.textContent=typeof v==="object"?v.label:v;
+        b.className="opt"; 
+        if(typeof v==="object" && v.html) { b.innerHTML=v.html; } else { b.textContent=typeof v==="object"?v.label:v; }
         b.dataset.value=value;
         b.onclick=function(){answer(value,b);};
         box.appendChild(b);
@@ -716,6 +737,7 @@
   function sanitizeForSpeech(html) {
     var div = document.createElement("div");
     div.innerHTML = String(html)
+      .replace(/<div class=['"]frac-inline['"]><span>(.*?)<\/span><span>(.*?)<\/span><\/div>/gi, " $1 sobre $2 ")
       .replace(/<sup[^>]*>([^<]+)<\/sup>/gi, " elevado a $1")
       .replace(/<sub[^>]*>([^<]+)<\/sub>/gi, " sub $1");
     var text = div.textContent || div.innerText || "";
