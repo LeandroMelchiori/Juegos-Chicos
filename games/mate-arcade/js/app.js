@@ -117,8 +117,10 @@
   function vibrate(p){try{if(activeProfile().preferences.vibration&&navigator.vibrate)navigator.vibrate(p);}catch(e){}}
 
   // ---- utilidades ----
-  function ri(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
-  function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+  function rnd(){ if(state.mode==='daily' && state.dailySeed) { state.dailySeed = (state.dailySeed * 9301 + 49297) % 233280; return state.dailySeed / 233280; } return Math.random(); }
+
+  function ri(a,b){return Math.floor(rnd()*(b-a+1))+a;}
+  function pick(arr){return arr[Math.floor(rnd()*arr.length)];}
   function bump(op,key){
     if(!state.stats[op]) state.stats[op]={ok:0,fail:0};
     state.stats[op][key]++;
@@ -185,6 +187,7 @@
     if(!exists)state.retryQueue.push({op:op,errorType:errorType||"general",difficulty:state.curDiff,due:state.answered+2+ri(0,1)});
   }
   function adaptiveDifficulty(op){
+    if(state.mode==="daily")return pick(["easy","normal","hard"]);
     if(state.mode!=="review")return state.diffByOp[op]||"normal";
     if(state.retryContext)return state.retryContext.difficulty||"easy";
     var e=evidenceFor(op);
@@ -193,7 +196,7 @@
     return "hard";
   }
   function shuffle(arr){
-    for(var i=arr.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=arr[i];arr[i]=arr[j];arr[j]=t;}
+    for(var i=arr.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var t=arr[i];arr[i]=arr[j];arr[j]=t;}
     return arr;
   }
   function gcd(x,y){x=Math.abs(x);y=Math.abs(y);while(y){var t=y;y=x%y;x=t;}return x;}
@@ -305,7 +308,7 @@
         var v=poolD[pi]; if(v>0 && !seenD[v]){ seenD[v]=1; distMcd.push(v); }
       }
       var gd=0;
-      while(distMcd.length<3 && gd++<200){ var rc=ans+ri(1,6)*(Math.random()<.5?1:-1); if(rc>0 && !seenD[rc]){seenD[rc]=1;distMcd.push(rc);} }
+      while(distMcd.length<3 && gd++<200){ var rc=ans+ri(1,6)*(rnd()<.5?1:-1); if(rc>0 && !seenD[rc]){seenD[rc]=1;distMcd.push(rc);} }
       state.answer=ans;
       return {text:"¿Cuál es el <b>MCD</b> de "+A+" y "+B+"?", ans:ans, op:op, equals:false,
         options:shuffle([ans].concat(distMcd)),
@@ -402,7 +405,7 @@
         var w=poolM[pj]; if(w>0 && w!==ans && !seenM[w]){ seenM[w]=1; distMcm.push(w); }
       }
       var gm=0;
-      while(distMcm.length<3 && gm++<200){ var rw=ans+ri(1,8)*(Math.random()<.5?1:-1); if(rw>0 && rw!==ans && !seenM[rw]){seenM[rw]=1;distMcm.push(rw);} }
+      while(distMcm.length<3 && gm++<200){ var rw=ans+ri(1,8)*(rnd()<.5?1:-1); if(rw>0 && rw!==ans && !seenM[rw]){seenM[rw]=1;distMcm.push(rw);} }
       state.answer=ans;
       return {text:"¿Cuál es el <b>MCM</b> de "+A2+" y "+B2+"?", ans:ans, op:op, equals:false,
         options:shuffle([ans].concat(distMcm)),
@@ -411,7 +414,7 @@
         solve:"El MCM es el menor múltiplo que comparten.<br>Múltiplos de "+A2+": "+fmtList(multsUpTo(A2,ans),7)+"<br>Múltiplos de "+B2+": "+fmtList(multsUpTo(B2,ans),7)+"<br>El primero en común es <span class='res'>"+ans+"</span>."};
     }
     var equals;
-    if(state.mode!=="arcade"&&Math.random()<.3){
+    if(state.mode!=="arcade"&&rnd()<.3){
       var result=ans;
       if(op==="add"){
         ans=b;text=a+" + <span class='q'>?</span> = "+result;equals=false;
@@ -461,17 +464,23 @@
     mcd:{q:"Para calcular un MCD con listas, ¿qué hago primero?",choices:["Listo los divisores","Listo los múltiplos","Sumo los números"],correct:0,
       h:"La D de MCD recuerda qué listas mirar.",s:"Primero listamos divisores; luego buscamos los comunes y elegimos el mayor."},
     mcm:{q:"Para calcular un MCM con listas, ¿qué hago primero?",choices:["Listo los múltiplos","Listo los divisores","Resto los números"],correct:0,
-      h:"La M de MCM recuerda qué listas mirar.",s:"Primero listamos múltiplos; luego buscamos el primero que aparece en ambas listas."}
+      h:"La M de MCM recuerda qué listas mirar.",s:"Primero listamos múltiplos; luego buscamos el primero que aparece en ambas listas."},
+    frac:{q:"Al sumar 1/5 + 2/5, ¿por qué no sumo los de abajo?",choices:["Porque el 5 solo indica el tamaño de las partes","Porque son números primos","Porque la regla dice que se restan"],correct:0,
+      h:"Pensá en el de abajo como el nombre de lo que sumás (quintos).",s:"Solo juntás las partes; el tamaño (5) sigue siendo el mismo."},
+    dec:{q:"Para sumar decimales como 1,2 + 3,45, ¿qué alineás?",choices:["Las comas","El último número a la derecha","El primer número a la izquierda"],correct:0,
+      h:"La regla principal de los decimales: la coma manda.",s:"Siempre se alinean las comas para sumar décimos con décimos y enteros con enteros."},
+    simp:{q:"Para simplificar 4/8, ¿qué operación uso?",choices:["Divido por 4 arriba y abajo","Resto 4 arriba y abajo","Multiplico por 2"],correct:0,
+      h:"La fracción debe achicarse manteniendo la proporción.",s:"Dividiendo por 4 el numerador y denominador llegamos a 1/2."}
   };
 
   function prepareProblem(problem){
-    if(state.mode!=="arcade"&&Math.random()<.12){
+    if(state.mode!=="arcade"&&rnd()<.12){
       var concept=CONCEPTS[problem.op];
       return {text:concept.q,ans:concept.correct,op:problem.op,equals:false,
         options:shuffle(concept.choices.map(function(label,index){return {value:index,label:label};})),
         hint:concept.h,solve:concept.s,conceptChoices:concept.choices};
     }
-    if(state.mode!=="arcade"&&problem.equals!==false&&!problem.options&&problem.meta&&Math.random()<.18){
+    if(state.mode!=="arcade"&&problem.equals!==false&&!problem.options&&problem.meta&&rnd()<.18){
       var m=problem.meta,story;
       if(problem.op==="add")story="Tenías <b>"+m.a+"</b> figuritas y conseguiste <b>"+m.b+"</b> más. ¿Cuántas tenés ahora?";
       if(problem.op==="sub")story="Había <b>"+m.a+"</b> cartas y se usaron <b>"+m.b+"</b>. ¿Cuántas quedaron?";
@@ -483,10 +492,10 @@
         return problem;
       }
     }
-    if(state.mode==="arcade"||problem.options||problem.equals===false||Math.random()>=.22)return problem;
+    if(state.mode==="arcade"||problem.options||problem.equals===false||rnd()>=.22)return problem;
     if(["add","sub","mul","div","pow","root"].indexOf(problem.op)===-1)return problem;
     var original=problem.ans;
-    var showCorrect=Math.random()<.5;
+    var showCorrect=rnd()<.5;
     var falseValues=(problem.distractors||makeOptions(original).filter(function(v){return v!==original;}));
     var shown=showCorrect?original:pick(falseValues);
     var verdict=showCorrect?1:0;
@@ -512,7 +521,7 @@
       if(cand<0 && ans>=0) cand=Math.abs(cand)+1;
       if(set.indexOf(cand)===-1) set.push(cand);
     }
-    for(var i=set.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=set[i];set[i]=set[j];set[j]=t;}
+    for(var i=set.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1));var t=set[i];set[i]=set[j];set[j]=t;}
     return set;
   }
 
@@ -543,7 +552,7 @@
     $("#levelTag").textContent="NIVEL "+state.level;
     var canWrite=!p.options;
     state.inputKind=canWrite&&(state.answerMode==="write"||
-      (state.answerMode==="mixed"&&Math.random()<(state.mode==="arcade"?.25:.5)))?"write":"choice";
+      (state.answerMode==="mixed"&&rnd()<(state.mode==="arcade"?.25:.5)))?"write":"choice";
     var box=$("#options"),form=$("#typeAnswer"); box.innerHTML="";
     if(state.inputKind==="write"){
       box.style.display="none"; form.classList.add("show");
@@ -827,19 +836,28 @@
   }
 
   function startGame(){
-    if(state.ops.length===0){
-      var g=$("#ops"); g.classList.remove("warn"); void g.offsetWidth; g.classList.add("warn");
-      beep(180,.18,"sawtooth",.1);
-      return;
+    if(state.mode==="daily"){
+      state.ops=DEFAULT_OPS.slice();
+      var d=new Date();
+      state.dailySeed = d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate();
+    }else{
+      state.dailySeed = 0;
+      if(state.ops.length===0){
+        var g=$("#ops"); g.classList.remove("warn"); void g.offsetWidth; g.classList.add("warn");
+        beep(180,.18,"sawtooth",.1);
+        return;
+      }
     }
     state.score=0;state.lives=3;state.combo=0;state.bestCombo=0;
     state.correct=0;state.answered=0;state.level=1;state.locked=false;state.usedHint=false;state.completed=false;state.paused=false;
     state.retryQueue=[];
+    state.targetRounds=(state.mode==="arcade")?Infinity:(state.mode==="review"||state.mode==="daily")?10:(Number(activeProfile().preferences.rounds)||10);
     state.stats={};
     $("#answerInput").disabled=false;
     $("#score").textContent="0"; renderLives(); renderCombo(); hideTeach();
     $("#lives").style.visibility=state.mode==="arcade"?"visible":"hidden";
-    $("#gameModeTag").textContent=state.mode==="arcade"?"ARCADE":state.mode==="practice"?"PRÁCTICA":"REPASO PERSONALIZADO";
+    var tags = { arcade: "ARCADE", practice: "PRÁCTICA", review: "REPASO PERSONALIZADO", daily: "DESAFÍO DIARIO" };
+    $("#gameModeTag").textContent = tags[state.mode] || "";
     show("game"); newRound();
   }
 
@@ -851,6 +869,7 @@
     p.sessions++;
     if(state.mode==="practice")p.practiceSessions++;
     if(state.mode==="review")p.reviewSessions++;
+    if(state.mode==="daily")p.dailySessions=(p.dailySessions||0)+1;
     p.bestCombo=Math.max(p.bestCombo||0,state.bestCombo);
     var isRecord=state.mode==="arcade"&&state.score>best;
     if(isRecord)p.best=state.score;
@@ -864,7 +883,7 @@
     var rl=$("#recordLine");
     var gainedSticker = null;
     if(state.mode!=="arcade" && state.answered>0 && state.correct===state.answered){
-      gainedSticker = STICKERS[Math.floor(Math.random()*STICKERS.length)];
+      gainedSticker = STICKERS[Math.floor(rnd()*STICKERS.length)];
       if(!p.stickers) p.stickers=[];
       p.stickers.push(gainedSticker);
     }

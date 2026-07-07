@@ -72,7 +72,7 @@ const ops = ["add", "sub", "mul", "div", "pow", "root", "mlt", "dvs", "mcd", "mc
   el.dataset.active = "1";
   return el;
 });
-const modes = ["arcade", "practice", "review"].map((mode, index) => {
+const modes = ["arcade", "practice", "review", "daily"].map((mode, index) => {
   const el = new Element();
   el.dataset.mode = mode;
   el.dataset.active = index === 0 ? "1" : "0";
